@@ -7,7 +7,8 @@ const AppBar = () => {
             color='inherit'
             elevation={0}
             sx={{
-                backgroundColor: 'background.paper',
+                backgroundColor: 'rgba(21, 25, 33, 0.8)',
+                backdropFilter: 'blur(8px)',
                 borderBottom: '1px solid',
                 borderColor: 'divider',
             }}
@@ -17,8 +18,15 @@ const AppBar = () => {
                     <Typography variant='h5' component='div' sx={{ lineHeight: 1.2, fontWeight: 600 }}>
                         Outgoing Orders
                     </Typography>
-                    <Typography variant='subtitle2' sx={{ opacity: 0.6, textTransform: 'uppercase' }}>
-                        LIVE DISPATCH BOARD
+                    <Typography 
+                        variant='caption' 
+                        sx={{ 
+                            color: 'text.secondary', 
+                            textTransform: 'uppercase', 
+                            letterSpacing: '0.1em',
+                            fontWeight: 700 
+                        }}>
+                        Live Dispatch Board
                     </Typography>
                 </Box>
 
@@ -42,7 +50,15 @@ const AppBar = () => {
                             Live
                         </Typography>
                     </Box>
-                    <Button variant='outlined' sx={{ color: 'white', fontWeight: 600 }}>
+                    <Button 
+                        variant='contained' 
+                        disableElevation
+                        sx={{ 
+                            fontWeight: 600,
+                            textTransform: 'none',
+                            px: 3
+                        }}
+                    >
                         + New Order
                     </Button>
                 </Box>

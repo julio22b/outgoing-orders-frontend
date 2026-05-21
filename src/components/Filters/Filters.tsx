@@ -1,4 +1,5 @@
-import { Box, TextField, Stack } from '@mui/material';
+import { Box, TextField, Stack, InputAdornment } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
@@ -12,7 +13,20 @@ const Filters = () => {
 
     return (
         <Box sx={{ display: 'flex', alignItems: 'center', padding: '2em 1em', gap: '1.5em'}}>
-            <TextField fullWidth placeholder='Search orders...' type='search' />
+            <TextField
+                fullWidth
+                placeholder='Search orders...'
+                type='search'
+                slotProps={{
+                    input: {
+                        startAdornment: (
+                            <InputAdornment position='start'>
+                                <SearchIcon sx={{ color: 'text.secondary' }} />
+                            </InputAdornment>
+                        ),
+                    },
+                }}
+            />
             <SelectFilter
                 name='status'
                 value={status}

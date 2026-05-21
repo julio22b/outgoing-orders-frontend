@@ -12,11 +12,13 @@ const SelectFilter = ({ name, value, options, setState }: SelectFilterProps) => 
 
     return (
         <FormControl fullWidth>
-            <InputLabel id={id}>{name}</InputLabel>
+            <InputLabel id={id}>
+                {`${name[0].toUpperCase()}${name.slice(1)}`}
+            </InputLabel>
             <Select labelId={id} id={id} value={value} label={name} onChange={(e) => setState(e.target.value)}>
                 {options.map((option) => (
                     <MenuItem key={option} value={option}>
-                        {option}
+                        {`${option[0].toUpperCase()}${option.slice(1)}`}
                     </MenuItem>
                 ))}
             </Select>

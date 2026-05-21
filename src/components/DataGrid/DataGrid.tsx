@@ -17,22 +17,20 @@ const DataGrid = ({}) => {
     const [page, setPage] = useState(0);
     const visibleRows = DATA_GRID_ROWS.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
-
     const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
     };
 
-
     return (
         <>
             <TableContainer component={Paper}>
-                <Table>
+                <Table sx={{ backgroundColor: 'background.paper' }}>
                     <TableHead>
                         <TableRow>
                             {DATA_GRID_HEADERS.map((header) => (
                                 <Fragment key={header.id}>
-                                    <TableCell>{header.title}</TableCell>
+                                    <TableCell sx={{ color: 'white', opacity: 0.5 }}>{header.title}</TableCell>
                                 </Fragment>
                             ))}
                         </TableRow>
