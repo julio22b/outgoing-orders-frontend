@@ -11,11 +11,15 @@ import {
 import { DATA_GRID_HEADERS, DATA_GRID_ROWS } from '../../app/constants/constants';
 import { Fragment } from 'react/jsx-runtime';
 import { useState } from 'react';
+import type { OrderInterface } from '../../app/types/types';
+interface DataGridPropsInterface {
+    rows: OrderInterface[];
+}
 
-const DataGrid = ({}) => {
+const DataGrid = ({ rows }: DataGridPropsInterface) => {
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [page, setPage] = useState(0);
-    const visibleRows = DATA_GRID_ROWS.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+    const visibleRows = rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
     const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
         setRowsPerPage(parseInt(event.target.value, 10));

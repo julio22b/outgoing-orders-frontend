@@ -1,7 +1,5 @@
-interface DataGridHeadersInterface {
-    title: string;
-    id: string;
-}
+import type { DataGridHeadersInterface, OrderInterface } from "../types/types";
+
 
 export const ORDER_STATUSES = {
     PICKING: 'picking',
@@ -18,7 +16,7 @@ export const DATA_GRID_HEADERS: DataGridHeadersInterface[] = [
     { title: 'Created', id: 'created' },
 ];
 
-export const DATA_GRID_ROWS = [
+export const DATA_GRID_ROWS: OrderInterface[] = [
     {
         id: 'ORD-1042',
         customer: 'Acme Logistics',
