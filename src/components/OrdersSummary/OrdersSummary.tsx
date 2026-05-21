@@ -1,13 +1,19 @@
 import { Box } from '@mui/material';
 import OrderCard from './OrderCard';
+import { DATA_GRID_ROWS, ORDER_STATUSES } from '../../app/constants/constants';
 
 const OrdersSummary = () => {
+    const amounts = DATA_GRID_ROWS.reduce((acc: Record<string, number>, curr) => {
+        acc[curr.status] = (acc[curr.status] || 0) + 1;
+        return acc;
+    }, {});
+
     return (
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, border: '1px solid red' }}>
-            <OrderCard title='Total today' amount={123} />
-            <OrderCard title='Picking' amount={123} />
-            <OrderCard title='Packed' amount={123} />
-            <OrderCard title='Delayed' amount={123} />
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <OrderCard title='TOTAL TODAY' amount={DATA_GRID_ROWS.length} />
+            <OrderCard title={ORDER_STATUSES.PICKING.toLocaleUpperCase()} amount={amounts['picking'] || 0} />
+            <OrderCard title={ORDER_STATUSES.PACKED.toLocaleUpperCase()} amount={amounts['packed'] || 0} />
+            <OrderCard title={ORDER_STATUSES.DELAYED.toLocaleUpperCase()} amount={amounts['delayed'] || 0} />
         </Box>
     );
 };

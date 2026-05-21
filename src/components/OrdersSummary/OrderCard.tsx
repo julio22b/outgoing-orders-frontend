@@ -7,10 +7,14 @@ interface OrderCardProps {
 
 const OrderCard = ({ title, amount }: OrderCardProps) => {
     return (
-        <Card sx={{ width: '20%' }}>
+        <Card sx={{ width: '25%', borderRadius: 0 }} variant='outlined'>
             <CardContent>
-                <Typography gutterBottom>{title}</Typography>
-                <Typography>{amount}</Typography>
+                <Typography variant='subtitle2' sx={{ padding: '1em 0', opacity: 0.6 }}>
+                    {title}
+                </Typography>
+                <Typography variant='h3' sx={{ fontWeight: 600 }}>
+                    {amount}
+                </Typography>
             </CardContent>
         </Card>
     );
