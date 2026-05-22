@@ -1,5 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit'
-import outgoingOrdersReducer from '../features/outgoing_orders/outgoingOrdersSlice'
+import outgoingOrdersReducer from '../features/outgoingOrders/outgoingOrdersSlice'
 
 export const store = configureStore({
   reducer: {
