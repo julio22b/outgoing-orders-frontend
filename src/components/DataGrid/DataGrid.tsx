@@ -14,9 +14,24 @@ import { useAppSelector } from '../../app/hooks';
 
 const DataGrid = () => {
     const rows = useAppSelector((state) => state.outgoingOrders.orders);
+    const { status, priority, date, search } = useAppSelector((state) => state.filters);
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [page, setPage] = useState(0);
-    const visibleRows = rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+    const normalizedSearch = search.toLocaleLowerCase();
+    const visibleRows = rows
+        .filter((row) => {
+            if (
+                (status === 'all' || row.status === status) &&
+                (priority === 'all' || row.priority === priority) &&
+                (!search ||
+                    row.id?.toLocaleLowerCase().includes(normalizedSearch) ||
+                    row.customer?.toLocaleLowerCase().includes(normalizedSearch)) &&
+                (!date || row.createdAt === date)
+            ) {
+                return true;
+            }
+        })
+        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
     const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
         setRowsPerPage(parseInt(event.target.value, 10));

@@ -1,19 +1,21 @@
 import { Box, TextField, Stack, InputAdornment } from '@mui/material';
+import dayjs from 'dayjs';
 import SearchIcon from '@mui/icons-material/Search';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import dayjs from 'dayjs';
-import { useState } from 'react';
 import SelectFilter from './SelectFilter/SelectFilter';
+import { useAppDispatch, useAppSelector } from '../../app/hooks';
+import { statusFilterChanged, priorityFilterChanged, dateFilterChanged, searchFilterChanged } from '../../features/slices/filtersSlice';
 
 const Filters = () => {
-    const [status, setStatus] = useState('all');
-    const [priority, setPriority] = useState('all');
-    const [selectedDate, setSelectedDate] = useState<dayjs.Dayjs | null>(dayjs());
+    const { date, priority, search, status } = useAppSelector((state) => state.filters);
+    const dispatch = useAppDispatch()
 
     return (
-        <Box sx={{ display: 'flex', alignItems: 'center', padding: '2em 1em', gap: '1.5em'}}>
+        <Box sx={{ display: 'flex', alignItems: 'center', padding: '2em 1em', gap: '1.5em' }}>
             <TextField
+                value={search}
+                onChange={(e) => dispatch(searchFilterChanged(e.target.value))}
                 fullWidth
                 placeholder='Search orders...'
                 type='search'
@@ -31,20 +33,20 @@ const Filters = () => {
                 name='status'
                 value={status}
                 options={['all', 'picking', 'packed', 'dispatched', 'delayed']}
-                setState={setStatus}
+                handleChange={(value) => dispatch(statusFilterChanged(value))}
             />
             <SelectFilter
                 name='priority'
                 value={priority}
                 options={['all', 'high', 'normal', 'low']}
-                setState={setPriority}
+                handleChange={(value) => dispatch(priorityFilterChanged(value))}
             />
             <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <Stack spacing={3}>
                     <DatePicker
                         label='Controlled picker'
-                        value={selectedDate}
-                        onChange={(newValue) => setSelectedDate(newValue)}
+                        value={date ? dayjs(date) : null}
+                        onChange={(newValue) => dispatch(dateFilterChanged(newValue ? newValue.toISOString() : null))}
                     />
                 </Stack>
             </LocalizationProvider>

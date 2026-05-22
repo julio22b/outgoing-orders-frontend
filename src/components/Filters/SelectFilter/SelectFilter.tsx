@@ -4,10 +4,10 @@ interface SelectFilterProps {
     name: string;
     value: string;
     options: string[];
-    setState: (value: string) => void;
+    handleChange: (value: string) => void;
 }
 
-const SelectFilter = ({ name, value, options, setState }: SelectFilterProps) => {
+const SelectFilter = ({ name, value, options, handleChange }: SelectFilterProps) => {
     const id = `${name}-select`;
 
     return (
@@ -15,7 +15,7 @@ const SelectFilter = ({ name, value, options, setState }: SelectFilterProps) => 
             <InputLabel id={id}>
                 {`${name[0].toUpperCase()}${name.slice(1)}`}
             </InputLabel>
-            <Select labelId={id} id={id} value={value} label={name} onChange={(e) => setState(e.target.value)}>
+            <Select labelId={id} id={id} value={value} label={name} onChange={(e) => handleChange(e.target.value)}>
                 {options.map((option) => (
                     <MenuItem key={option} value={option}>
                         {`${option[0].toUpperCase()}${option.slice(1)}`}

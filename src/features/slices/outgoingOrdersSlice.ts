@@ -114,10 +114,10 @@ const initialState: OutgoingOrdersInitialState = {
     ],
 };
 
-export const outgoingOrders = createSlice({
+export const outgoingOrdersSlice = createSlice({
     name: 'outgoingOrders',
     initialState,
     reducers: {},
 });
 
-export default outgoingOrders.reducer;
+export default outgoingOrdersSlice.reducer;
