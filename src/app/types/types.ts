@@ -1,4 +1,4 @@
-interface OrderInterface {
+interface OutgoingOrderInterface {
     id: string;
     customer: string;
     status: string;
@@ -11,4 +11,4 @@ interface DataGridHeadersInterface {
     id: string;
 }
 
-export type { OrderInterface, DataGridHeadersInterface };
+export type { OutgoingOrderInterface, DataGridHeadersInterface };

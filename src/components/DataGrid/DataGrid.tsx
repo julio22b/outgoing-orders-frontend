@@ -8,15 +8,12 @@ import {
     TablePagination,
     TableRow,
 } from '@mui/material';
-import { DATA_GRID_HEADERS, DATA_GRID_ROWS } from '../../app/constants/constants';
-import { Fragment } from 'react/jsx-runtime';
+import { DATA_GRID_HEADERS } from '../../app/constants/constants';
 import { useState } from 'react';
-import type { OrderInterface } from '../../app/types/types';
-interface DataGridPropsInterface {
-    rows: OrderInterface[];
-}
+import { useAppSelector } from '../../app/hooks';
 
-const DataGrid = ({ rows }: DataGridPropsInterface) => {
+const DataGrid = () => {
+    const rows = useAppSelector((state) => state.outgoingOrders.orders);
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [page, setPage] = useState(0);
     const visibleRows = rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
@@ -33,15 +30,15 @@ const DataGrid = ({ rows }: DataGridPropsInterface) => {
                     <TableHead>
                         <TableRow>
                             {DATA_GRID_HEADERS.map((header) => (
-                                <Fragment key={header.id}>
-                                    <TableCell sx={{ color: 'white', opacity: 0.5 }}>{header.title}</TableCell>
-                                </Fragment>
+                                <TableCell key={header.id} sx={{ color: 'white', opacity: 0.5 }}>
+                                    {header.title}
+                                </TableCell>
                             ))}
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {visibleRows.map((row) => (
-                            <TableRow>
+                            <TableRow key={row.id}>
                                 <TableCell>{row.id}</TableCell>
                                 <TableCell>{row.customer}</TableCell>
                                 <TableCell>{row.status}</TableCell>
@@ -55,7 +52,7 @@ const DataGrid = ({ rows }: DataGridPropsInterface) => {
             <TablePagination
                 rowsPerPageOptions={[5, 10, 25]}
                 component='div'
-                count={DATA_GRID_ROWS.length}
+                count={rows.length}
                 rowsPerPage={rowsPerPage}
                 page={page}
                 onPageChange={(_, newPage) => setPage(newPage)}
