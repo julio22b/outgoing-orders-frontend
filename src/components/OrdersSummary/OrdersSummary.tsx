@@ -1,6 +1,6 @@
 import { Box } from '@mui/material';
 import OrderCard from './OrderCard';
-import { ORDER_STATUSES } from '../../app/constants/constants';
+import { ORDER_STATUSES } from '../../app/constants';
 import { useAppSelector } from '../../app/hooks';
 
 const OrdersSummary = () => {

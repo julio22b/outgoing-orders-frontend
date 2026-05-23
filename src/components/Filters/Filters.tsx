@@ -6,6 +6,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import SelectFilter from './SelectFilter/SelectFilter';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { statusFilterChanged, priorityFilterChanged, dateFilterChanged, searchFilterChanged } from '../../features/slices/filtersSlice';
+import { ORDER_FIELDS, ORDER_PRIORITIES, ORDER_STATUSES } from '../../app/constants';
 
 const Filters = () => {
     const { date, priority, search, status } = useAppSelector((state) => state.filters);
@@ -30,15 +31,15 @@ const Filters = () => {
                 }}
             />
             <SelectFilter
-                name='status'
+                name={ORDER_FIELDS.STATUS}
                 value={status}
-                options={['all', 'picking', 'packed', 'dispatched', 'delayed']}
+                options={['all', ...Object.values(ORDER_STATUSES)]}
                 handleChange={(value) => dispatch(statusFilterChanged(value))}
             />
             <SelectFilter
-                name='priority'
+                name={ORDER_FIELDS.PRIORITY}
                 value={priority}
-                options={['all', 'high', 'normal', 'low']}
+                options={['all', ...Object.values(ORDER_PRIORITIES)]}
                 handleChange={(value) => dispatch(priorityFilterChanged(value))}
             />
             <LocalizationProvider dateAdapter={AdapterDayjs}>

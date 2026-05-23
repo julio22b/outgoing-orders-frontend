@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { OutgoingOrderInterface } from '../../app/types/types';
 
 interface OutgoingOrdersInitialState {
@@ -117,7 +117,13 @@ const initialState: OutgoingOrdersInitialState = {
 export const outgoingOrdersSlice = createSlice({
     name: 'outgoingOrders',
     initialState,
-    reducers: {},
+    reducers: {
+        addOutgoingOrder: (state, action: PayloadAction<OutgoingOrderInterface>) => {
+            state.orders.unshift(action.payload);
+        },
+    },
 });
+
+export const { addOutgoingOrder } = outgoingOrdersSlice.actions;
 
 export default outgoingOrdersSlice.reducer;

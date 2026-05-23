@@ -8,7 +8,7 @@ import {
     TablePagination,
     TableRow,
 } from '@mui/material';
-import { DATA_GRID_HEADERS } from '../../app/constants/constants';
+import { DATA_GRID_HEADERS } from '../../app/constants';
 import { useState } from 'react';
 import { useAppSelector } from '../../app/hooks';
 

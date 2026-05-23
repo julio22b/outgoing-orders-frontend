@@ -70,6 +70,7 @@ const AppBar = () => {
                 </Box>
             </Toolbar>
             <OutgoingOrdersForm
+                key={isCreateOutgoingOrderFormOpen ? 'open' : 'closed '}
                 isCreateOutgoingOrderFormOpen={isCreateOutgoingOrderFormOpen}
                 closeForm={() => setIsCreateOutgoingOrderFormOpen(false)}
             />
