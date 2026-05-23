@@ -1,6 +1,10 @@
 import { Box, Button, Toolbar, Typography, AppBar as MuiAppBar } from '@mui/material';
+import { useState } from 'react';
+import OutgoingOrdersForm from './OutgoingOrdersForm/OutgoingOrdersForm';
 
 const AppBar = () => {
+    const [isCreateOutgoingOrderFormOpen, setIsCreateOutgoingOrderFormOpen] = useState(false);
+
     return (
         <MuiAppBar
             position='static'
@@ -18,14 +22,15 @@ const AppBar = () => {
                     <Typography variant='h5' component='div' sx={{ lineHeight: 1.2, fontWeight: 600 }}>
                         Outgoing Orders
                     </Typography>
-                    <Typography 
-                        variant='caption' 
-                        sx={{ 
-                            color: 'text.secondary', 
-                            textTransform: 'uppercase', 
+                    <Typography
+                        variant='caption'
+                        sx={{
+                            color: 'text.secondary',
+                            textTransform: 'uppercase',
                             letterSpacing: '0.1em',
-                            fontWeight: 700 
-                        }}>
+                            fontWeight: 700,
+                        }}
+                    >
                         Live Dispatch Board
                     </Typography>
                 </Box>
@@ -50,19 +55,24 @@ const AppBar = () => {
                             Live
                         </Typography>
                     </Box>
-                    <Button 
-                        variant='contained' 
+                    <Button
+                        variant='contained'
                         disableElevation
-                        sx={{ 
+                        onClick={() => setIsCreateOutgoingOrderFormOpen(true)}
+                        sx={{
                             fontWeight: 600,
                             textTransform: 'none',
-                            px: 3
+                            px: 3,
                         }}
                     >
                         + New Order
                     </Button>
                 </Box>
             </Toolbar>
+            <OutgoingOrdersForm
+                isCreateOutgoingOrderFormOpen={isCreateOutgoingOrderFormOpen}
+                closeForm={() => setIsCreateOutgoingOrderFormOpen(false)}
+            />
         </MuiAppBar>
     );
 };

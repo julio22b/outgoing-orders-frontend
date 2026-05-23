@@ -44,7 +44,7 @@ const Filters = () => {
             <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <Stack spacing={3}>
                     <DatePicker
-                        label='Controlled picker'
+                        label='Date'
                         value={date ? dayjs(date) : null}
                         onChange={(newValue) => dispatch(dateFilterChanged(newValue ? newValue.toISOString() : null))}
                     />
