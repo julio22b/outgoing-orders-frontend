@@ -1,4 +1,5 @@
 import {
+    IconButton,
     Paper,
     Table,
     TableBody,
@@ -7,16 +8,23 @@ import {
     TableHead,
     TablePagination,
     TableRow,
+    Tooltip,
 } from '@mui/material';
-import { DATA_GRID_HEADERS } from '../../app/constants';
+import { OUTGOING_ORDERS_DATAGRID_COLUMNS } from '../../app/constants';
 import { useState } from 'react';
 import { useAppSelector } from '../../app/hooks';
+import DeleteIcon from '@mui/icons-material/Delete';
+import DeleteConfirmationDialog from '../DeleteConfirmationDialog.tsx/DeleteConfirmationDialog';
+import type { OutgoingOrderInterface } from '../../app/types/types';
 
 const DataGrid = () => {
     const rows = useAppSelector((state) => state.outgoingOrders.orders);
     const { status, priority, date, search } = useAppSelector((state) => state.filters);
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [page, setPage] = useState(0);
+    const [isDeleteConfirmationDialogOpen, setIsDeleteConfirmationDialogOpen] = useState(false);
+    const [selectedOrder, setSelectedOrder] = useState<OutgoingOrderInterface | null>(null);
+
     const normalizedSearch = search.toLocaleLowerCase();
     const visibleRows = rows
         .filter((row) => {
@@ -44,7 +52,7 @@ const DataGrid = () => {
                 <Table sx={{ backgroundColor: 'background.paper' }}>
                     <TableHead>
                         <TableRow>
-                            {DATA_GRID_HEADERS.map((header) => (
+                            {OUTGOING_ORDERS_DATAGRID_COLUMNS.map((header) => (
                                 <TableCell key={header.id} sx={{ color: 'white', opacity: 0.5 }}>
                                     {header.title}
                                 </TableCell>
@@ -59,6 +67,18 @@ const DataGrid = () => {
                                 <TableCell>{row.status}</TableCell>
                                 <TableCell>{row.priority}</TableCell>
                                 <TableCell>{row.createdAt}</TableCell>
+                                <TableCell>
+                                    <Tooltip title='Delete'>
+                                        <IconButton
+                                            onClick={() => {
+                                                setSelectedOrder(row);
+                                                setIsDeleteConfirmationDialogOpen(true);
+                                            }}
+                                        >
+                                            <DeleteIcon />
+                                        </IconButton>
+                                    </Tooltip>
+                                </TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
@@ -72,6 +92,11 @@ const DataGrid = () => {
                 page={page}
                 onPageChange={(_, newPage) => setPage(newPage)}
                 onRowsPerPageChange={handleChangeRowsPerPage}
+            />
+            <DeleteConfirmationDialog
+                closeDialog={() => setIsDeleteConfirmationDialogOpen(false)}
+                isOpen={isDeleteConfirmationDialogOpen}
+                selectedOrder={selectedOrder}
             />
         </>
     );

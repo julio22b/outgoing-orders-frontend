@@ -9,6 +9,7 @@ interface OutgoingOrderInterface {
 interface DataGridHeadersInterface {
     title: string;
     id: string;
+    width?: string;
 }
 
 export type { OutgoingOrderInterface, DataGridHeadersInterface };

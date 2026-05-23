@@ -8,12 +8,13 @@ export const ORDER_STATUSES = {
     DISPATCHED: 'dispatched',
 } as const;
 
-export const DATA_GRID_HEADERS: DataGridHeadersInterface[] = [
+export const OUTGOING_ORDERS_DATAGRID_COLUMNS: DataGridHeadersInterface[] = [
     { title: 'Order ID', id: ' order-id' },
     { title: 'Customer', id: 'customer' },
     { title: 'Status', id: 'status' },
     { title: 'Priority', id: 'priority' },
     { title: 'Created', id: 'created' },
+    { title: '', id: 'actions' },
 ];
 
 export const ORDER_FIELDS = {
