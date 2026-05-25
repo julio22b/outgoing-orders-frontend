@@ -121,9 +121,12 @@ export const outgoingOrdersSlice = createSlice({
         addOutgoingOrder: (state, action: PayloadAction<OutgoingOrderInterface>) => {
             state.orders.unshift(action.payload);
         },
+        removeOutgoingOrder: (state, action: PayloadAction<string>) => {
+            state.orders = state.orders.filter((order) => order.id !== action.payload);
+        }
     },
 });
 
-export const { addOutgoingOrder } = outgoingOrdersSlice.actions;
+export const { addOutgoingOrder, removeOutgoingOrder } = outgoingOrdersSlice.actions;
 
 export default outgoingOrdersSlice.reducer;
