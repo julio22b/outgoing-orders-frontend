@@ -1,5 +1,4 @@
-import type { DataGridHeadersInterface } from "./types/types";
-
+import type { DataGridHeadersInterface } from './types/types';
 
 export const ORDER_STATUSES = {
     PICKING: 'picking',
@@ -32,3 +31,13 @@ export const ORDER_PRIORITIES = {
     NORMAL: 'normal',
     LOW: 'low',
 } as const;
+
+export const STATUS_COLORS: Record<string, { background: string; color: string }> = {
+    [ORDER_STATUSES.PICKING]: { background: '#f8e3bf', color: '#774406' },
+    [ORDER_STATUSES.PACKED]: { background: '#cbf6e7', color: '#0b6a52' },
+    [ORDER_STATUSES.DISPATCHED]: { background: '#dff6c2', color: '#31600b' },
+    [ORDER_STATUSES.DELAYED]: { background: '#f8cccc', color: '#911c1c' },
+    [ORDER_PRIORITIES.HIGH]: { background: '#f8cccc', color: '#911c1c' },
+    [ORDER_PRIORITIES.NORMAL]: { background: '#dcd5d5', color: '#5c5c5c' },
+    [ORDER_PRIORITIES.LOW]: { background: '#f8e3bf', color: '#774406' },
+};

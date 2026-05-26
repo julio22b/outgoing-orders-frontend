@@ -19,6 +19,7 @@ import type { OutgoingOrderInterface } from '../../app/types/types';
 import { removeOutgoingOrder } from '../../features/slices/outgoingOrdersSlice';
 import { Link } from 'react-router-dom';
 import theme from '../../app/theme';
+import CustomChip from './CustomChip';
 
 const DataGrid = () => {
     const rows = useAppSelector((state) => state.outgoingOrders.orders);
@@ -76,7 +77,7 @@ const DataGrid = () => {
                                 <TableCell>
                                     <Link
                                         to={`/orders/${row.id}`}
-                                        state={{ id: row.id }}
+                                        state={{ order: row }}
                                         style={{
                                             textDecoration: 'none',
                                             color: theme.palette.primary.main,
@@ -87,8 +88,12 @@ const DataGrid = () => {
                                     </Link>
                                 </TableCell>
                                 <TableCell>{row.customer}</TableCell>
-                                <TableCell>{row.status}</TableCell>
-                                <TableCell>{row.priority}</TableCell>
+                                <TableCell>
+                                    <CustomChip title={row.status} />
+                                </TableCell>
+                                <TableCell>
+                                    <CustomChip title={row.priority} />
+                                </TableCell>
                                 <TableCell>{row.createdAt}</TableCell>
                                 <TableCell>
                                     <Tooltip title='Delete'>
