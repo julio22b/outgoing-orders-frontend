@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import type { OutgoingOrderInterface } from '../../app/types/types';
+import type { OutgoingOrderInterface } from '../../app/types';
 
 interface OutgoingOrdersInitialState {
     orders: OutgoingOrderInterface[];
@@ -123,7 +123,7 @@ export const outgoingOrdersSlice = createSlice({
         },
         removeOutgoingOrder: (state, action: PayloadAction<string>) => {
             state.orders = state.orders.filter((order) => order.id !== action.payload);
-        }
+        },
     },
 });
 

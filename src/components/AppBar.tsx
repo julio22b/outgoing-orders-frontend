@@ -57,12 +57,9 @@ const AppBar = () => {
                     </Box>
                     <Button
                         variant='contained'
-                        disableElevation
                         onClick={() => setIsCreateOutgoingOrderFormOpen(true)}
                         sx={{
                             fontWeight: 600,
-                            textTransform: 'none',
-                            px: 3,
                         }}
                     >
                         + New Order

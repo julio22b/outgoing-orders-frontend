@@ -1,4 +1,4 @@
-import type { DataGridHeadersInterface } from './types/types';
+import type { DataGridHeadersInterface } from './types';
 
 export const ORDER_STATUSES = {
     PICKING: 'picking',

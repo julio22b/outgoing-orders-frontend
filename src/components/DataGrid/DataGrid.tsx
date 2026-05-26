@@ -15,11 +15,12 @@ import { useState, useMemo } from 'react';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DeleteConfirmationDialog from '../DeleteConfirmationDialog.tsx/DeleteConfirmationDialog';
-import type { OutgoingOrderInterface } from '../../app/types/types';
+import type { OutgoingOrderInterface } from '../../app/types';
 import { removeOutgoingOrder } from '../../features/slices/outgoingOrdersSlice';
 import { Link } from 'react-router-dom';
 import theme from '../../app/theme';
 import CustomChip from './CustomChip';
+import { formatOrderDate } from '../../app/utils';
 
 const DataGrid = () => {
     const rows = useAppSelector((state) => state.outgoingOrders.orders);
@@ -94,7 +95,7 @@ const DataGrid = () => {
                                 <TableCell>
                                     <CustomChip title={row.priority} />
                                 </TableCell>
-                                <TableCell>{row.createdAt}</TableCell>
+                                <TableCell>{formatOrderDate(row.createdAt)}</TableCell>
                                 <TableCell>
                                     <Tooltip title='Delete'>
                                         <IconButton

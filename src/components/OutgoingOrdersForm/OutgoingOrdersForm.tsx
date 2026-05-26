@@ -14,7 +14,7 @@ import {
     TextField,
 } from '@mui/material';
 import React, { useState } from 'react';
-import type { OutgoingOrderInterface } from '../../app/types/types';
+import type { OutgoingOrderInterface } from '../../app/types';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
