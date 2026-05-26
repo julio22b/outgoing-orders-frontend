@@ -23,7 +23,8 @@ export const ORDER_FIELDS = {
     STATUS: 'status',
     PRIORITY: 'priority',
     CREATED_AT: 'createdAt',
-    PRODUCTS: 'products'
+    PRODUCTS: 'products',
+    STATUS_HISTORY: 'statusHistory',
 } as const;
 
 export const ORDER_PRIORITIES = {
