@@ -52,18 +52,24 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm }: Outgoi
         [ORDER_FIELDS.PRIORITY]: ORDER_PRIORITIES.NORMAL,
         [ORDER_FIELDS.CREATED_AT]: dayjs().toISOString(),
         [ORDER_FIELDS.PRODUCTS]: [],
+        [ORDER_FIELDS.STATUS_HISTORY]: [],
     });
     const [productName, setProductName] = useState('');
     const [errors, setErrors] = useState<FormErrorsInterface>({ customer: '', product: '' });
 
-    const isCreateButtonDisabled = !order.customer;
+    const isCreateButtonDisabled = !order.customer || !order.products.length;
 
     const onSubmit = () => {
         if (!order.customer) {
             setErrors({ ...errors, customer: 'Customer is required' });
             return;
         }
-        dispatch(addOutgoingOrder(order));
+        dispatch(
+            addOutgoingOrder({
+                ...order,
+                statusHistory: [{ status: ORDER_STATUSES.PICKING, timestamp: order.createdAt }],
+            }),
+        );
         closeForm();
     };
 

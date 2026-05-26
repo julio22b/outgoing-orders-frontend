@@ -17,6 +17,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import DeleteConfirmationDialog from '../DeleteConfirmationDialog.tsx/DeleteConfirmationDialog';
 import type { OutgoingOrderInterface } from '../../app/types/types';
 import { removeOutgoingOrder } from '../../features/slices/outgoingOrdersSlice';
+import { Link } from 'react-router-dom';
+import theme from '../../app/theme';
 
 const DataGrid = () => {
     const rows = useAppSelector((state) => state.outgoingOrders.orders);
@@ -25,14 +27,15 @@ const DataGrid = () => {
     const [page, setPage] = useState(0);
     const [isDeleteConfirmationDialogOpen, setIsDeleteConfirmationDialogOpen] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState<OutgoingOrderInterface | null>(null);
-    const dispatch = useAppDispatch()
+    const dispatch = useAppDispatch();
 
     const filteredRows = useMemo(() => {
         const normalizedSearch = search.toLocaleLowerCase();
         return rows.filter((row) => {
             const matchesStatus = status === 'all' || row.status === status;
             const matchesPriority = priority === 'all' || row.priority === priority;
-            const matchesSearch = !search ||
+            const matchesSearch =
+                !search ||
                 row.id?.toLocaleLowerCase().includes(normalizedSearch) ||
                 row.customer?.toLocaleLowerCase().includes(normalizedSearch);
             const matchesDate = !date || row.createdAt === date;
@@ -70,7 +73,19 @@ const DataGrid = () => {
                     <TableBody>
                         {visibleRows.map((row) => (
                             <TableRow key={row.id}>
-                                <TableCell>{row.id}</TableCell>
+                                <TableCell>
+                                    <Link
+                                        to={`/orders/${row.id}`}
+                                        state={{ id: row.id }}
+                                        style={{
+                                            textDecoration: 'none',
+                                            color: theme.palette.primary.main,
+                                            fontWeight: 'bold',
+                                        }}
+                                    >
+                                        {row.id}
+                                    </Link>
+                                </TableCell>
                                 <TableCell>{row.customer}</TableCell>
                                 <TableCell>{row.status}</TableCell>
                                 <TableCell>{row.priority}</TableCell>
@@ -106,8 +121,8 @@ const DataGrid = () => {
                 isOpen={isDeleteConfirmationDialogOpen}
                 selectedOrder={selectedOrder}
                 onDelete={() => {
-                    if(selectedOrder){
-                        dispatch(removeOutgoingOrder(selectedOrder.id ))
+                    if (selectedOrder) {
+                        dispatch(removeOutgoingOrder(selectedOrder.id));
                         setIsDeleteConfirmationDialogOpen(false);
                         setSelectedOrder(null);
                     }

@@ -9,7 +9,7 @@ export const ORDER_STATUSES = {
 } as const;
 
 export const OUTGOING_ORDERS_DATAGRID_COLUMNS: DataGridHeadersInterface[] = [
-    { title: 'Order ID', id: ' order-id' },
+    { title: 'Order ID', id: 'order-id' },
     { title: 'Customer', id: 'customer' },
     { title: 'Status', id: 'status' },
     { title: 'Priority', id: 'priority' },
@@ -23,7 +23,8 @@ export const ORDER_FIELDS = {
     STATUS: 'status',
     PRIORITY: 'priority',
     CREATED_AT: 'createdAt',
-    PRODUCTS: 'products'
+    PRODUCTS: 'products',
+    STATUS_HISTORY: 'statusHistory',
 } as const;
 
 export const ORDER_PRIORITIES = {
