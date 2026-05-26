@@ -4,6 +4,7 @@ interface OutgoingOrderInterface {
     status: string;
     priority: string;
     createdAt: string;
+    products: string[];
 }
 
 interface DataGridHeadersInterface {

@@ -1,6 +1,7 @@
 import {
     Box,
     Button,
+    Chip,
     Dialog,
     DialogActions,
     DialogContent,
@@ -12,7 +13,7 @@ import {
     Stack,
     TextField,
 } from '@mui/material';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import type { OutgoingOrderInterface } from '../../app/types/types';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -24,6 +25,11 @@ import { addOutgoingOrder } from '../../features/slices/outgoingOrdersSlice';
 interface OutgoingOrdersFormInterface {
     isCreateOutgoingOrderFormOpen: boolean;
     closeForm: () => void;
+}
+
+interface FormErrorsInterface {
+    customer: string;
+    product: string;
 }
 
 const generateOrderId = (orders: OutgoingOrderInterface[]) => {
@@ -45,14 +51,16 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm }: Outgoi
         [ORDER_FIELDS.STATUS]: ORDER_STATUSES.PICKING,
         [ORDER_FIELDS.PRIORITY]: ORDER_PRIORITIES.NORMAL,
         [ORDER_FIELDS.CREATED_AT]: dayjs().toISOString(),
+        [ORDER_FIELDS.PRODUCTS]: [],
     });
-    const [errors, setErrors] = useState({ customer: '' });
+    const [productName, setProductName] = useState('');
+    const [errors, setErrors] = useState<FormErrorsInterface>({ customer: '', product: '' });
 
     const isCreateButtonDisabled = !order.customer;
 
     const onSubmit = () => {
         if (!order.customer) {
-            setErrors({ customer: 'Customer is required' });
+            setErrors({ ...errors, customer: 'Customer is required' });
             return;
         }
         dispatch(addOutgoingOrder(order));
@@ -65,6 +73,21 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm }: Outgoi
 
         if (name === ORDER_FIELDS.CUSTOMER) {
             setErrors({ ...errors, [name]: value ? '' : 'Customer is required' });
+        }
+    };
+
+    const addProduct = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        const newProduct = (e.target as HTMLInputElement).value;
+        if (!newProduct) return;
+
+        const isProductAlreadyAdded = order.products.includes(newProduct);
+        if (e.key === 'Enter') {
+            if (isProductAlreadyAdded) {
+                setErrors({ ...errors, product: 'This product has already been added.' });
+                return;
+            }
+            setOrder({ ...order, products: [...order.products, newProduct] });
+            setProductName('');
         }
     };
 
@@ -116,6 +139,30 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm }: Outgoi
                             />
                         </Stack>
                     </LocalizationProvider>
+                    <Box sx={{ display: 'flex', gap: '8px' }}>
+                        {order.products.map((product) => (
+                            <Chip
+                                key={product}
+                                label={product}
+                                sx={{ fontSize: '14px' }}
+                                onDelete={() => {
+                                    setOrder({ ...order, products: order.products.filter((p) => p !== product) });
+                                }}
+                            />
+                        ))}
+                    </Box>
+                    <TextField
+                        label='Product'
+                        required
+                        value={productName}
+                        onChange={(e) => {
+                            setProductName(e.target.value);
+                            setErrors({ ...errors, product: '' });
+                        }}
+                        onKeyDown={addProduct}
+                        error={Boolean(errors.product)}
+                        helperText={errors.product}
+                    />
                 </Box>
             </DialogContent>
             <DialogActions>

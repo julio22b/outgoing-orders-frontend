@@ -13,9 +13,9 @@ const OrdersSummary = () => {
     return (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <OrderCard title='TOTAL TODAY' amount={rows.length} />
-            <OrderCard title={ORDER_STATUSES.PICKING.toLocaleUpperCase()} amount={amounts['picking'] || 0} />
-            <OrderCard title={ORDER_STATUSES.PACKED.toLocaleUpperCase()} amount={amounts['packed'] || 0} />
-            <OrderCard title={ORDER_STATUSES.DELAYED.toLocaleUpperCase()} amount={amounts['delayed'] || 0} />
+            <OrderCard title={ORDER_STATUSES.PICKING.toLocaleUpperCase()} amount={amounts[ORDER_STATUSES.PICKING] || 0} />
+            <OrderCard title={ORDER_STATUSES.PACKED.toLocaleUpperCase()} amount={amounts[ORDER_STATUSES.PACKED] || 0} />
+            <OrderCard title={ORDER_STATUSES.DELAYED.toLocaleUpperCase()} amount={amounts[ORDER_STATUSES.DELAYED] || 0} />
         </Box>
     );
 };
