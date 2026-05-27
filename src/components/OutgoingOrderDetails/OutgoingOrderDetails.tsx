@@ -1,4 +1,4 @@
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import type { OutgoingOrderInterface } from '../../app/types';
 import { Box, Button, capitalize, Card, CardContent, Divider, Typography } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
@@ -7,14 +7,21 @@ import CustomChip from '../DataGrid/CustomChip';
 import { formatOrderDate } from '../../app/utils';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import theme from '../../app/theme';
+import { useAppDispatch } from '../../app/hooks';
+import { removeOutgoingOrder } from '../../features/slices/outgoingOrdersSlice';
+import DeleteConfirmationDialog from '../DeleteConfirmationDialog.tsx/DeleteConfirmationDialog';
+import { useState } from 'react';
 
 const OutgoingOrderDetails = () => {
+    const [isDeleteOrderDialogOpen, setIsDeleteOrderDialogOpen] = useState(false);
+    const dispatch = useAppDispatch();
     const location = useLocation();
+    const navigate = useNavigate();
     const order = location.state?.order as OutgoingOrderInterface | null;
     if (!order) {
         return <div>No order found</div>;
     }
-    console.log(order);
+
     return (
         <Box
             sx={{
@@ -35,7 +42,12 @@ const OutgoingOrderDetails = () => {
                     <Button variant='outlined' color='secondary' startIcon={<EditIcon />}>
                         Edit
                     </Button>
-                    <Button variant='outlined' color='warning' startIcon={<DeleteIcon />}>
+                    <Button
+                        onClick={() => setIsDeleteOrderDialogOpen(true)}
+                        variant='outlined'
+                        color='warning'
+                        startIcon={<DeleteIcon />}
+                    >
                         Delete
                     </Button>
                 </Box>
@@ -139,6 +151,15 @@ const OutgoingOrderDetails = () => {
                     </Box>
                 </CardContent>
             </Card>
+            <DeleteConfirmationDialog
+                closeDialog={() => setIsDeleteOrderDialogOpen(false)}
+                isOpen={isDeleteOrderDialogOpen}
+                onDelete={() => {
+                    dispatch(removeOutgoingOrder(order.id))
+                    navigate('/');
+                }}
+                selectedOrder={order}
+            />
         </Box>
     );
 };
