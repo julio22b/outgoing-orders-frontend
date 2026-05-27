@@ -5,7 +5,7 @@ interface OutgoingOrderInterface {
     priority: string;
     createdAt: string;
     products: string[];
-    statusHistory: { status: string; timestamp: string }[];
+    statusHistory: { status: 'picking' | 'packed' | 'delayed' | 'dispatched', timestamp: string }[];
 }
 
 interface DataGridHeadersInterface {

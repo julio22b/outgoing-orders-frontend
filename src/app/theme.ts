@@ -16,7 +16,7 @@ const theme = createTheme({
             contrastText: '#ffffff',
         },
         success: { 
-            main: '#4ade80' 
+            main: '#3cbf6c' 
         },
         divider: 'rgba(255, 255, 255, 0.08)',
         text: { 
