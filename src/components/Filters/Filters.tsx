@@ -13,7 +13,7 @@ const Filters = () => {
     const dispatch = useAppDispatch()
 
     return (
-        <Box sx={{ display: 'flex', alignItems: 'center', padding: '2em 1em', gap: '1.5em' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', padding: '2em', gap: '1.5em', '& > *': { flex: 1 }  }}>
             <TextField
                 value={search}
                 onChange={(e) => dispatch(searchFilterChanged(e.target.value))}
