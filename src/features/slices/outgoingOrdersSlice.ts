@@ -4,6 +4,7 @@ import type { OutgoingOrderInterface } from '../../app/types';
 interface OutgoingOrdersInitialState {
     orders: OutgoingOrderInterface[];
 }
+
 const initialState: OutgoingOrdersInitialState = {
     orders: [
         {
@@ -12,6 +13,8 @@ const initialState: OutgoingOrdersInitialState = {
             status: 'picking',
             priority: 'high',
             createdAt: '2026-05-20T08:14:00',
+            statusHistory: [{ status: 'picking', timestamp: '2026-05-20T08:14:00' }],
+            products: ['Wireless Mouse', 'Mechanical Keyboard'],
         },
         {
             id: 'ORD-1041',
@@ -19,6 +22,11 @@ const initialState: OutgoingOrdersInitialState = {
             status: 'packed',
             priority: 'normal',
             createdAt: '2026-05-20T07:52:00',
+            statusHistory: [
+                { status: 'picking', timestamp: '2026-05-20T07:52:00' },
+                { status: 'packed', timestamp: '2026-05-20T09:45:00' },
+            ],
+            products: ['Monitor Stand', 'LED Desk Lamp', 'USB-C Hub'],
         },
         {
             id: 'ORD-1040',
@@ -26,6 +34,8 @@ const initialState: OutgoingOrdersInitialState = {
             status: 'picking',
             priority: 'normal',
             createdAt: '2026-05-20T07:30:00',
+            statusHistory: [{ status: 'picking', timestamp: '2026-05-20T07:30:00' }],
+            products: ['Webcam 1080p'],
         },
         {
             id: 'ORD-1039',
@@ -33,6 +43,11 @@ const initialState: OutgoingOrdersInitialState = {
             status: 'delayed',
             priority: 'high',
             createdAt: '2026-05-19T16:30:00',
+            statusHistory: [
+                { status: 'picking', timestamp: '2026-05-19T16:30:00' },
+                { status: 'delayed', timestamp: '2026-05-19T19:15:00' },
+            ],
+            products: ['Noise Cancelling Headphones', 'External SSD 1TB'],
         },
         {
             id: 'ORD-1038',
@@ -40,6 +55,12 @@ const initialState: OutgoingOrdersInitialState = {
             status: 'dispatched',
             priority: 'normal',
             createdAt: '2026-05-19T14:05:00',
+            statusHistory: [
+                { status: 'picking', timestamp: '2026-05-19T14:05:00' },
+                { status: 'packed', timestamp: '2026-05-19T16:20:00' },
+                { status: 'dispatched', timestamp: '2026-05-19T18:40:00' },
+            ],
+            products: ['Laptop Sleeve', 'Portable Charger'],
         },
         {
             id: 'ORD-1037',
@@ -47,6 +68,12 @@ const initialState: OutgoingOrdersInitialState = {
             status: 'dispatched',
             priority: 'low',
             createdAt: '2026-05-19T11:20:00',
+            statusHistory: [
+                { status: 'picking', timestamp: '2026-05-19T11:20:00' },
+                { status: 'packed', timestamp: '2026-05-19T13:10:00' },
+                { status: 'dispatched', timestamp: '2026-05-19T15:55:00' },
+            ],
+            products: ['Wireless Mouse', 'Monitor Stand'],
         },
         {
             id: 'ORD-1036',
@@ -54,6 +81,11 @@ const initialState: OutgoingOrdersInitialState = {
             status: 'packed',
             priority: 'high',
             createdAt: '2026-05-19T10:45:00',
+            statusHistory: [
+                { status: 'picking', timestamp: '2026-05-19T10:45:00' },
+                { status: 'packed', timestamp: '2026-05-19T12:30:00' },
+            ],
+            products: ['USB-C Hub', 'Webcam 1080p', 'Laptop Sleeve'],
         },
         {
             id: 'ORD-1035',
@@ -61,6 +93,12 @@ const initialState: OutgoingOrdersInitialState = {
             status: 'dispatched',
             priority: 'normal',
             createdAt: '2026-05-19T09:10:00',
+            statusHistory: [
+                { status: 'picking', timestamp: '2026-05-19T09:10:00' },
+                { status: 'packed', timestamp: '2026-05-19T11:00:00' },
+                { status: 'dispatched', timestamp: '2026-05-19T13:25:00' },
+            ],
+            products: ['Mechanical Keyboard', 'LED Desk Lamp'],
         },
         {
             id: 'ORD-1034',
@@ -68,6 +106,11 @@ const initialState: OutgoingOrdersInitialState = {
             status: 'delayed',
             priority: 'high',
             createdAt: '2026-05-18T17:55:00',
+            statusHistory: [
+                { status: 'picking', timestamp: '2026-05-18T17:55:00' },
+                { status: 'delayed', timestamp: '2026-05-18T21:30:00' },
+            ],
+            products: ['External SSD 1TB', 'Portable Charger'],
         },
         {
             id: 'ORD-1033',
@@ -75,6 +118,8 @@ const initialState: OutgoingOrdersInitialState = {
             status: 'picking',
             priority: 'low',
             createdAt: '2026-05-18T15:40:00',
+            statusHistory: [{ status: 'picking', timestamp: '2026-05-18T15:40:00' }],
+            products: ['Noise Cancelling Headphones'],
         },
         {
             id: 'ORD-1032',
@@ -82,6 +127,11 @@ const initialState: OutgoingOrdersInitialState = {
             status: 'packed',
             priority: 'normal',
             createdAt: '2026-05-18T13:22:00',
+            statusHistory: [
+                { status: 'picking', timestamp: '2026-05-18T13:22:00' },
+                { status: 'packed', timestamp: '2026-05-18T15:10:00' },
+            ],
+            products: ['Wireless Mouse', 'USB-C Hub'],
         },
         {
             id: 'ORD-1031',
@@ -89,6 +139,12 @@ const initialState: OutgoingOrdersInitialState = {
             status: 'dispatched',
             priority: 'low',
             createdAt: '2026-05-18T11:05:00',
+            statusHistory: [
+                { status: 'picking', timestamp: '2026-05-18T11:05:00' },
+                { status: 'packed', timestamp: '2026-05-18T13:00:00' },
+                { status: 'dispatched', timestamp: '2026-05-18T15:20:00' },
+            ],
+            products: ['Mechanical Keyboard', 'Webcam 1080p'],
         },
         {
             id: 'ORD-1030',
@@ -96,6 +152,11 @@ const initialState: OutgoingOrdersInitialState = {
             status: 'delayed',
             priority: 'normal',
             createdAt: '2026-05-18T09:30:00',
+            statusHistory: [
+                { status: 'picking', timestamp: '2026-05-18T09:30:00' },
+                { status: 'delayed', timestamp: '2026-05-18T13:45:00' },
+            ],
+            products: ['Monitor Stand', 'Laptop Sleeve'],
         },
         {
             id: 'ORD-1029',
@@ -103,6 +164,8 @@ const initialState: OutgoingOrdersInitialState = {
             status: 'picking',
             priority: 'high',
             createdAt: '2026-05-17T16:15:00',
+            statusHistory: [{ status: 'picking', timestamp: '2026-05-17T16:15:00' }],
+            products: ['LED Desk Lamp', 'Portable Charger', 'External SSD 1TB'],
         },
         {
             id: 'ORD-1028',
@@ -110,6 +173,12 @@ const initialState: OutgoingOrdersInitialState = {
             status: 'dispatched',
             priority: 'normal',
             createdAt: '2026-05-17T14:00:00',
+            statusHistory: [
+                { status: 'picking', timestamp: '2026-05-17T14:00:00' },
+                { status: 'packed', timestamp: '2026-05-17T16:10:00' },
+                { status: 'dispatched', timestamp: '2026-05-17T18:30:00' },
+            ],
+            products: ['Wireless Mouse', 'Noise Cancelling Headphones'],
         },
     ],
 };
