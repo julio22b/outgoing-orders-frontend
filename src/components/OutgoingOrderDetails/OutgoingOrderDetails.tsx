@@ -1,5 +1,4 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import type { OutgoingOrderInterface } from '../../app/types';
 import { Box, Button, capitalize, Card, CardContent, Divider, Typography } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -7,13 +6,14 @@ import CustomChip from '../DataGrid/CustomChip';
 import { formatOrderDate } from '../../app/utils';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import theme from '../../app/theme';
-import { useAppDispatch } from '../../app/hooks';
+import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { removeOutgoingOrder } from '../../features/slices/outgoingOrdersSlice';
 import DeleteConfirmationDialog from '../DeleteConfirmationDialog.tsx/DeleteConfirmationDialog';
 import { useState } from 'react';
 import ProductsList from './ProductsList';
 import { ORDER_STATUSES } from '../../app/constants';
 import CircleIcon from '@mui/icons-material/Circle';
+import OutgoingOrdersForm from '../OutgoingOrdersForm/OutgoingOrdersForm';
 
 const timelineStatuses = [ORDER_STATUSES.PICKING, ORDER_STATUSES.PACKED, ORDER_STATUSES.DISPATCHED];
 const statusesEnum: Record<string, number> = {
@@ -25,12 +25,32 @@ const statusesEnum: Record<string, number> = {
 
 const OutgoingOrderDetails = () => {
     const [isDeleteOrderDialogOpen, setIsDeleteOrderDialogOpen] = useState(false);
+    const [isCreateOutgoingOrderFormOpen, setIsCreateOutgoingOrderFormOpen] = useState(false);
     const dispatch = useAppDispatch();
     const location = useLocation();
     const navigate = useNavigate();
-    const order = location.state?.order as OutgoingOrderInterface | null;
+    const order = useAppSelector((state) => state.outgoingOrders.orders).find(
+        (order) => order.id === location.state.orderId,
+    );
     if (!order) {
-        return <div>No order found</div>;
+        return (
+            <Box
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    width: '300px',
+                    margin: '0 auto',
+                }}
+            >
+                <Typography sx={{ textAlign: 'center', paddingTop: '4em' }} gutterBottom variant='h4'>
+                    No order found
+                </Typography>
+                <Button color='primary' variant='contained' onClick={() => navigate('/')}>
+                    Back
+                </Button>
+            </Box>
+        );
     }
 
     return (
@@ -42,16 +62,27 @@ const OutgoingOrderDetails = () => {
                 maxWidth: '1200px',
                 margin: '0 auto',
                 padding: '2em',
-                
             }}
         >
-            <Box sx={{ paddingTop: '2em', display: 'flex', justifyContent: 'space-between', borderTop: `1px solid ${theme.palette.divider}` }}>
+            <Box
+                sx={{
+                    paddingTop: '2em',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    borderTop: `1px solid ${theme.palette.divider}`,
+                }}
+            >
                 <Box>
                     <Typography variant='h5'>{order.id}</Typography>
                     <Typography variant='subtitle1'>{order.customer}</Typography>
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: '1em' }}>
-                    <Button variant='outlined' color='secondary' startIcon={<EditIcon />}>
+                    <Button
+                        onClick={() => setIsCreateOutgoingOrderFormOpen(true)}
+                        variant='outlined'
+                        color='secondary'
+                        startIcon={<EditIcon />}
+                    >
                         Edit
                     </Button>
                     <Button
@@ -159,6 +190,7 @@ const OutgoingOrderDetails = () => {
                     </Box>
                 </CardContent>
             </Card>
+            <ProductsList products={order.products} />
             <DeleteConfirmationDialog
                 closeDialog={() => setIsDeleteOrderDialogOpen(false)}
                 isOpen={isDeleteOrderDialogOpen}
@@ -168,7 +200,11 @@ const OutgoingOrderDetails = () => {
                 }}
                 selectedOrder={order}
             />
-            <ProductsList products={order.products} />
+            <OutgoingOrdersForm
+                isCreateOutgoingOrderFormOpen={isCreateOutgoingOrderFormOpen}
+                closeForm={() => setIsCreateOutgoingOrderFormOpen(false)}
+                orderToEdit={order}
+            />
         </Box>
     );
 };

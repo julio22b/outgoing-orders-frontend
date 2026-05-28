@@ -12,7 +12,7 @@ const ProductsList = ({ products }: ProductsListInterface) => {
             subheader={<ListSubheader sx={{ borderRadius: '10px' }}>Items</ListSubheader>}
         >
             {products.map((product) => (
-                <ListItem>{product}</ListItem>
+                <ListItem key={product}>{product}</ListItem>
             ))}
         </List>
     );

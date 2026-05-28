@@ -20,10 +20,11 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { ORDER_STATUSES, ORDER_FIELDS, ORDER_PRIORITIES } from '../../app/constants';
-import { addOutgoingOrder } from '../../features/slices/outgoingOrdersSlice';
+import { addOutgoingOrder, updateOutgoingOrder } from '../../features/slices/outgoingOrdersSlice';
 
 interface OutgoingOrdersFormInterface {
     isCreateOutgoingOrderFormOpen: boolean;
+    orderToEdit: OutgoingOrderInterface | null;
     closeForm: () => void;
 }
 
@@ -40,7 +41,7 @@ const generateOrderId = (orders: OutgoingOrderInterface[]) => {
     return `ORD-${highest + 1}`;
 };
 
-const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm }: OutgoingOrdersFormInterface) => {
+const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm, orderToEdit }: OutgoingOrdersFormInterface) => {
     const orders = useAppSelector((state) => state.outgoingOrders.orders);
     const dispatch = useAppDispatch();
     const nextId = generateOrderId(orders);
@@ -53,10 +54,11 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm }: Outgoi
         [ORDER_FIELDS.CREATED_AT]: dayjs().toISOString(),
         [ORDER_FIELDS.PRODUCTS]: [],
         [ORDER_FIELDS.STATUS_HISTORY]: [],
+        ...(orderToEdit && orderToEdit),
     });
     const [productName, setProductName] = useState('');
     const [errors, setErrors] = useState<FormErrorsInterface>({ customer: '', product: '' });
-
+    const isEditForm = Boolean(orderToEdit);
     const isCreateButtonDisabled = !order.customer || !order.products.length;
 
     const onSubmit = () => {
@@ -64,12 +66,17 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm }: Outgoi
             setErrors({ ...errors, customer: 'Customer is required' });
             return;
         }
-        dispatch(
-            addOutgoingOrder({
-                ...order,
-                statusHistory: [{ status: ORDER_STATUSES.PICKING, timestamp: order.createdAt }],
-            }),
-        );
+
+        if (isEditForm) {
+            dispatch(updateOutgoingOrder(order));
+        } else {
+            dispatch(
+                addOutgoingOrder({
+                    ...order,
+                    statusHistory: [{ status: ORDER_STATUSES.PICKING, timestamp: order.createdAt }],
+                }),
+            );
+        }
         closeForm();
     };
 
@@ -97,8 +104,13 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm }: Outgoi
         }
     };
 
+    const handleClose = () => {
+        closeForm();
+        setProductName('');
+    };
+
     return (
-        <Dialog open={isCreateOutgoingOrderFormOpen} onClose={closeForm} fullWidth>
+        <Dialog open={isCreateOutgoingOrderFormOpen} onClose={handleClose} fullWidth>
             <DialogTitle>Create new order</DialogTitle>
             <DialogContent sx={{ pt: '16px !important' }}>
                 <Box component='form' sx={{ display: 'flex', flexDirection: 'column', gap: '2em' }}>
@@ -119,6 +131,7 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm }: Outgoi
                         <Select
                             labelId={'priority-select'}
                             id={'priority-select'}
+                            disabled={isEditForm}
                             value={order.priority}
                             label={ORDER_FIELDS.PRIORITY}
                             onChange={(e) => setOrder({ ...order, priority: e.target.value })}
@@ -134,8 +147,9 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm }: Outgoi
                         <Stack spacing={3}>
                             <DatePicker
                                 label='Date'
+                                disabled={isEditForm}
                                 value={order.createdAt ? dayjs(order.createdAt) : null}
-                                minDate={dayjs()}
+                                minDate={isEditForm ? undefined : dayjs()}
                                 onChange={(newValue) =>
                                     setOrder({
                                         ...order,
@@ -172,11 +186,11 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm }: Outgoi
                 </Box>
             </DialogContent>
             <DialogActions>
-                <Button onClick={closeForm} color='secondary' variant='outlined'>
+                <Button onClick={handleClose} color='secondary' variant='outlined'>
                     Cancel
                 </Button>
                 <Button variant='contained' onClick={onSubmit} color='primary' disabled={isCreateButtonDisabled}>
-                    Create Order
+                    {isEditForm ? 'Save' : 'Create'}
                 </Button>
             </DialogActions>
         </Dialog>

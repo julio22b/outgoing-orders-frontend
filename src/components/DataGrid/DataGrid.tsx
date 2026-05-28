@@ -78,7 +78,7 @@ const DataGrid = () => {
                                 <TableCell>
                                     <Link
                                         to={`/orders/${row.id}`}
-                                        state={{ order: row }}
+                                        state={{ orderId: row.id }}
                                         style={{
                                             textDecoration: 'none',
                                             color: theme.palette.primary.main,
