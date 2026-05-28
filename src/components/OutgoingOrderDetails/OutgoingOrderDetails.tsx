@@ -11,6 +11,7 @@ import { useAppDispatch } from '../../app/hooks';
 import { removeOutgoingOrder } from '../../features/slices/outgoingOrdersSlice';
 import DeleteConfirmationDialog from '../DeleteConfirmationDialog.tsx/DeleteConfirmationDialog';
 import { useState } from 'react';
+import ProductsList from './ProductsList';
 
 const OutgoingOrderDetails = () => {
     const [isDeleteOrderDialogOpen, setIsDeleteOrderDialogOpen] = useState(false);
@@ -160,6 +161,7 @@ const OutgoingOrderDetails = () => {
                 }}
                 selectedOrder={order}
             />
+            <ProductsList products={order.products} />
         </Box>
     );
 };
