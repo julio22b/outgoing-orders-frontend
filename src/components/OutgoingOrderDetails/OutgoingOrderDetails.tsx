@@ -12,6 +12,16 @@ import { removeOutgoingOrder } from '../../features/slices/outgoingOrdersSlice';
 import DeleteConfirmationDialog from '../DeleteConfirmationDialog.tsx/DeleteConfirmationDialog';
 import { useState } from 'react';
 import ProductsList from './ProductsList';
+import { ORDER_STATUSES } from '../../app/constants';
+import CircleIcon from '@mui/icons-material/Circle';
+
+const timelineStatuses = [ORDER_STATUSES.PICKING, ORDER_STATUSES.PACKED, ORDER_STATUSES.DISPATCHED];
+const statusesEnum: Record<string, number> = {
+    picking: 1,
+    packed: 2,
+    dispatched: 3,
+    delayed: 4,
+};
 
 const OutgoingOrderDetails = () => {
     const [isDeleteOrderDialogOpen, setIsDeleteOrderDialogOpen] = useState(false);
@@ -32,9 +42,10 @@ const OutgoingOrderDetails = () => {
                 maxWidth: '1200px',
                 margin: '0 auto',
                 padding: '2em',
+                
             }}
         >
-            <Box sx={{ marginTop: '3em', display: 'flex', justifyContent: 'space-between' }}>
+            <Box sx={{ paddingTop: '2em', display: 'flex', justifyContent: 'space-between', borderTop: `1px solid ${theme.palette.divider}` }}>
                 <Box>
                     <Typography variant='h5'>{order.id}</Typography>
                     <Typography variant='subtitle1'>{order.customer}</Typography>
@@ -93,19 +104,18 @@ const OutgoingOrderDetails = () => {
                         Status timeline
                     </Typography>
                     <Box sx={{ display: 'flex', gap: '1em', '& > *': { flex: 1 } }}>
-                        {['picking', 'packed', 'dispatched'].map((status, index) => {
-                            const statusesOrder: Record<string, number> = {
-                                picking: 1,
-                                packed: 2,
-                                dispatched: 3,
-                                delayed: 4,
-                            };
+                        {timelineStatuses.map((status, index) => {
                             const currentStatusHistory = order.statusHistory.find(
                                 (orderStatus) => orderStatus.status === status,
                             )!;
 
-                            const isDone = statusesOrder[status] <= statusesOrder[currentStatusHistory?.status] || 0;
-                            const color = isDone ? theme.palette.success.main : theme.palette.warning.main;
+                            const isDone = statusesEnum[status] <= statusesEnum[currentStatusHistory?.status] || 0;
+                            const color = isDone ? theme.palette.success.main : theme.palette.text.secondary;
+                            const iconStyles = {
+                                border: `1px solid ${theme.palette.secondary.main}`,
+                                borderRadius: '50%',
+                                color,
+                            };
                             return (
                                 <Box key={status} sx={{ position: 'relative' }}>
                                     <Box
@@ -117,19 +127,16 @@ const OutgoingOrderDetails = () => {
                                             gap: '1em',
                                         }}
                                     >
-                                        <CheckCircleIcon
-                                            fontSize='large'
-                                            sx={{
-                                                border: `1px solid ${theme.palette.secondary.main}`,
-                                                borderRadius: '50%',
-                                                color,
-                                            }}
-                                        />
+                                        {isDone ? (
+                                            <CheckCircleIcon fontSize='large' sx={iconStyles} />
+                                        ) : (
+                                            <CircleIcon fontSize='large' sx={iconStyles} />
+                                        )}
                                         <Typography color={color}>{capitalize(status)}</Typography>
                                         <Typography variant='subtitle2'>
                                             {currentStatusHistory
                                                 ? formatOrderDate(currentStatusHistory.timestamp)
-                                                : 'N/A'}
+                                                : '—'}
                                         </Typography>
                                     </Box>
                                     {index !== 2 && (
@@ -156,7 +163,7 @@ const OutgoingOrderDetails = () => {
                 closeDialog={() => setIsDeleteOrderDialogOpen(false)}
                 isOpen={isDeleteOrderDialogOpen}
                 onDelete={() => {
-                    dispatch(removeOutgoingOrder(order.id))
+                    dispatch(removeOutgoingOrder(order.id));
                     navigate('/');
                 }}
                 selectedOrder={order}

@@ -26,8 +26,7 @@ const AppBar = () => {
                         variant='caption'
                         sx={{
                             color: 'text.secondary',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.1em',
+                            letterSpacing: '0.15em',
                             fontWeight: 700,
                         }}
                     >

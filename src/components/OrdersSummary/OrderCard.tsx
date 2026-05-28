@@ -1,4 +1,4 @@
-import { Card, CardContent, Typography } from '@mui/material';
+import { capitalize, Card, CardContent, Typography } from '@mui/material';
 
 interface OrderCardProps {
     title: string;
@@ -19,8 +19,8 @@ const OrderCard = ({ title, amount }: OrderCardProps) => {
             }} 
         >
             <CardContent>
-                <Typography variant='caption' color="text.secondary" sx={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                    {title}
+                <Typography variant='caption' color="text.secondary" sx={{ fontWeight: 700, letterSpacing: '0.15em' }}>
+                    {capitalize(title)}
                 </Typography>
                 <Typography variant='h3' sx={{ fontWeight: 600 }}>
                     {amount}
