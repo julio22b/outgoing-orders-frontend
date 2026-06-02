@@ -6,8 +6,16 @@ import DataGrid from './components/DataGrid/DataGrid';
 import Filters from './components/Filters/Filters';
 import { Route, Routes } from 'react-router-dom';
 import OutgoingOrderDetails from './components/OutgoingOrderDetails/OutgoingOrderDetails';
+import { useEffect } from 'react';
+import { fetchOrders } from './api/OrdersApi';
 
 function App() {
+    useEffect(() => {
+        (async () => {
+            const orders = await fetchOrders();
+            console.log(orders)
+        })();
+    }, []);
     return (
         <Box>
             <AppBar />
