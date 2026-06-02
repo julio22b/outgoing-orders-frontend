@@ -7,15 +7,16 @@ import Filters from './components/Filters/Filters';
 import { Route, Routes } from 'react-router-dom';
 import OutgoingOrderDetails from './components/OutgoingOrderDetails/OutgoingOrderDetails';
 import { useEffect } from 'react';
-import { fetchOrders } from './api/OrdersApi';
+import { useAppDispatch } from './app/hooks';
+import { fetchOrders } from './features/slices/outgoingOrdersSlice';
 
 function App() {
+    const dispatch = useAppDispatch();
+
     useEffect(() => {
-        (async () => {
-            const orders = await fetchOrders();
-            console.log(orders)
-        })();
-    }, []);
+        dispatch(fetchOrders());
+    }, [dispatch]);
+    
     return (
         <Box>
             <AppBar />
