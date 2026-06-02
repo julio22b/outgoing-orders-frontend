@@ -193,9 +193,17 @@ export const outgoingOrdersSlice = createSlice({
         removeOutgoingOrder: (state, action: PayloadAction<string>) => {
             state.orders = state.orders.filter((order) => order.id !== action.payload);
         },
+        updateOutgoingOrder: (state, action: PayloadAction<OutgoingOrderInterface>) => {
+            state.orders = state.orders.map((order) => {
+                if (order.id === action.payload.id) {
+                    return action.payload;
+                }
+                return order;
+            });
+        }
     },
 });
 
-export const { addOutgoingOrder, removeOutgoingOrder } = outgoingOrdersSlice.actions;
+export const { addOutgoingOrder, removeOutgoingOrder, updateOutgoingOrder } = outgoingOrdersSlice.actions;
 
 export default outgoingOrdersSlice.reducer;
