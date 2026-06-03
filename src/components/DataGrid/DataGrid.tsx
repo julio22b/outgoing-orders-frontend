@@ -1,6 +1,4 @@
 import {
-    Box,
-    CircularProgress,
     IconButton,
     Paper,
     Table,
@@ -23,6 +21,7 @@ import { Link } from 'react-router-dom';
 import theme from '../../app/theme';
 import CustomChip from './CustomChip';
 import { formatOrderDate } from '../../app/utils';
+import LoadingOverlay from '../common/LoadingOverlay';
 
 const DataGrid = () => {
     const rows = useAppSelector((state) => state.outgoingOrders.orders);
@@ -63,11 +62,7 @@ const DataGrid = () => {
     };
 
     if (loading) {
-        return (
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
-                <CircularProgress />
-            </Box>
-        );
+        return <LoadingOverlay />;
     }
 
     return (
