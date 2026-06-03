@@ -20,7 +20,8 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { ORDER_STATUSES, ORDER_FIELDS, ORDER_PRIORITIES } from '../../app/constants';
-import { addOutgoingOrder, updateOutgoingOrder } from '../../features/slices/outgoingOrdersSlice';
+import { createOrder, updateOrder } from '../../features/slices/outgoingOrdersSlice';
+import LoadingOverlay from '../common/LoadingOverlay';
 
 interface OutgoingOrdersFormInterface {
     isCreateOutgoingOrderFormOpen: boolean;
@@ -30,19 +31,19 @@ interface OutgoingOrdersFormInterface {
 
 interface FormErrorsInterface {
     customer: string;
-    product: string;
+    item: string;
 }
 
 const generateOrderId = (orders: OutgoingOrderInterface[]) => {
     const highest = orders.reduce((max, order) => {
-        const num = parseInt(order.id.replace('ORD-', ''));
-        return !isNaN(num) && num > max ? num : max;
+        const num = order.id;
+        return num > max ? num : max;
     }, 0);
-    return `ORD-${highest + 1}`;
+    return highest + 1;
 };
 
 const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm, orderToEdit }: OutgoingOrdersFormInterface) => {
-    const orders = useAppSelector((state) => state.outgoingOrders.orders);
+    const { orders, loading } = useAppSelector((state) => state.outgoingOrders);
     const dispatch = useAppDispatch();
     const nextId = generateOrderId(orders);
 
@@ -52,26 +53,28 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm, orderToE
         [ORDER_FIELDS.STATUS]: ORDER_STATUSES.PICKING,
         [ORDER_FIELDS.PRIORITY]: ORDER_PRIORITIES.NORMAL,
         [ORDER_FIELDS.CREATED_AT]: dayjs().toISOString(),
-        [ORDER_FIELDS.PRODUCTS]: [],
+        [ORDER_FIELDS.ITEMS]: [],
         [ORDER_FIELDS.STATUS_HISTORY]: [],
         ...(orderToEdit && orderToEdit),
     });
     const [productName, setProductName] = useState('');
-    const [errors, setErrors] = useState<FormErrorsInterface>({ customer: '', product: '' });
+    const [errors, setErrors] = useState<FormErrorsInterface>({ customer: '', item: '' });
     const isEditForm = Boolean(orderToEdit);
-    const isCreateButtonDisabled = !order.customer || !order.products.length;
+    const isCreateButtonDisabled = !order.customer || !order.items.length || loading;
 
-    const onSubmit = () => {
+    const onSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
+        if (e) e.preventDefault();
+
         if (!order.customer) {
             setErrors({ ...errors, customer: 'Customer is required' });
             return;
         }
 
         if (isEditForm) {
-            dispatch(updateOutgoingOrder(order));
+            dispatch(updateOrder(order));
         } else {
             dispatch(
-                addOutgoingOrder({
+                createOrder({
                     ...order,
                     statusHistory: [{ status: ORDER_STATUSES.PICKING, timestamp: order.createdAt }],
                 }),
@@ -93,13 +96,13 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm, orderToE
         const newProduct = (e.target as HTMLInputElement).value;
         if (!newProduct) return;
 
-        const isProductAlreadyAdded = order.products.includes(newProduct);
+        const isProductAlreadyAdded = order.items.includes(newProduct);
         if (e.key === 'Enter') {
             if (isProductAlreadyAdded) {
-                setErrors({ ...errors, product: 'This product has already been added.' });
+                setErrors({ ...errors, item: 'This product has already been added.' });
                 return;
             }
-            setOrder({ ...order, products: [...order.products, newProduct] });
+            setOrder({ ...order, items: [...order.items, newProduct] });
             setProductName('');
         }
     };
@@ -111,10 +114,16 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm, orderToE
 
     return (
         <Dialog open={isCreateOutgoingOrderFormOpen} onClose={handleClose} fullWidth>
+            {loading && <LoadingOverlay />}
             <DialogTitle>Create new order</DialogTitle>
-            <DialogContent sx={{ pt: '16px !important' }}>
+            <DialogContent sx={{ pt: '16px !important', position: 'relative' }}>
                 <Box component='form' sx={{ display: 'flex', flexDirection: 'column', gap: '2em' }}>
-                    <TextField value={order.id} label='Order ID' fullWidth slotProps={{ input: { readOnly: true } }} />
+                    <TextField
+                        value={`ORD-${order.id}`}
+                        label='Order ID'
+                        fullWidth
+                        slotProps={{ input: { readOnly: true } }}
+                    />
                     <TextField
                         value={order.customer}
                         label='Customer'
@@ -160,13 +169,13 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm, orderToE
                         </Stack>
                     </LocalizationProvider>
                     <Box sx={{ display: 'flex', gap: '8px' }}>
-                        {order.products.map((product) => (
+                        {order.items.map((item) => (
                             <Chip
-                                key={product}
-                                label={product}
+                                key={item}
+                                label={item}
                                 sx={{ fontSize: '14px' }}
                                 onDelete={() => {
-                                    setOrder({ ...order, products: order.products.filter((p) => p !== product) });
+                                    setOrder({ ...order, items: order.items.filter((p) => p !== item) });
                                 }}
                             />
                         ))}
@@ -177,16 +186,16 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm, orderToE
                         value={productName}
                         onChange={(e) => {
                             setProductName(e.target.value);
-                            setErrors({ ...errors, product: '' });
+                            setErrors({ ...errors, item: '' });
                         }}
                         onKeyDown={addProduct}
-                        error={Boolean(errors.product)}
-                        helperText={errors.product}
+                        error={Boolean(errors.item)}
+                        helperText={errors.item}
                     />
                 </Box>
             </DialogContent>
             <DialogActions>
-                <Button onClick={handleClose} color='secondary' variant='outlined'>
+                <Button onClick={handleClose} color='secondary' variant='outlined' disabled={loading}>
                     Cancel
                 </Button>
                 <Button variant='contained' onClick={onSubmit} color='primary' disabled={isCreateButtonDisabled}>

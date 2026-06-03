@@ -69,6 +69,7 @@ const AppBar = () => {
                 key={isCreateOutgoingOrderFormOpen ? 'open' : 'closed '}
                 isCreateOutgoingOrderFormOpen={isCreateOutgoingOrderFormOpen}
                 closeForm={() => setIsCreateOutgoingOrderFormOpen(false)}
+                orderToEdit={null}
             />
         </MuiAppBar>
     );

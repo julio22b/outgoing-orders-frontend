@@ -1,4 +1,5 @@
-import { capitalize, Card, CardContent, Typography } from '@mui/material';
+import { capitalize, Card, CardContent, CircularProgress, Typography } from '@mui/material';
+import { useAppSelector } from '../../app/hooks';
 
 interface OrderCardProps {
     title: string;
@@ -6,24 +7,26 @@ interface OrderCardProps {
 }
 
 const OrderCard = ({ title, amount }: OrderCardProps) => {
+    const loading = useAppSelector((state) => state.outgoingOrders.loading);
+
     return (
-        <Card 
+        <Card
             variant='outlined'
-            sx={{ 
-                width: '25%', 
+            sx={{
+                width: '25%',
                 transition: 'transform 0.2s, border-color 0.2s',
                 '&:hover': {
                     borderColor: 'primary.main',
-                    transform: 'translateY(-2px)'
-                }
-            }} 
+                    transform: 'translateY(-2px)',
+                },
+            }}
         >
             <CardContent>
-                <Typography variant='caption' color="text.secondary" sx={{ fontWeight: 700, letterSpacing: '0.15em' }}>
+                <Typography variant='caption' color='text.secondary' sx={{ fontWeight: 700, letterSpacing: '0.15em' }}>
                     {capitalize(title)}
                 </Typography>
                 <Typography variant='h3' sx={{ fontWeight: 600 }}>
-                    {amount}
+                    {loading ? <CircularProgress /> : (amount || 0)}
                 </Typography>
             </CardContent>
         </Card>

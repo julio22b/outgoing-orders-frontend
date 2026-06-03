@@ -4,7 +4,7 @@ interface OutgoingOrderInterface {
     status: string;
     priority: string;
     createdAt: string;
-    products: string[];
+    items: string[];
     statusHistory: { status: 'picking' | 'packed' | 'delayed' | 'dispatched', timestamp: string }[];
 }
 

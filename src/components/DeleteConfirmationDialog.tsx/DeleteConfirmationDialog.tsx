@@ -16,7 +16,7 @@ const DeleteConfirmationDialog = ({ isOpen, selectedOrder, closeDialog, onDelete
                 <Button onClick={closeDialog} color='secondary' variant='outlined'>
                     Cancel
                 </Button>
-                <Button color='primary' sx={{ fontWeight: 600 }} variant='contained' onClick={onDelete}>
+                <Button color='warning' sx={{ fontWeight: 600 }} variant='outlined' onClick={onDelete}>
                     Delete
                 </Button>
             </DialogActions>

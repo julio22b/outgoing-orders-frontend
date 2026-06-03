@@ -1,4 +1,6 @@
 import {
+    Box,
+    CircularProgress,
     IconButton,
     Paper,
     Table,
@@ -16,7 +18,7 @@ import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DeleteConfirmationDialog from '../DeleteConfirmationDialog.tsx/DeleteConfirmationDialog';
 import type { OutgoingOrderInterface } from '../../app/types';
-import { removeOutgoingOrder } from '../../features/slices/outgoingOrdersSlice';
+import { deleteOrder } from '../../features/slices/outgoingOrdersSlice';
 import { Link } from 'react-router-dom';
 import theme from '../../app/theme';
 import CustomChip from './CustomChip';
@@ -25,6 +27,7 @@ import { formatOrderDate } from '../../app/utils';
 const DataGrid = () => {
     const rows = useAppSelector((state) => state.outgoingOrders.orders);
     const { status, priority, date, search } = useAppSelector((state) => state.filters);
+    const loading = useAppSelector((state) => state.outgoingOrders.loading);
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [page, setPage] = useState(0);
     const [isDeleteConfirmationDialogOpen, setIsDeleteConfirmationDialogOpen] = useState(false);
@@ -59,9 +62,27 @@ const DataGrid = () => {
         setPage(0);
     };
 
+    if (loading) {
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
+                <CircularProgress />
+            </Box>
+        );
+    }
+
     return (
         <>
-            <TableContainer component={Paper}>
+            <TableContainer
+                component={Paper}
+                sx={{
+                    margin: '2em',
+                    width: 'calc(100% - 4em)',
+                    borderRadius: '8px',
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    boxShadow: 'none',
+                }}
+            >
                 <Table sx={{ backgroundColor: 'background.paper' }}>
                     <TableHead>
                         <TableRow>
@@ -85,7 +106,7 @@ const DataGrid = () => {
                                             fontWeight: 'bold',
                                         }}
                                     >
-                                        {row.id}
+                                        {`Order-${row.id}`}
                                     </Link>
                                 </TableCell>
                                 <TableCell>{row.customer}</TableCell>
@@ -128,7 +149,7 @@ const DataGrid = () => {
                 selectedOrder={selectedOrder}
                 onDelete={() => {
                     if (selectedOrder) {
-                        dispatch(removeOutgoingOrder(selectedOrder.id));
+                        dispatch(deleteOrder(selectedOrder.id));
                         setIsDeleteConfirmationDialogOpen(false);
                         setSelectedOrder(null);
                     }

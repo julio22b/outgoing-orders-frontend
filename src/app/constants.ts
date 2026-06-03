@@ -22,7 +22,7 @@ export const ORDER_FIELDS = {
     STATUS: 'status',
     PRIORITY: 'priority',
     CREATED_AT: 'createdAt',
-    PRODUCTS: 'products',
+    ITEMS: 'items',
     STATUS_HISTORY: 'statusHistory',
 } as const;
 
@@ -40,4 +40,13 @@ export const STATUS_COLORS: Record<string, { background: string; color: string }
     [ORDER_PRIORITIES.HIGH]: { background: '#f8cccc', color: '#911c1c' },
     [ORDER_PRIORITIES.NORMAL]: { background: '#dcd5d5', color: '#5c5c5c' },
     [ORDER_PRIORITIES.LOW]: { background: '#f8e3bf', color: '#774406' },
+};
+
+export const TIMELINE_STATUSES = [ORDER_STATUSES.PICKING, ORDER_STATUSES.PACKED, ORDER_STATUSES.DISPATCHED];
+
+export const STATUSES_ENUM: Record<string, number> = {
+    picking: 1,
+    packed: 2,
+    dispatched: 3,
+    delayed: 4,
 };

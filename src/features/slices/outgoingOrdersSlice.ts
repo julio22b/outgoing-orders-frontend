@@ -68,22 +68,7 @@ export const deleteOrder = createAsyncThunk('orders/deleteOrder', async (id: num
 export const outgoingOrdersSlice = createSlice({
     name: 'outgoingOrders',
     initialState,
-    reducers: {
-        addOutgoingOrder: (state, action: PayloadAction<OutgoingOrderInterface>) => {
-            state.orders.unshift(action.payload);
-        },
-        removeOutgoingOrder: (state, action: PayloadAction<number>) => {
-            state.orders = state.orders.filter((order) => order.id !== action.payload);
-        },
-        updateOutgoingOrder: (state, action: PayloadAction<OutgoingOrderInterface>) => {
-            state.orders = state.orders.map((order) => {
-                if (order.id === action.payload.id) {
-                    return action.payload;
-                }
-                return order;
-            });
-        },
-    },
+    reducers: {},
     extraReducers: (builder) => {
         builder
             // fetch orders
@@ -141,7 +126,5 @@ export const outgoingOrdersSlice = createSlice({
             );
     },
 });
-
-export const { addOutgoingOrder, removeOutgoingOrder, updateOutgoingOrder } = outgoingOrdersSlice.actions;
 
 export default outgoingOrdersSlice.reducer;

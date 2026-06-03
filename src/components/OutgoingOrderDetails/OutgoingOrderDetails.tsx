@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Box, Button, capitalize, Card, CardContent, Divider, Typography } from '@mui/material';
+import { Box, Button, capitalize, Card, CardContent, CircularProgress, Divider, Typography } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CustomChip from '../DataGrid/CustomChip';
@@ -7,21 +7,14 @@ import { formatOrderDate } from '../../app/utils';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import theme from '../../app/theme';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import { removeOutgoingOrder } from '../../features/slices/outgoingOrdersSlice';
+import { deleteOrder, fetchOrder } from '../../features/slices/outgoingOrdersSlice';
 import DeleteConfirmationDialog from '../DeleteConfirmationDialog.tsx/DeleteConfirmationDialog';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ProductsList from './ProductsList';
-import { ORDER_STATUSES } from '../../app/constants';
 import CircleIcon from '@mui/icons-material/Circle';
 import OutgoingOrdersForm from '../OutgoingOrdersForm/OutgoingOrdersForm';
-
-const timelineStatuses = [ORDER_STATUSES.PICKING, ORDER_STATUSES.PACKED, ORDER_STATUSES.DISPATCHED];
-const statusesEnum: Record<string, number> = {
-    picking: 1,
-    packed: 2,
-    dispatched: 3,
-    delayed: 4,
-};
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { STATUSES_ENUM, TIMELINE_STATUSES } from '../../app/constants';
 
 const OutgoingOrderDetails = () => {
     const [isDeleteOrderDialogOpen, setIsDeleteOrderDialogOpen] = useState(false);
@@ -29,9 +22,23 @@ const OutgoingOrderDetails = () => {
     const dispatch = useAppDispatch();
     const location = useLocation();
     const navigate = useNavigate();
-    const order = useAppSelector((state) => state.outgoingOrders.orders).find(
-        (order) => order.id === location.state.orderId,
-    );
+    const IdOfOrderToFetch = location.state.orderId;
+    const { detailsLoading, detailsOrder: order } = useAppSelector((state) => state.outgoingOrders);
+
+    useEffect(() => {
+        if (IdOfOrderToFetch) {
+            dispatch(fetchOrder(IdOfOrderToFetch));
+        }
+    }, [dispatch, IdOfOrderToFetch]);
+
+    if (detailsLoading) {
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
+                <CircularProgress />
+            </Box>
+        );
+    }
+
     if (!order) {
         return (
             <Box
@@ -46,7 +53,7 @@ const OutgoingOrderDetails = () => {
                 <Typography sx={{ textAlign: 'center', paddingTop: '4em' }} gutterBottom variant='h4'>
                     No order found
                 </Typography>
-                <Button color='primary' variant='contained' onClick={() => navigate('/')}>
+                <Button onClick={() => navigate(-1)} variant='outlined' color='secondary' startIcon={<ArrowBackIcon />}>
                     Back
                 </Button>
             </Box>
@@ -79,8 +86,7 @@ const OutgoingOrderDetails = () => {
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: '1em' }}>
                     <Button
                         onClick={() => setIsCreateOutgoingOrderFormOpen(true)}
-                        variant='outlined'
-                        color='secondary'
+                        variant='contained'
                         startIcon={<EditIcon />}
                     >
                         Edit
@@ -92,6 +98,14 @@ const OutgoingOrderDetails = () => {
                         startIcon={<DeleteIcon />}
                     >
                         Delete
+                    </Button>
+                    <Button
+                        onClick={() => navigate(-1)}
+                        variant='outlined'
+                        color='secondary'
+                        startIcon={<ArrowBackIcon />}
+                    >
+                        Back
                     </Button>
                 </Box>
             </Box>
@@ -125,7 +139,7 @@ const OutgoingOrderDetails = () => {
                         <Typography gutterBottom variant='h6'>
                             Items
                         </Typography>
-                        {order.products.length}
+                        {order.items.length}
                     </CardContent>
                 </Card>
             </Box>
@@ -135,12 +149,12 @@ const OutgoingOrderDetails = () => {
                         Status timeline
                     </Typography>
                     <Box sx={{ display: 'flex', gap: '1em', '& > *': { flex: 1 } }}>
-                        {timelineStatuses.map((status, index) => {
+                        {TIMELINE_STATUSES.map((status, index) => {
                             const currentStatusHistory = order.statusHistory.find(
                                 (orderStatus) => orderStatus.status === status,
                             )!;
 
-                            const isDone = statusesEnum[status] <= statusesEnum[currentStatusHistory?.status] || 0;
+                            const isDone = STATUSES_ENUM[status] <= STATUSES_ENUM[currentStatusHistory?.status] || 0;
                             const color = isDone ? theme.palette.success.main : theme.palette.text.secondary;
                             const iconStyles = {
                                 border: `1px solid ${theme.palette.secondary.main}`,
@@ -190,12 +204,12 @@ const OutgoingOrderDetails = () => {
                     </Box>
                 </CardContent>
             </Card>
-            <ProductsList products={order.products} />
+            <ProductsList products={order.items} />
             <DeleteConfirmationDialog
                 closeDialog={() => setIsDeleteOrderDialogOpen(false)}
                 isOpen={isDeleteOrderDialogOpen}
                 onDelete={() => {
-                    dispatch(removeOutgoingOrder(order.id));
+                    dispatch(deleteOrder(order.id));
                     navigate('/');
                 }}
                 selectedOrder={order}
