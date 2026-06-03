@@ -38,7 +38,7 @@ const DataGrid = () => {
             const matchesPriority = priority === 'all' || row.priority === priority;
             const matchesSearch =
                 !search ||
-                row.id?.toLocaleLowerCase().includes(normalizedSearch) ||
+                row.id?.toString().toLocaleLowerCase().includes(normalizedSearch) ||
                 row.customer?.toLocaleLowerCase().includes(normalizedSearch);
             const matchesDate = !date || row.createdAt === date;
 

@@ -1,5 +1,5 @@
 interface OutgoingOrderInterface {
-    id: string;
+    id: number;
     customer: string;
     status: string;
     priority: string;
