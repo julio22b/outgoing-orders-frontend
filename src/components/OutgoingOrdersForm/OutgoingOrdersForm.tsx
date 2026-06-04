@@ -190,7 +190,7 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm, orderToE
                         }}
                         onKeyDown={addProduct}
                         error={Boolean(errors.item)}
-                        helperText={errors.item}
+                        helperText={errors.item || 'Hit Enter to add'}
                     />
                 </Box>
             </DialogContent>

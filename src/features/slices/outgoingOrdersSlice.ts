@@ -68,7 +68,18 @@ export const deleteOrder = createAsyncThunk('orders/deleteOrder', async (id: num
 export const outgoingOrdersSlice = createSlice({
     name: 'outgoingOrders',
     initialState,
-    reducers: {},
+    reducers: {
+        addOrder: (state, action: PayloadAction<OutgoingOrderInterface>) => {
+            state.orders.unshift(action.payload);
+        },
+        updateOrderInStore: (state, action: PayloadAction<OutgoingOrderInterface>) => {
+            state.orders = state.orders.map((order) => (order.id === action.payload.id ? action.payload : order));
+            state.detailsOrder = action.payload;
+        },
+        removeOrder: (state, action: PayloadAction<number>) => {
+            state.orders = state.orders.filter((order) => order.id !== action.payload);
+        },
+    },
     extraReducers: (builder) => {
         builder
             // fetch orders
@@ -90,24 +101,16 @@ export const outgoingOrdersSlice = createSlice({
                 state.error = action.payload;
             })
             // create order
-            .addCase(createOrder.fulfilled, (state, action: PayloadAction<OutgoingOrderInterface>) => {
+            .addCase(createOrder.fulfilled, (state) => {
                 state.loading = false;
-                state.orders.unshift(action.payload);
             })
             // update order
-            .addCase(updateOrder.fulfilled, (state, action: PayloadAction<OutgoingOrderInterface>) => {
+            .addCase(updateOrder.fulfilled, (state) => {
                 state.loading = false;
-                state.orders = state.orders.map((order) => {
-                    if (order.id === action.payload.id) {
-                        return action.payload;
-                    }
-                    return order;
-                });
             })
             // delete order
-            .addCase(deleteOrder.fulfilled, (state, action: PayloadAction<number>) => {
+            .addCase(deleteOrder.fulfilled, (state) => {
                 state.loading = false;
-                state.orders = state.orders.filter((order) => order.id !== action.payload);
             })
             // matchers
             .addMatcher(
@@ -126,5 +129,7 @@ export const outgoingOrdersSlice = createSlice({
             );
     },
 });
+
+export const { addOrder, updateOrderInStore, removeOrder } = outgoingOrdersSlice.actions;
 
 export default outgoingOrdersSlice.reducer;
