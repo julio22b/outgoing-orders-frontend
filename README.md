@@ -1,3 +1,4 @@
+<img width="1253" height="776" alt="Screenshot 2026-06-04 233505" src="https://github.com/user-attachments/assets/441e3191-52db-42a6-959e-dd3ce3ffc695" />
 # Outgoing Orders — Frontend
 
 A real-time Warehouse Management System (WMS) dashboard for tracking and managing outgoing orders. Built with React, TypeScript, Redux Toolkit, and Material UI.
