@@ -1,73 +1,67 @@
-# React + TypeScript + Vite
+# Outgoing Orders — Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A real-time Warehouse Management System (WMS) dashboard for tracking and managing outgoing orders. Built with React, TypeScript, Redux Toolkit, and Material UI.
 
-Currently, two official plugins are available:
+Inspired by 3.5 years of working on a production WMS at Pulpo WMS, where the outgoing orders page was one of the most complex and frequently improved parts of the system.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Live Demo
 
-## React Compiler
+**https://outgoing-orders-frontend.onrender.com**
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+> **Note:** The backend runs on Render's free tier and may take 30–60 seconds on the first request after inactivity. Subsequent requests are fast.
 
-## Expanding the ESLint configuration
+## Tech Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **Framework:** React 
+- **Language:** TypeScript
+- **State Management:** Redux Toolkit
+- **UI Library:** Material UI
+- **Real-time:** Socket.io client
+- **HTTP Client:** Axios
+- **Routing:** React Router
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Features
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- **Live dispatch board** — real-time order updates across all connected clients via Socket.io
+- **Summary metrics** — at-a-glance count of total, picking, packed, and delayed orders
+- **Filtering** — filter orders by status, priority, and date
+- **Full CRUD** — create, edit, and delete orders
+- **Order detail page** — status timeline showing progression from picking → packed → dispatched with timestamps
+- **Consistent status styling** — color-coded badges and timeline nodes per status
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Local Development
+
+### Prerequisites
+
+- Node.js 20+
+- The backend running locally or pointed at the Render API
+
+### Setup
+
+1. Clone the repo:
+   ```bash
+   git clone https://github.com/yourusername/outgoing-orders-frontend.git
+   cd outgoing-orders-frontend
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Create a `.env` file:
+   ```
+   VITE_API_BASE_URL=http://localhost:3000
+   ```
+
+4. Start the dev server:
+   ```bash
+   npm run dev
+   ```
+
+The app will be available at `http://localhost:5173`.
+
+To use the live backend instead of running it locally, set:
 ```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+VITE_API_BASE_URL=https://outgoing-orders-backend.onrender.com
 ```
