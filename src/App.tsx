@@ -1,5 +1,5 @@
 import './App.css';
-import { Box } from '@mui/material';
+import { Box, Snackbar } from '@mui/material';
 import AppBar from './components/AppBar';
 import OrdersSummary from './components/OrdersSummary/OrdersSummary';
 import DataGrid from './components/DataGrid/DataGrid';
@@ -7,12 +7,14 @@ import Filters from './components/Filters/Filters';
 import { Route, Routes } from 'react-router-dom';
 import OutgoingOrderDetails from './components/OutgoingOrderDetails/OutgoingOrderDetails';
 import { useEffect } from 'react';
-import { useAppDispatch } from './app/hooks';
+import { useAppDispatch, useAppSelector } from './app/hooks';
 import { addOrder, fetchOrders, removeOrder, updateOrderInStore } from './features/slices/outgoingOrdersSlice';
 import socket from './socket';
 import type { OutgoingOrderInterface } from './app/types';
+import { closeSnackbar } from './features/slices/snackbarSlice';
 
 function App() {
+    const { vertical, horizontal, open, message } = useAppSelector((state) => state.snackbar);
     const dispatch = useAppDispatch();
 
     useEffect(() => {
@@ -27,7 +29,7 @@ function App() {
         });
 
         socket.on('order:deleted', (id: number) => {
-            console.log('socket emit delete', id)
+            console.log('socket emit delete', id);
             dispatch(removeOrder(id));
         });
 
@@ -42,6 +44,14 @@ function App() {
         <Box>
             <AppBar />
             <OrdersSummary />
+            <Snackbar
+                autoHideDuration={6000}
+                anchorOrigin={{ vertical, horizontal }}
+                open={open}
+                onClose={() => dispatch(closeSnackbar())}
+                message={message}
+                key={vertical + horizontal}
+            />
             <Routes>
                 <Route
                     path='/'

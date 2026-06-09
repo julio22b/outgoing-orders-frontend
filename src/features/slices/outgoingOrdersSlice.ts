@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice, isAnyOf, type PayloadAction } from '@red
 import type { OutgoingOrderInterface } from '../../app/types';
 import api from '../../api/axiosInstance';
 
+import { openSnackbar } from './snackbarSlice';
 interface OutgoingOrdersInitialState {
     orders: OutgoingOrderInterface[];
     loading: boolean;
@@ -41,8 +42,10 @@ export const fetchOrder = createAsyncThunk('orders/fetchOrder', async (id: strin
 export const createOrder = createAsyncThunk('orders/createOrder', async (order: OutgoingOrderInterface, thunkAPI) => {
     try {
         const data = (await api.post(ordersPath, order)).data;
+        thunkAPI.dispatch(openSnackbar('Order successfully created!'));
         return data;
     } catch (error) {
+        thunkAPI.dispatch(openSnackbar('Failed to create order.'));
         return thunkAPI.rejectWithValue(error);
     }
 });
@@ -50,8 +53,10 @@ export const createOrder = createAsyncThunk('orders/createOrder', async (order: 
 export const updateOrder = createAsyncThunk('orders/updateOrder', async (order: OutgoingOrderInterface, thunkAPI) => {
     try {
         const data = (await api.put(`${ordersPath}/${order.id}`, order)).data;
+        thunkAPI.dispatch(openSnackbar('Order successfully updated!'));
         return data;
     } catch (error) {
+        thunkAPI.dispatch(openSnackbar('Failed to update order.'));
         return thunkAPI.rejectWithValue(error);
     }
 });
@@ -59,8 +64,10 @@ export const updateOrder = createAsyncThunk('orders/updateOrder', async (order: 
 export const deleteOrder = createAsyncThunk('orders/deleteOrder', async (id: number, thunkAPI) => {
     try {
         await api.delete(`${ordersPath}/${id}`);
+        thunkAPI.dispatch(openSnackbar('Order successfully deleted!'));
         return id;
     } catch (error) {
+        thunkAPI.dispatch(openSnackbar('Failed to delete order.'));
         return thunkAPI.rejectWithValue(error);
     }
 });
