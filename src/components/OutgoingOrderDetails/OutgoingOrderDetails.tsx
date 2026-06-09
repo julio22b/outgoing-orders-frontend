@@ -85,6 +85,15 @@ const OutgoingOrderDetails = () => {
                     <Typography variant='subtitle1'>{order.customer}</Typography>
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: '1em' }}>
+                    {nextStatus && (
+                        <Button
+                            color='primary'
+                            variant='contained'
+                            onClick={() => dispatch(updateOrderStatus(order.id))}
+                        >
+                            Mark as {capitalize(nextStatus)}
+                        </Button>
+                    )}
                     <Button
                         onClick={() => setIsCreateOutgoingOrderFormOpen(true)}
                         variant='contained'
@@ -203,17 +212,6 @@ const OutgoingOrderDetails = () => {
                             );
                         })}
                     </Box>
-                    {nextStatus && (
-                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 6 }}>
-                            <Button
-                                color='primary'
-                                variant='contained'
-                                onClick={() => dispatch(updateOrderStatus(order.id))}
-                            >
-                                Mark as {capitalize(nextStatus)}
-                            </Button>
-                        </Box>
-                    )}
                 </CardContent>
             </Card>
             <ProductsList products={order.items} />
