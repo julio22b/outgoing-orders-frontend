@@ -78,22 +78,24 @@ const OutgoingOrderDetails = () => {
                     display: 'flex',
                     justifyContent: 'space-between',
                     borderTop: `1px solid ${theme.palette.divider}`,
+                    flexWrap: 'wrap',
+                    '& > *': { flex: 1, minWidth: '300px' },
                 }}
             >
-                <Box>
+                <Box sx={{ margin: { xs: '0 0 1em 0', md: '0' } }}>
                     <Typography variant='h5'>{order.id}</Typography>
                     <Typography variant='subtitle1'>{order.customer}</Typography>
                 </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: '1em' }}>
-                    {nextStatus && (
-                        <Button
-                            color='primary'
-                            variant='contained'
-                            onClick={() => dispatch(updateOrderStatus(order.id))}
-                        >
-                            Mark as {capitalize(nextStatus)}
-                        </Button>
-                    )}
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'flex-end',
+                        gap: '1em',
+                        flexWrap: 'wrap',
+                        '& > *': { minWidth: 'fit-content' },
+                    }}
+                >
                     <Button
                         onClick={() => setIsCreateOutgoingOrderFormOpen(true)}
                         variant='contained'
@@ -119,7 +121,7 @@ const OutgoingOrderDetails = () => {
                     </Button>
                 </Box>
             </Box>
-            <Box sx={{ display: 'flex', gap: '1em', '& > *': { flex: 1 } }}>
+            <Box sx={{ display: 'flex', gap: '1em', flexWrap: 'wrap', '& > *': { flex: 1, minWidth: '150px' } }}>
                 <Card variant='outlined'>
                     <CardContent>
                         <Typography gutterBottom variant='h6'>
@@ -155,10 +157,28 @@ const OutgoingOrderDetails = () => {
             </Box>
             <Card variant='outlined'>
                 <CardContent>
-                    <Typography gutterBottom variant='h6'>
-                        Status timeline
-                    </Typography>
-                    <Box sx={{ display: 'flex', gap: '1em', '& > *': { flex: 1 } }}>
+                    <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+                        <Typography gutterBottom variant='h6'>
+                            Status timeline
+                        </Typography>
+                        {nextStatus && (
+                            <Button
+                                color='primary'
+                                variant='contained'
+                                onClick={() => dispatch(updateOrderStatus(order.id))}
+                            >
+                                Mark as {capitalize(nextStatus)}
+                            </Button>
+                        )}
+                    </Box>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            gap: '1em',
+                            '& > *': { flex: 1, minWidth: '150px' },
+                            overflow: { xs: 'scroll', md: 'hidden' },
+                        }}
+                    >
                         {TIMELINE_STATUSES.map((status, index) => {
                             const currentStatusHistory = order.statusHistory.find(
                                 (orderStatus) => orderStatus.status === status,

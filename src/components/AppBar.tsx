@@ -15,6 +15,8 @@ const AppBar = () => {
                 backdropFilter: 'blur(8px)',
                 borderBottom: '1px solid',
                 borderColor: 'divider',
+                paddingTop: '1em',
+                paddingBottom: '1em',
             }}
         >
             <Toolbar disableGutters sx={{ justifyContent: 'space-between', px: '17px' }}>
@@ -34,7 +36,9 @@ const AppBar = () => {
                     </Typography>
                 </Box>
 
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Box
+                    sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap', justifyContent: 'flex-end' }}
+                >
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <Box
                             sx={{

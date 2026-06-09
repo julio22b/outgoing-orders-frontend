@@ -11,7 +11,16 @@ const OrdersSummary = () => {
     }, {});
 
     return (
-        <Box sx={{ display: 'flex', gap: '1em', alignItems: 'center', margin: '2em 2em 0 2em', '& > *': { flex: 1 } }}>
+        <Box
+            sx={{
+                display: 'flex',
+                gap: '1em',
+                alignItems: 'center',
+                margin: '2em 2em 0 2em',
+                '& > *': { flex: 1, minWidth: '150px' },
+                flexWrap: 'wrap',
+            }}
+        >
             <OrderCard title='Total today' amount={rows.length} />
             <OrderCard title={ORDER_STATUSES.PICKING} amount={amounts[ORDER_STATUSES.PICKING]} />
             <OrderCard title={ORDER_STATUSES.PACKED} amount={amounts[ORDER_STATUSES.PACKED]} />
