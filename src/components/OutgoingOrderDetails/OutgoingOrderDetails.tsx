@@ -7,14 +7,14 @@ import { formatOrderDate } from '../../app/utils';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import theme from '../../app/theme';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import { deleteOrder, fetchOrder } from '../../features/slices/outgoingOrdersSlice';
+import { deleteOrder, fetchOrder, statusTransitionOrder } from '../../features/slices/outgoingOrdersSlice';
 import DeleteConfirmationDialog from '../DeleteConfirmationDialog.tsx/DeleteConfirmationDialog';
 import { useEffect, useState } from 'react';
 import ProductsList from './ProductsList';
 import CircleIcon from '@mui/icons-material/Circle';
 import OutgoingOrdersForm from '../OutgoingOrdersForm/OutgoingOrdersForm';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { STATUSES_ENUM, TIMELINE_STATUSES } from '../../app/constants';
+import { STATUS_TRANSITIONS, STATUSES_ENUM, TIMELINE_STATUSES } from '../../app/constants';
 
 const OutgoingOrderDetails = () => {
     const [isDeleteOrderDialogOpen, setIsDeleteOrderDialogOpen] = useState(false);
@@ -24,6 +24,7 @@ const OutgoingOrderDetails = () => {
     const navigate = useNavigate();
     const IdOfOrderToFetch = location.state.orderId;
     const { detailsLoading, detailsOrder: order } = useAppSelector((state) => state.outgoingOrders);
+    const nextStatus = STATUS_TRANSITIONS[order?.status || ''];
 
     useEffect(() => {
         if (IdOfOrderToFetch) {
@@ -202,6 +203,17 @@ const OutgoingOrderDetails = () => {
                             );
                         })}
                     </Box>
+                    {nextStatus && (
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 6 }}>
+                            <Button
+                                color='primary'
+                                variant='contained'
+                                onClick={() => dispatch(statusTransitionOrder(order.id))}
+                            >
+                                Mark as {capitalize(nextStatus)}
+                            </Button>
+                        </Box>
+                    )}
                 </CardContent>
             </Card>
             <ProductsList products={order.items} />

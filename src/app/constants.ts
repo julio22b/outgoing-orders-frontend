@@ -50,3 +50,8 @@ export const STATUSES_ENUM: Record<string, number> = {
     dispatched: 3,
     delayed: 4,
 };
+
+export const STATUS_TRANSITIONS: Record<string, string> = {
+    picking: 'packed',
+    packed: 'dispatched',
+};

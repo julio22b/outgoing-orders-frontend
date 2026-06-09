@@ -72,6 +72,17 @@ export const deleteOrder = createAsyncThunk('orders/deleteOrder', async (id: num
     }
 });
 
+export const statusTransitionOrder = createAsyncThunk('orders/statusTransitionOrder', async (id: number, thunkAPI) => {
+    try {
+        await api.patch(`${ordersPath}/${id}/status`);
+        thunkAPI.dispatch(openSnackbar('Order status successfully updated!'));
+        return id;
+    } catch (error) {
+        thunkAPI.dispatch(openSnackbar('Failed to update order status.'));
+        return thunkAPI.rejectWithValue(error);
+    }
+});
+
 export const outgoingOrdersSlice = createSlice({
     name: 'outgoingOrders',
     initialState,
@@ -107,28 +118,39 @@ export const outgoingOrdersSlice = createSlice({
                 state.detailsLoading = false;
                 state.error = action.payload;
             })
-            // create order
-            .addCase(createOrder.fulfilled, (state) => {
-                state.loading = false;
-            })
-            // update order
-            .addCase(updateOrder.fulfilled, (state) => {
-                state.loading = false;
-            })
-            // delete order
-            .addCase(deleteOrder.fulfilled, (state) => {
-                state.loading = false;
-            })
             // matchers
             .addMatcher(
-                isAnyOf(fetchOrders.pending, createOrder.pending, updateOrder.pending, deleteOrder.pending),
+                isAnyOf(
+                    createOrder.fulfilled,
+                    updateOrder.fulfilled,
+                    deleteOrder.fulfilled,
+                    statusTransitionOrder.fulfilled,
+                ),
+                (state) => {
+                    state.loading = false;
+                },
+            )
+            .addMatcher(
+                isAnyOf(
+                    fetchOrders.pending,
+                    createOrder.pending,
+                    updateOrder.pending,
+                    deleteOrder.pending,
+                    statusTransitionOrder.pending,
+                ),
                 (state) => {
                     state.loading = true;
                     state.error = null;
                 },
             )
             .addMatcher(
-                isAnyOf(fetchOrders.rejected, createOrder.rejected, updateOrder.rejected, deleteOrder.rejected),
+                isAnyOf(
+                    fetchOrders.rejected,
+                    createOrder.rejected,
+                    updateOrder.rejected,
+                    deleteOrder.rejected,
+                    statusTransitionOrder.rejected,
+                ),
                 (state, action: PayloadAction<unknown>) => {
                     state.loading = false;
                     state.error = action.payload;
