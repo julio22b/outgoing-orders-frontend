@@ -7,7 +7,7 @@ import { formatOrderDate } from '../../app/utils';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import theme from '../../app/theme';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import { deleteOrder, fetchOrder, statusTransitionOrder } from '../../features/slices/outgoingOrdersSlice';
+import { deleteOrder, fetchOrder, updateOrderStatus } from '../../features/slices/outgoingOrdersSlice';
 import DeleteConfirmationDialog from '../DeleteConfirmationDialog.tsx/DeleteConfirmationDialog';
 import { useEffect, useState } from 'react';
 import ProductsList from './ProductsList';
@@ -208,7 +208,7 @@ const OutgoingOrderDetails = () => {
                             <Button
                                 color='primary'
                                 variant='contained'
-                                onClick={() => dispatch(statusTransitionOrder(order.id))}
+                                onClick={() => dispatch(updateOrderStatus(order.id))}
                             >
                                 Mark as {capitalize(nextStatus)}
                             </Button>

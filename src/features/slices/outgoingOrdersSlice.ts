@@ -72,7 +72,7 @@ export const deleteOrder = createAsyncThunk('orders/deleteOrder', async (id: num
     }
 });
 
-export const statusTransitionOrder = createAsyncThunk('orders/statusTransitionOrder', async (id: number, thunkAPI) => {
+export const updateOrderStatus = createAsyncThunk('orders/updateOrderStatus', async (id: number, thunkAPI) => {
     try {
         await api.patch(`${ordersPath}/${id}/status`);
         thunkAPI.dispatch(openSnackbar('Order status successfully updated!'));
@@ -106,10 +106,6 @@ export const outgoingOrdersSlice = createSlice({
                 state.orders = action.payload;
             })
             // fetch order
-            .addCase(fetchOrder.pending, (state) => {
-                state.detailsLoading = true;
-                state.error = null;
-            })
             .addCase(fetchOrder.fulfilled, (state, action: PayloadAction<OutgoingOrderInterface>) => {
                 state.detailsLoading = false;
                 state.detailsOrder = action.payload;
@@ -118,39 +114,31 @@ export const outgoingOrdersSlice = createSlice({
                 state.detailsLoading = false;
                 state.error = action.payload;
             })
+            .addCase(updateOrderStatus.fulfilled, (state) => {
+                state.detailsLoading = false;
+                state.error = null;
+            })
+            .addCase(updateOrderStatus.rejected, (state, action: PayloadAction<unknown>) => {
+                state.detailsLoading = false;
+                state.error = action.payload;
+            })
             // matchers
+            .addMatcher(isAnyOf(fetchOrder.pending, updateOrderStatus.pending), (state) => {
+                state.detailsLoading = true;
+                state.error = null;
+            })
+            .addMatcher(isAnyOf(createOrder.fulfilled, updateOrder.fulfilled, deleteOrder.fulfilled), (state) => {
+                state.loading = false;
+            })
             .addMatcher(
-                isAnyOf(
-                    createOrder.fulfilled,
-                    updateOrder.fulfilled,
-                    deleteOrder.fulfilled,
-                    statusTransitionOrder.fulfilled,
-                ),
-                (state) => {
-                    state.loading = false;
-                },
-            )
-            .addMatcher(
-                isAnyOf(
-                    fetchOrders.pending,
-                    createOrder.pending,
-                    updateOrder.pending,
-                    deleteOrder.pending,
-                    statusTransitionOrder.pending,
-                ),
+                isAnyOf(fetchOrders.pending, createOrder.pending, updateOrder.pending, deleteOrder.pending),
                 (state) => {
                     state.loading = true;
                     state.error = null;
                 },
             )
             .addMatcher(
-                isAnyOf(
-                    fetchOrders.rejected,
-                    createOrder.rejected,
-                    updateOrder.rejected,
-                    deleteOrder.rejected,
-                    statusTransitionOrder.rejected,
-                ),
+                isAnyOf(fetchOrders.rejected, createOrder.rejected, updateOrder.rejected, deleteOrder.rejected),
                 (state, action: PayloadAction<unknown>) => {
                     state.loading = false;
                     state.error = action.payload;

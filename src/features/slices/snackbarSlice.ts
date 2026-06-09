@@ -9,7 +9,7 @@ interface SnackbarInitialState {
 
 const initialState: SnackbarInitialState = {
     open: false,
-    vertical: 'top',
+    vertical: 'bottom',
     horizontal: 'right',
     message: '',
 };
