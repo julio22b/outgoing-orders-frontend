@@ -1,4 +1,5 @@
 import {
+    Box,
     IconButton,
     Paper,
     Table,
@@ -17,11 +18,11 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import DeleteConfirmationDialog from '../DeleteConfirmationDialog.tsx/DeleteConfirmationDialog';
 import type { OutgoingOrderInterface } from '../../app/types';
 import { deleteOrder } from '../../features/slices/outgoingOrdersSlice';
-import { Link } from 'react-router-dom';
-import theme from '../../app/theme';
 import CustomChip from './CustomChip';
 import { formatOrderDate } from '../../app/utils';
 import LoadingOverlay from '../common/LoadingOverlay';
+import DetailsIcon from '@mui/icons-material/Details';
+import DetailsLink from '../common/DetailsLink';
 
 const DataGrid = () => {
     const rows = useAppSelector((state) => state.outgoingOrders.orders);
@@ -92,17 +93,7 @@ const DataGrid = () => {
                         {visibleRows.map((row) => (
                             <TableRow key={row.id}>
                                 <TableCell>
-                                    <Link
-                                        to={`/orders/${row.id}`}
-                                        state={{ orderId: row.id }}
-                                        style={{
-                                            textDecoration: 'none',
-                                            color: theme.palette.primary.main,
-                                            fontWeight: 'bold',
-                                        }}
-                                    >
-                                        {`Order-${row.id}`}
-                                    </Link>
+                                    <DetailsLink orderId={row.id} />
                                 </TableCell>
                                 <TableCell>{row.customer}</TableCell>
                                 <TableCell>
@@ -113,16 +104,23 @@ const DataGrid = () => {
                                 </TableCell>
                                 <TableCell>{formatOrderDate(row.createdAt)}</TableCell>
                                 <TableCell>
-                                    <Tooltip title='Delete'>
-                                        <IconButton
-                                            onClick={() => {
-                                                setSelectedOrder(row);
-                                                setIsDeleteConfirmationDialogOpen(true);
-                                            }}
-                                        >
-                                            <DeleteIcon />
-                                        </IconButton>
-                                    </Tooltip>
+                                    <Box sx={{ display: 'flex', alignItems: 'baseline', gap: '1em' }}>
+                                        <Tooltip title='Delete'>
+                                            <IconButton
+                                                onClick={() => {
+                                                    setSelectedOrder(row);
+                                                    setIsDeleteConfirmationDialogOpen(true);
+                                                }}
+                                            >
+                                                <DeleteIcon />
+                                            </IconButton>
+                                        </Tooltip>
+                                        <Tooltip title='Details'>
+                                            <IconButton>
+                                                <DetailsLink orderId={row.id} component={<DetailsIcon />} />
+                                            </IconButton>
+                                        </Tooltip>
+                                    </Box>
                                 </TableCell>
                             </TableRow>
                         ))}
