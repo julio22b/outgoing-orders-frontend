@@ -24,7 +24,7 @@ const OrdersSummary = () => {
             <OrderCard title='Total today' amount={rows.length} />
             <OrderCard title={ORDER_STATUSES.PICKING} amount={amounts[ORDER_STATUSES.PICKING]} />
             <OrderCard title={ORDER_STATUSES.PACKED} amount={amounts[ORDER_STATUSES.PACKED]} />
-            <OrderCard title={ORDER_STATUSES.DELAYED} amount={amounts[ORDER_STATUSES.DELAYED]} />
+            <OrderCard title={ORDER_STATUSES.DISPATCHED} amount={amounts[ORDER_STATUSES.DISPATCHED]} />
         </Box>
     );
 };

@@ -25,7 +25,7 @@ Inspired by 3.5 years of working on a production WMS at Pulpo WMS, where the out
 ## Features
 
 - **Live dispatch board** — real-time order updates across all connected clients via Socket.io
-- **Summary metrics** — at-a-glance count of total, picking, packed, and delayed orders
+- **Summary metrics** — at-a-glance count of total, picking, packed, and dispatched orders
 - **Filtering** — filter orders by status, priority, and date
 - **Full CRUD** — create, edit, and delete orders
 - **Order detail page** — status timeline showing progression from picking → packed → dispatched with timestamps
