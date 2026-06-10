@@ -5,15 +5,29 @@ import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import SelectFilter from './SelectFilter/SelectFilter';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import { statusFilterChanged, priorityFilterChanged, dateFilterChanged, searchFilterChanged } from '../../features/slices/filtersSlice';
+import {
+    statusFilterChanged,
+    priorityFilterChanged,
+    dateFilterChanged,
+    searchFilterChanged,
+} from '../../features/slices/filtersSlice';
 import { ORDER_FIELDS, ORDER_PRIORITIES, ORDER_STATUSES } from '../../app/constants';
 
 const Filters = () => {
     const { date, priority, search, status } = useAppSelector((state) => state.filters);
-    const dispatch = useAppDispatch()
+    const dispatch = useAppDispatch();
 
     return (
-        <Box sx={{ display: 'flex', alignItems: 'center', padding: '2em', gap: '1.5em', '& > *': { flex: 1 }  }}>
+        <Box
+            sx={{
+                display: 'flex',
+                alignItems: 'center',
+                padding: '2em',
+                flexWrap: 'wrap',
+                gap: '1.5em',
+                '& > *': { flex: 1, minWidth: '300px' },
+            }}
+        >
             <TextField
                 value={search}
                 onChange={(e) => dispatch(searchFilterChanged(e.target.value))}
