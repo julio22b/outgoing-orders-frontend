@@ -9,6 +9,7 @@ interface OutgoingOrdersInitialState {
     error: unknown;
     detailsLoading: boolean;
     detailsOrder?: OutgoingOrderInterface;
+    initialized: boolean;
 }
 
 const initialState: OutgoingOrdersInitialState = {
@@ -17,6 +18,7 @@ const initialState: OutgoingOrdersInitialState = {
     error: null,
     detailsLoading: false,
     detailsOrder: undefined,
+    initialized: false,
 };
 
 const ordersPath = '/orders';
@@ -104,6 +106,7 @@ export const outgoingOrdersSlice = createSlice({
             .addCase(fetchOrders.fulfilled, (state, action: PayloadAction<OutgoingOrderInterface[]>) => {
                 state.loading = false;
                 state.orders = action.payload;
+                state.initialized = true;
             })
             // fetch order
             .addCase(fetchOrder.fulfilled, (state, action: PayloadAction<OutgoingOrderInterface>) => {
@@ -142,6 +145,7 @@ export const outgoingOrdersSlice = createSlice({
                 (state, action: PayloadAction<unknown>) => {
                     state.loading = false;
                     state.error = action.payload;
+                    state.initialized = true;
                 },
             );
     },

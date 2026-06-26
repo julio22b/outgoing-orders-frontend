@@ -12,9 +12,11 @@ import { addOrder, fetchOrders, removeOrder, updateOrderInStore } from './featur
 import socket from './socket';
 import type { OutgoingOrderInterface } from './app/types';
 import { closeSnackbar } from './features/slices/snackbarSlice';
+import LoadingOverlay from './components/common/LoadingOverlay';
 
 function App() {
     const { vertical, horizontal, open, message } = useAppSelector((state) => state.snackbar);
+    const initialized = useAppSelector((state) => state.outgoingOrders.initialized);
     const dispatch = useAppDispatch();
 
     useEffect(() => {
@@ -39,6 +41,15 @@ function App() {
             socket.off('order:deleted');
         };
     }, [dispatch]);
+
+    if (!initialized) {
+        return (
+            <LoadingOverlay
+                message="Server is waking up..."
+                subMessage="The server spins down after inactivity. This takes 30–50 seconds — hang tight!"
+            />
+        );
+    }
 
     return (
         <Box>
