@@ -1,6 +1,7 @@
 import { Box, Button, Toolbar, Typography, AppBar as MuiAppBar } from '@mui/material';
 import { useState } from 'react';
 import OutgoingOrdersForm from './OutgoingOrdersForm/OutgoingOrdersForm';
+import theme from '../app/theme';
 
 const AppBar = () => {
     const [isCreateOutgoingOrderFormOpen, setIsCreateOutgoingOrderFormOpen] = useState(false);
@@ -8,31 +9,34 @@ const AppBar = () => {
     return (
         <MuiAppBar
             position='static'
-            color='inherit'
             elevation={0}
             sx={{
-                backgroundColor: 'rgba(21, 25, 33, 0.8)',
-                backdropFilter: 'blur(8px)',
-                borderBottom: '1px solid',
-                borderColor: 'divider',
+                backgroundColor: theme.palette.background.default,
                 paddingTop: '1em',
                 paddingBottom: '1em',
             }}
         >
             <Toolbar disableGutters sx={{ justifyContent: 'space-between', px: '17px' }}>
                 <Box>
-                    <Typography variant='h5' component='div' sx={{ lineHeight: 1.2, fontWeight: 600 }}>
+                    <Typography
+                        variant='h4'
+                        sx={{
+                            fontWeight: 700,
+                            fontSize: '2.5em',
+                            color: theme.palette.text.primary,
+                        }}
+                    >
                         Outgoing Orders
                     </Typography>
                     <Typography
                         variant='caption'
                         sx={{
                             color: 'text.secondary',
-                            letterSpacing: '0.15em',
-                            fontWeight: 700,
+                            letterSpacing: '0.2em',
+                            fontWeight: 600,
                         }}
                     >
-                        Live Dispatch Board
+                        LIVE DISPATCH BOARD
                     </Typography>
                 </Box>
 

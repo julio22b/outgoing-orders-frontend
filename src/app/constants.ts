@@ -32,14 +32,14 @@ export const ORDER_PRIORITIES = {
     LOW: 'low',
 } as const;
 
-export const STATUS_COLORS: Record<string, { background: string; color: string }> = {
-    [ORDER_STATUSES.PICKING]: { background: '#f8e3bf', color: '#774406' },
-    [ORDER_STATUSES.PACKED]: { background: '#cbf6e7', color: '#0b6a52' },
-    [ORDER_STATUSES.DISPATCHED]: { background: '#dff6c2', color: '#31600b' },
-    [ORDER_STATUSES.DELAYED]: { background: '#f8cccc', color: '#911c1c' },
-    [ORDER_PRIORITIES.HIGH]: { background: '#f8cccc', color: '#911c1c' },
-    [ORDER_PRIORITIES.NORMAL]: { background: '#dcd5d5', color: '#5c5c5c' },
-    [ORDER_PRIORITIES.LOW]: { background: '#f8e3bf', color: '#774406' },
+export const STATUS_COLORS: Record<string, { background: string; color: string; accent: string }> = {
+    [ORDER_STATUSES.PICKING]: { background: '#fde3c4', color: '#804813', accent: '#d79e59' },
+    [ORDER_STATUSES.PACKED]: { background: '#cbefdb', color: '#1d533c', accent: '#6aa085' },
+    [ORDER_STATUSES.DISPATCHED]: { background: '#cde9fd', color: '#22587a', accent: '#5787a5' },
+    [ORDER_STATUSES.DELAYED]: { background: '#ffe2db', color: '#a04130', accent: '#c15f4d' },
+    [ORDER_PRIORITIES.HIGH]: { background: '#ffded5', color: '#a04130', accent: '#c15f4d' },
+    [ORDER_PRIORITIES.NORMAL]: { background: '#ebe7e2', color: '#625d56', accent: '#a89f97' },
+    [ORDER_PRIORITIES.LOW]: { background: '#d2edfc', color: '#286484', accent: '#5787a5' },
 };
 
 export const TIMELINE_STATUSES = [ORDER_STATUSES.PICKING, ORDER_STATUSES.PACKED, ORDER_STATUSES.DISPATCHED];

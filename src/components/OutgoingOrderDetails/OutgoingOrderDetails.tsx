@@ -5,7 +5,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import CustomChip from '../DataGrid/CustomChip';
 import { formatOrderDate } from '../../app/utils';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import theme from '../../app/theme';
+import theme, { colors } from '../../app/theme';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { deleteOrder, fetchOrder, updateOrderStatus } from '../../features/slices/outgoingOrdersSlice';
 import DeleteConfirmationDialog from '../DeleteConfirmationDialog.tsx/DeleteConfirmationDialog';
@@ -100,14 +100,15 @@ const OutgoingOrderDetails = () => {
                         onClick={() => setIsCreateOutgoingOrderFormOpen(true)}
                         variant='contained'
                         startIcon={<EditIcon />}
+                        sx={{ backgroundColor: 'background.paper', color: 'primary.main' }}
                     >
                         Edit
                     </Button>
                     <Button
                         onClick={() => setIsDeleteOrderDialogOpen(true)}
                         variant='outlined'
-                        color='warning'
-                        startIcon={<DeleteIcon />}
+                        sx={{ color: 'warning.main' }}
+                        startIcon={<DeleteIcon color='warning' />}
                     >
                         Delete
                     </Button>
@@ -124,7 +125,16 @@ const OutgoingOrderDetails = () => {
             <Box sx={{ display: 'flex', gap: '1em', flexWrap: 'wrap', '& > *': { flex: 1, minWidth: '150px' } }}>
                 <Card variant='outlined'>
                     <CardContent>
-                        <Typography gutterBottom variant='h6'>
+                        <Typography
+                            gutterBottom
+                            variant='h6'
+                            sx={{
+                                color: 'text.secondary',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.15em',
+                                fontSize: '14px',
+                            }}
+                        >
                             Status
                         </Typography>
                         <CustomChip title={order.status} />
@@ -132,7 +142,16 @@ const OutgoingOrderDetails = () => {
                 </Card>
                 <Card variant='outlined'>
                     <CardContent>
-                        <Typography gutterBottom variant='h6'>
+                        <Typography
+                            gutterBottom
+                            variant='h6'
+                            sx={{
+                                color: 'text.secondary',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.15em',
+                                fontSize: '14px',
+                            }}
+                        >
                             Priority
                         </Typography>
                         <CustomChip title={order.priority} />
@@ -140,7 +159,16 @@ const OutgoingOrderDetails = () => {
                 </Card>
                 <Card variant='outlined'>
                     <CardContent>
-                        <Typography gutterBottom variant='h6'>
+                        <Typography
+                            gutterBottom
+                            variant='h6'
+                            sx={{
+                                color: 'text.secondary',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.15em',
+                                fontSize: '14px',
+                            }}
+                        >
                             Date
                         </Typography>
                         {formatOrderDate(order.createdAt)}
@@ -148,10 +176,19 @@ const OutgoingOrderDetails = () => {
                 </Card>
                 <Card variant='outlined'>
                     <CardContent>
-                        <Typography gutterBottom variant='h6'>
+                        <Typography
+                            gutterBottom
+                            variant='h6'
+                            sx={{
+                                color: 'text.secondary',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.15em',
+                                fontSize: '14px',
+                            }}
+                        >
                             Items
                         </Typography>
-                        {order.items.length}
+                        <Typography variant='h5'>{order.items.length}</Typography>
                     </CardContent>
                 </Card>
             </Box>
@@ -166,6 +203,7 @@ const OutgoingOrderDetails = () => {
                                 color='primary'
                                 variant='contained'
                                 onClick={() => dispatch(updateOrderStatus(order.id))}
+                                sx={{ boxShadow: '2px 2px 10px rgba(0, 0, 0, 0.2)' }}
                             >
                                 Mark as {capitalize(nextStatus)}
                             </Button>
@@ -185,9 +223,9 @@ const OutgoingOrderDetails = () => {
                             )!;
 
                             const isDone = STATUSES_ENUM[status] <= STATUSES_ENUM[currentStatusHistory?.status] || 0;
-                            const color = isDone ? theme.palette.success.main : theme.palette.text.secondary;
+                            const color = isDone ? theme.palette.success.main : colors.borderCard;
                             const iconStyles = {
-                                border: `1px solid ${theme.palette.secondary.main}`,
+                                border: `3px solid ${color}`,
                                 borderRadius: '50%',
                                 color,
                             };
@@ -207,7 +245,14 @@ const OutgoingOrderDetails = () => {
                                         ) : (
                                             <CircleIcon fontSize='large' sx={iconStyles} />
                                         )}
-                                        <Typography color={color}>{capitalize(status)}</Typography>
+                                        <Typography
+                                            sx={{
+                                                color: 'text.secondary',
+                                                ...(isDone && { fontWeight: '600', color: 'text.primary' }),
+                                            }}
+                                        >
+                                            {capitalize(status)}
+                                        </Typography>
                                         <Typography variant='subtitle2'>
                                             {currentStatusHistory
                                                 ? formatOrderDate(currentStatusHistory.timestamp)
@@ -219,12 +264,13 @@ const OutgoingOrderDetails = () => {
                                             flexItem
                                             absolute
                                             sx={{
-                                                top: '50%',
-                                                left: '80%',
+                                                top: '35%',
+                                                left: '65%',
                                                 right: '0',
-                                                height: '3px',
-                                                width: '50%',
+                                                height: '4px',
+                                                width: '80%',
                                                 background: color,
+                                                border: 'none',
                                             }}
                                         />
                                     )}

@@ -60,7 +60,6 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm, orderToE
     const [productName, setProductName] = useState('');
     const [errors, setErrors] = useState<FormErrorsInterface>({ customer: '', item: '' });
     const isEditForm = Boolean(orderToEdit);
-    const isCreateButtonDisabled = !order.customer || !order.items.length || loading;
 
     const onSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
         if (e) e.preventDefault();
@@ -115,7 +114,7 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm, orderToE
     return (
         <Dialog open={isCreateOutgoingOrderFormOpen} onClose={handleClose} fullWidth>
             {loading && <LoadingOverlay />}
-            <DialogTitle>Create new order</DialogTitle>
+            <DialogTitle component='h2'>Create new order</DialogTitle>
             <DialogContent sx={{ pt: '16px !important', position: 'relative' }}>
                 <Box component='form' sx={{ display: 'flex', flexDirection: 'column', gap: '2em' }}>
                     <TextField
@@ -135,39 +134,41 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm, orderToE
                         error={!!errors.customer}
                         helperText={errors.customer}
                     />
-                    <FormControl fullWidth>
-                        <InputLabel id={'priority-select'}>Priority</InputLabel>
-                        <Select
-                            labelId={'priority-select'}
-                            id={'priority-select'}
-                            disabled={isEditForm}
-                            value={order.priority}
-                            label={ORDER_FIELDS.PRIORITY}
-                            onChange={(e) => setOrder({ ...order, priority: e.target.value })}
-                        >
-                            {Object.values(ORDER_PRIORITIES).map((option) => (
-                                <MenuItem key={option} value={option}>
-                                    {`${option[0].toUpperCase()}${option.slice(1)}`}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <Stack spacing={3}>
-                            <DatePicker
-                                label='Date'
+                    <Box sx={{ display: 'flex', gap: '1em' }}>
+                        <FormControl fullWidth>
+                            <InputLabel id={'priority-select'}>Priority</InputLabel>
+                            <Select
+                                labelId={'priority-select'}
+                                id={'priority-select'}
                                 disabled={isEditForm}
-                                value={order.createdAt ? dayjs(order.createdAt) : null}
-                                minDate={isEditForm ? undefined : dayjs()}
-                                onChange={(newValue) =>
-                                    setOrder({
-                                        ...order,
-                                        createdAt: newValue ? newValue.toISOString() : dayjs().toISOString(),
-                                    })
-                                }
-                            />
-                        </Stack>
-                    </LocalizationProvider>
+                                value={order.priority}
+                                label={ORDER_FIELDS.PRIORITY}
+                                onChange={(e) => setOrder({ ...order, priority: e.target.value })}
+                            >
+                                {Object.values(ORDER_PRIORITIES).map((option) => (
+                                    <MenuItem key={option} value={option}>
+                                        {`${option[0].toUpperCase()}${option.slice(1)}`}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <Stack spacing={3}>
+                                <DatePicker
+                                    label='Date'
+                                    disabled={isEditForm}
+                                    value={order.createdAt ? dayjs(order.createdAt) : null}
+                                    minDate={isEditForm ? undefined : dayjs()}
+                                    onChange={(newValue) =>
+                                        setOrder({
+                                            ...order,
+                                            createdAt: newValue ? newValue.toISOString() : dayjs().toISOString(),
+                                        })
+                                    }
+                                />
+                            </Stack>
+                        </LocalizationProvider>
+                    </Box>
                     <Box sx={{ display: 'flex', gap: '8px' }}>
                         {order.items.map((item) => (
                             <Chip
@@ -195,11 +196,11 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm, orderToE
                 </Box>
             </DialogContent>
             <DialogActions>
-                <Button onClick={handleClose} color='secondary' variant='outlined' disabled={loading}>
+                <Button onClick={handleClose} variant='outlined' disabled={loading}>
                     Cancel
                 </Button>
-                <Button variant='contained' onClick={onSubmit} color='primary' disabled={isCreateButtonDisabled}>
-                    {isEditForm ? 'Save' : 'Create'}
+                <Button variant='contained' onClick={onSubmit} color='primary' disabled={loading}>
+                    {isEditForm ? 'Save order' : 'Create order'}
                 </Button>
             </DialogActions>
         </Dialog>
