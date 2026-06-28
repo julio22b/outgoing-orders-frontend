@@ -15,6 +15,7 @@ import CircleIcon from '@mui/icons-material/Circle';
 import OutgoingOrdersForm from '../OutgoingOrdersForm/OutgoingOrdersForm';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { STATUS_TRANSITIONS, STATUSES_ENUM, TIMELINE_STATUSES } from '../../app/constants';
+import LoadingOverlay from '../common/LoadingOverlay';
 
 const OutgoingOrderDetails = () => {
     const [isDeleteOrderDialogOpen, setIsDeleteOrderDialogOpen] = useState(false);
@@ -32,7 +33,7 @@ const OutgoingOrderDetails = () => {
         }
     }, [dispatch, IdOfOrderToFetch]);
 
-    if (detailsLoading) {
+    if (detailsLoading && !order) {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
                 <CircularProgress />
@@ -62,6 +63,8 @@ const OutgoingOrderDetails = () => {
     }
 
     return (
+        <Box sx={{ position: 'relative' }}>
+            {detailsLoading && <LoadingOverlay absolute />}
         <Box
             sx={{
                 display: 'flex',
@@ -295,6 +298,7 @@ const OutgoingOrderDetails = () => {
                 closeForm={() => setIsCreateOutgoingOrderFormOpen(false)}
                 orderToEdit={order}
             />
+        </Box>
         </Box>
     );
 };

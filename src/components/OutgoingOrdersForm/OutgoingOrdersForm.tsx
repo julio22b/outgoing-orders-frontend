@@ -72,16 +72,15 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm, orderToE
         }
 
         if (isEditForm) {
-            dispatch(updateOrder(order));
+            dispatch(updateOrder(order)).then(closeForm);
         } else {
             dispatch(
                 createOrder({
                     ...order,
                     statusHistory: [{ status: ORDER_STATUSES.PICKING, timestamp: order.createdAt }],
                 }),
-            );
+            ).then(closeForm);
         }
-        closeForm();
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -114,7 +113,8 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm, orderToE
 
     return (
         <Dialog open={isCreateOutgoingOrderFormOpen} onClose={handleClose} fullWidth>
-            {loading && <LoadingOverlay />}
+            <Box sx={{ position: 'relative' }}>
+                {loading && <LoadingOverlay absolute />}
             <DialogTitle component='h2'>Create new order</DialogTitle>
             <DialogContent sx={{ pt: '16px !important', position: 'relative' }}>
                 <Box component='form' sx={{ display: 'flex', flexDirection: 'column', gap: '2em' }}>
@@ -224,6 +224,7 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm, orderToE
                     {isEditForm ? 'Save order' : 'Create order'}
                 </Button>
             </DialogActions>
+            </Box>
         </Dialog>
     );
 };

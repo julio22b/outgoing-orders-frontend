@@ -1,4 +1,5 @@
 import { Button, Dialog, DialogActions, DialogTitle } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
 import type { OutgoingOrderInterface } from '../../app/types';
 
 interface DeleteConfirmationDialogProps {
@@ -16,7 +17,7 @@ const DeleteConfirmationDialog = ({ isOpen, selectedOrder, closeDialog, onDelete
                 <Button onClick={closeDialog} color='secondary' variant='outlined'>
                     Cancel
                 </Button>
-                <Button color='warning' sx={{ fontWeight: 600 }} variant='outlined' onClick={onDelete}>
+                <Button variant='outlined' sx={{ color: 'warning.main', fontWeight: 600 }} startIcon={<DeleteIcon color='warning' />} onClick={onDelete}>
                     Delete
                 </Button>
             </DialogActions>
