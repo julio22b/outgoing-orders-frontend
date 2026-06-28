@@ -7,12 +7,14 @@ import {
     DialogContent,
     DialogTitle,
     FormControl,
+    IconButton,
     InputLabel,
     MenuItem,
     Select,
     Stack,
     TextField,
 } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
 import React, { useState } from 'react';
 import type { OutgoingOrderInterface } from '../../app/types';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
@@ -91,19 +93,18 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm, orderToE
         }
     };
 
-    const addProduct = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        const newProduct = (e.target as HTMLInputElement).value;
-        if (!newProduct) return;
-
-        const isProductAlreadyAdded = order.items.includes(newProduct);
-        if (e.key === 'Enter') {
-            if (isProductAlreadyAdded) {
-                setErrors({ ...errors, item: 'This product has already been added.' });
-                return;
-            }
-            setOrder({ ...order, items: [...order.items, newProduct] });
-            setProductName('');
+    const commitProduct = () => {
+        if (!productName) return;
+        if (order.items.includes(productName)) {
+            setErrors({ ...errors, item: 'This product has already been added.' });
+            return;
         }
+        setOrder({ ...order, items: [...order.items, productName] });
+        setProductName('');
+    };
+
+    const addProduct = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') commitProduct();
     };
 
     const handleClose = () => {
@@ -134,7 +135,9 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm, orderToE
                         error={!!errors.customer}
                         helperText={errors.customer}
                     />
-                    <Box sx={{ display: 'flex', gap: '1em' }}>
+                    <Box
+                        sx={{ display: 'flex', gap: '1em', flexWrap: 'wrap', '& > *': { flex: 1, minWidth: '140px' } }}
+                    >
                         <FormControl fullWidth>
                             <InputLabel id={'priority-select'}>Priority</InputLabel>
                             <Select
@@ -181,18 +184,36 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm, orderToE
                             />
                         ))}
                     </Box>
-                    <TextField
-                        label='Product'
-                        required
-                        value={productName}
-                        onChange={(e) => {
-                            setProductName(e.target.value);
-                            setErrors({ ...errors, item: '' });
-                        }}
-                        onKeyDown={addProduct}
-                        error={Boolean(errors.item)}
-                        helperText={errors.item || 'Hit Enter to add'}
-                    />
+                    <Box sx={{ display: 'flex', gap: '0.5em', alignItems: 'flex-start' }}>
+                        <TextField
+                            label='Product'
+                            required
+                            fullWidth
+                            value={productName}
+                            onChange={(e) => {
+                                setProductName(e.target.value);
+                                setErrors({ ...errors, item: '' });
+                            }}
+                            onKeyDown={addProduct}
+                            error={Boolean(errors.item)}
+                            helperText={errors.item || 'Hit Enter to add'}
+                        />
+                        <IconButton
+                            onClick={commitProduct}
+                            color='primary'
+                            sx={{
+                                width: '56px',
+                                height: '56px',
+                                flexShrink: 0,
+                                bgcolor: 'background.paper',
+                                border: '1px solid',
+                                borderColor: 'divider',
+                                borderRadius: '10px',
+                            }}
+                        >
+                            <AddIcon />
+                        </IconButton>
+                    </Box>
                 </Box>
             </DialogContent>
             <DialogActions>

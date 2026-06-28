@@ -161,6 +161,20 @@ const theme = createTheme({
                 },
             },
         },
+        MuiSnackbarContent: {
+            styleOverrides: {
+                root: {
+                    backgroundColor: colors.toastBg,
+                    color: colors.surface,
+                    borderRadius: 12,
+                    border: 'none',
+                    boxShadow: '0 4px 24px rgba(0,0,0,0.18)',
+                    fontFamily: '"Hanken Grotesk", system-ui, sans-serif',
+                    fontSize: '0.875rem',
+                    fontWeight: 500,
+                },
+            },
+        },
     },
 });
 

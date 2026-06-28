@@ -1,4 +1,4 @@
-import { Box, TextField, Stack, InputAdornment } from '@mui/material';
+import { Box, TextField, InputAdornment } from '@mui/material';
 import dayjs from 'dayjs';
 import SearchIcon from '@mui/icons-material/Search';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
@@ -18,22 +18,13 @@ const Filters = () => {
     const dispatch = useAppDispatch();
 
     return (
-        <Box
-            sx={{
-                display: 'flex',
-                alignItems: 'center',
-                padding: '2em',
-                flexWrap: 'wrap',
-                gap: '1.5em',
-                '& > *': { flex: 1, minWidth: '300px' },
-            }}
-        >
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, padding: '2em', gap: '1em', alignItems: { md: 'center' } }}>
             <TextField
                 value={search}
                 onChange={(e) => dispatch(searchFilterChanged(e.target.value))}
-                fullWidth
                 placeholder='Search orders...'
                 type='search'
+                sx={{ flex: { md: 2 } }}
                 slotProps={{
                     input: {
                         startAdornment: (
@@ -44,27 +35,27 @@ const Filters = () => {
                     },
                 }}
             />
-            <SelectFilter
-                name={ORDER_FIELDS.STATUS}
-                value={status}
-                options={['all', ...Object.values(ORDER_STATUSES)]}
-                handleChange={(value) => dispatch(statusFilterChanged(value))}
-            />
-            <SelectFilter
-                name={ORDER_FIELDS.PRIORITY}
-                value={priority}
-                options={['all', ...Object.values(ORDER_PRIORITIES)]}
-                handleChange={(value) => dispatch(priorityFilterChanged(value))}
-            />
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <Stack spacing={3}>
+            <Box sx={{ display: 'flex', gap: '1em', flexWrap: 'wrap', flex: { md: 3 }, '& > *': { flex: 1, minWidth: '140px' } }}>
+                <SelectFilter
+                    name={ORDER_FIELDS.STATUS}
+                    value={status}
+                    options={['all', ...Object.values(ORDER_STATUSES)]}
+                    handleChange={(value) => dispatch(statusFilterChanged(value))}
+                />
+                <SelectFilter
+                    name={ORDER_FIELDS.PRIORITY}
+                    value={priority}
+                    options={['all', ...Object.values(ORDER_PRIORITIES)]}
+                    handleChange={(value) => dispatch(priorityFilterChanged(value))}
+                />
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                         label='Date'
                         value={date ? dayjs(date) : null}
                         onChange={(newValue) => dispatch(dateFilterChanged(newValue ? newValue.toISOString() : null))}
                     />
-                </Stack>
-            </LocalizationProvider>
+                </LocalizationProvider>
+            </Box>
         </Box>
     );
 };

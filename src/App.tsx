@@ -2,7 +2,7 @@ import './App.css';
 import { Box, Snackbar } from '@mui/material';
 import AppBar from './components/AppBar';
 import OrdersSummary from './components/OrdersSummary/OrdersSummary';
-import DataGrid from './components/DataGrid/DataGrid';
+// import DataGrid from './components/DataGrid/DataGrid';
 import Filters from './components/Filters/Filters';
 import { Route, Routes } from 'react-router-dom';
 import OutgoingOrderDetails from './components/OutgoingOrderDetails/OutgoingOrderDetails';
@@ -13,6 +13,7 @@ import socket from './socket';
 import type { OutgoingOrderInterface } from './app/types';
 import { closeSnackbar } from './features/slices/snackbarSlice';
 import LoadingOverlay from './components/common/LoadingOverlay';
+import KanbanBoard from './components/DataGrid/KanbanBoard';
 
 function App() {
     const { vertical, horizontal, open, message } = useAppSelector((state) => state.snackbar);
@@ -45,8 +46,8 @@ function App() {
     if (!initialized) {
         return (
             <LoadingOverlay
-                message="Server is waking up..."
-                subMessage="The server spins down after inactivity. This takes 30–50 seconds — hang tight!"
+                message='Server is waking up...'
+                subMessage='The server spins down after inactivity. This takes a few seconds — hang tight!'
             />
         );
     }
@@ -69,7 +70,8 @@ function App() {
                     element={
                         <>
                             <Filters />
-                            <DataGrid />
+                            <KanbanBoard />
+                            {/* <DataGrid /> */}
                         </>
                     }
                 />

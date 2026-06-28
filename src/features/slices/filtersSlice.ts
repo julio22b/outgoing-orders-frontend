@@ -1,10 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 interface FiltersInitialState {
-    status: 'all';
-    priority: 'all';
-    search: '';
-    date: null;
+    status: string;
+    priority: string;
+    search: string;
+    date: string | null;
 }
 const initialState: FiltersInitialState = {
     status: 'all',

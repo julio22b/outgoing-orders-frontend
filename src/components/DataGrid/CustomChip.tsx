@@ -12,7 +12,7 @@ const CustomChip = ({ title }: CustomChipPropsInterface) => {
         <Chip
             label={capitalize(title)}
             size='small'
-            sx={{ ...chipStyle, width: '90px', fontWeight: 'bold', fontSize: '12px' }}
+            sx={{ ...chipStyle, width: 'fit-content', fontWeight: 'bold', fontSize: '12px' }}
         />
     );
 };
