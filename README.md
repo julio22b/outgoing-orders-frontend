@@ -1,4 +1,4 @@
-<img width="1253" height="776" alt="Screenshot 2026-06-04 233505" src="https://github.com/user-attachments/assets/441e3191-52db-42a6-959e-dd3ce3ffc695" />
+<img width="1253" height="776" alt="Screenshot 2026-06-04 233505" src="/docs/screenshots/wms-01.png" />
 
 # Outgoing Orders — Frontend
 
@@ -14,7 +14,7 @@ Inspired by 3.5 years of working on a production WMS at Pulpo WMS, where the out
 
 ## Tech Stack
 
-- **Framework:** React 
+- **Framework:** React
 - **Language:** TypeScript
 - **State Management:** Redux Toolkit
 - **UI Library:** Material UI
@@ -41,29 +41,33 @@ Inspired by 3.5 years of working on a production WMS at Pulpo WMS, where the out
 ### Setup
 
 1. Clone the repo:
-   ```bash
-   git clone https://github.com/yourusername/outgoing-orders-frontend.git
-   cd outgoing-orders-frontend
-   ```
+
+    ```bash
+    git clone https://github.com/yourusername/outgoing-orders-frontend.git
+    cd outgoing-orders-frontend
+    ```
 
 2. Install dependencies:
-   ```bash
-   npm install
-   ```
+
+    ```bash
+    npm install
+    ```
 
 3. Create a `.env` file:
-   ```
-   VITE_API_BASE_URL=http://localhost:3000
-   ```
+
+    ```
+    VITE_API_BASE_URL=http://localhost:3000
+    ```
 
 4. Start the dev server:
-   ```bash
-   npm run dev
-   ```
+    ```bash
+    npm run dev
+    ```
 
 The app will be available at `http://localhost:5173`.
 
 To use the live backend instead of running it locally, set:
+
 ```
 VITE_API_BASE_URL=https://outgoing-orders-backend.onrender.com
 ```
