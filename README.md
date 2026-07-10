@@ -1,4 +1,5 @@
 <img width="1253" height="776" alt="Screenshot 2026-06-04 233505" src="/docs/screenshots/wms-01.png" />
+<img width="1253" height="776" alt="Screenshot 2026-06-04 233505" src="/docs/screenshots/wms-02.png" />
 
 # Outgoing Orders — Frontend
 
