@@ -13,7 +13,7 @@ interface DeleteConfirmationDialogProps {
 const DeleteConfirmationDialog = ({ isOpen, selectedOrder, closeDialog, onDelete }: DeleteConfirmationDialogProps) => (
     <Dialog open={isOpen} onClose={closeDialog}>
         <Box sx={{ p: 3, maxWidth: '46ch' }}>
-            <Typography variant='entry' component='h2'>
+            <Typography variant='section' component='h2'>
                 Delete ORD-{selectedOrder?.id}?
             </Typography>
             <Rule weight='mid' sx={{ my: 1.5 }} />

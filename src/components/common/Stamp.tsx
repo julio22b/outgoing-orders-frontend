@@ -1,6 +1,7 @@
+import type React from 'react';
 import { Box, Typography } from '@mui/material';
 import type { SxProps, Theme } from '@mui/material';
-import { colors } from '../../app/theme';
+import { colors, stampInk } from '../../app/theme';
 
 /** Must match the rotation inside the `stampIn` keyframe in theme.ts. */
 const STAMP_ROTATION = 'rotate(-3deg)';
@@ -12,6 +13,7 @@ interface StampProps {
     size?: 'sm' | 'lg';
     /** Plays the stamp-down when the status has just changed under the viewer. */
     animate?: boolean;
+    component?: React.ElementType;
     sx?: SxProps<Theme>;
 }
 
@@ -21,13 +23,19 @@ interface StampProps {
  * Everything else — labels, headings, column names — stays sentence case so that
  * a stamp reads as a mark made on the sheet rather than as more interface.
  */
-const Stamp = ({ label, tone = 'ink', size = 'sm', animate = false, sx }: StampProps) => {
+const Stamp = ({ label, tone = 'ink', size = 'sm', animate = false, component, sx }: StampProps) => {
     const color = tone === 'stamp' ? colors.stamp : colors.ink;
 
     return (
         <Box
+            {...(component ? { component } : {})}
             sx={{
                 display: 'inline-block',
+                // Broken ink coverage — the mark reads as pressed, not drawn.
+                maskImage: stampInk,
+                WebkitMaskImage: stampInk,
+                maskSize: '40px 40px',
+                WebkitMaskSize: '40px 40px',
                 border: `2px solid ${color}`,
                 color,
                 px: size === 'lg' ? 2 : 1,

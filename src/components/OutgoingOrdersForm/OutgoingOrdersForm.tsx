@@ -108,7 +108,7 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm, orderToE
                 {loading && <LoadingOverlay absolute message='Saving order' />}
 
                 <Box sx={{ p: 3 }}>
-                    <Typography variant='display' component='h2' sx={{ fontSize: '1.5rem' }}>
+                    <Typography variant='masthead' component='h2' sx={{ fontSize: '1.75rem' }}>
                         {isEditForm ? 'Edit order' : 'New order'}
                     </Typography>
                     <Rule weight='heavy' sx={{ mt: 1.5 }} />

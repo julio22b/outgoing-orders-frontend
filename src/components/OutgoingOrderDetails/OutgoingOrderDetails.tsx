@@ -3,7 +3,6 @@ import { Box, Button, Typography, capitalize } from '@mui/material';
 import { useEffect, useState } from 'react';
 import Stamp from '../common/Stamp';
 import Rule from '../common/Rule';
-import Sheet from '../common/Sheet';
 import Field from '../common/Field';
 import PackingList from './PackingList';
 import LoadingOverlay from '../common/LoadingOverlay';
@@ -42,7 +41,7 @@ const OutgoingOrderDetails = () => {
 
     if (!order) {
         return (
-            <Sheet sx={{ py: 6 }}>
+            <Box sx={{ py: 6 }}>
                 <Typography variant='display' component='h1' gutterBottom>
                     No order here
                 </Typography>
@@ -52,7 +51,7 @@ const OutgoingOrderDetails = () => {
                 <Button variant='outlined' onClick={() => navigate('/')}>
                     Back to the board
                 </Button>
-            </Sheet>
+            </Box>
         );
     }
 
@@ -64,7 +63,7 @@ const OutgoingOrderDetails = () => {
     return (
         <Box sx={{ position: 'relative' }}>
             {detailsLoading && <LoadingOverlay absolute />}
-            <Sheet sx={{ pb: 8 }}>
+            <Box sx={{ pb: 8 }}>
                 <Rule weight='heavy' />
 
                 <Box
@@ -160,7 +159,7 @@ const OutgoingOrderDetails = () => {
                         mb: 1,
                     }}
                 >
-                    <Typography variant='entry' component='h2'>
+                    <Typography variant='section' component='h2'>
                         Progress
                     </Typography>
                     {nextStatus && (
@@ -231,7 +230,7 @@ const OutgoingOrderDetails = () => {
                     closeForm={() => setIsEditFormOpen(false)}
                     orderToEdit={order}
                 />
-            </Sheet>
+            </Box>
         </Box>
     );
 };

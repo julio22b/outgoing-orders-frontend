@@ -1,5 +1,5 @@
-<img width="1440" height="800" alt="Live dispatch board showing orders across picking, packed and dispatched columns" src="/docs/screenshots/wms-01.png" />
-<img width="1440" height="800" alt="Order detail sheet with status stamp, progress ledger and packing list" src="/docs/screenshots/wms-02.png" />
+<img width="1512" height="860" alt="Live dispatch board showing orders across picking, packed and dispatched columns" src="/docs/screenshots/wms-01.png" />
+<img width="1512" height="860" alt="Order detail sheet with status stamp, progress ledger and packing list" src="/docs/screenshots/wms-02.png" />
 
 # Outgoing Orders — Frontend
 

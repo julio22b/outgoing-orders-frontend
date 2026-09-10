@@ -15,10 +15,12 @@ import type {} from '@mui/x-date-pickers/themeAugmentation';
  */
 
 export const colors = {
-    /** The sheet. The only ground in the app — there are no raised surfaces. */
-    paper: '#E9E9E1',
-    /** A second sheet, for fields recessed into the form. */
-    field: '#E2E2D9',
+    /** What the sheet lies on. Nothing is ever set on the desk except the sheet. */
+    desk: '#CBCABF',
+    /** The sheet itself. Everything the app says is printed here. */
+    paper: '#EEEDE6',
+    /** Fields recessed into the form — now a real step down from paper, not 3%. */
+    field: '#E3E2D9',
 
     /** Ink is never pure black; it's a dense warm brown-black. 13.4:1 on paper. */
     ink: '#221F1A',
@@ -48,6 +50,28 @@ export const colors = {
     hoverWash: 'rgba(34, 31, 26, 0.045)',
 } as const;
 
+/**
+ * Paper tooth. Grey noise multiplied over the sheet at low opacity — the
+ * difference between stock and a background color.
+ */
+export const paperGrain =
+    `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'>` +
+    `<filter id='g'><feTurbulence type='fractalNoise' baseFrequency='1.4' numOctaves='1' stitchTiles='stitch'/>` +
+    `<feColorMatrix type='saturate' values='0'/></filter>` +
+    `<rect width='160' height='160' filter='url(%23g)'/></svg>")`;
+
+/**
+ * Broken ink coverage, used as a mask so a stamp reads as pressed rather than
+ * drawn. The speckle has to stay finer than the letterforms and never drop
+ * below ~68% coverage, or it stops looking like ink and starts looking like a
+ * rendering fault.
+ */
+export const stampInk =
+    `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'>` +
+    `<filter id='s'><feTurbulence type='fractalNoise' baseFrequency='1.6' numOctaves='1' stitchTiles='stitch'/>` +
+    `<feColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0.42 0 0 0 0.68'/></filter>` +
+    `<rect width='40' height='40' filter='url(%23s)'/></svg>")`;
+
 /** Three weights, and no others. All structure in the app is built from these. */
 export const rule = {
     hair: `1px solid ${colors.ruleHair}`,
@@ -64,6 +88,8 @@ const width = (wdth: number) => ({ fontVariationSettings: `'wdth' ${wdth}` });
 
 declare module '@mui/material/styles' {
     interface TypographyVariants {
+        masthead: React.CSSProperties;
+        section: React.CSSProperties;
         docket: React.CSSProperties;
         display: React.CSSProperties;
         figure: React.CSSProperties;
@@ -73,6 +99,8 @@ declare module '@mui/material/styles' {
         stamped: React.CSSProperties;
     }
     interface TypographyVariantsOptions {
+        masthead?: React.CSSProperties;
+        section?: React.CSSProperties;
         docket?: React.CSSProperties;
         display?: React.CSSProperties;
         figure?: React.CSSProperties;
@@ -85,6 +113,8 @@ declare module '@mui/material/styles' {
 
 declare module '@mui/material/Typography' {
     interface TypographyPropsVariantOverrides {
+        masthead: true;
+        section: true;
         docket: true;
         display: true;
         figure: true;
@@ -128,6 +158,19 @@ const theme = createTheme({
         htmlFontSize: 16,
         fontSize: 14,
 
+        /**
+         * The app's face, and the one place the width axis is pushed hard enough
+         * to register — wdth 62 is narrow ledger lettering, not a default sans.
+         */
+        masthead: {
+            fontFamily: SANS,
+            fontSize: '3.25rem',
+            fontWeight: 700,
+            letterSpacing: '0.01em',
+            lineHeight: 0.92,
+            textTransform: 'uppercase',
+            ...width(62),
+        },
         /** The order number on a detail sheet. Quiet enough to let the stamp lead. */
         docket: {
             fontFamily: MONO,
@@ -137,7 +180,7 @@ const theme = createTheme({
             lineHeight: 1,
             fontVariantNumeric: 'tabular-nums',
         },
-        /** Page title. Narrow, so it reads as a form heading rather than a masthead. */
+        /** Section and record headings, below the masthead. */
         display: {
             fontFamily: SANS,
             fontSize: '2.125rem',
@@ -149,10 +192,19 @@ const theme = createTheme({
         /** Counts and quantities. Tabular so columns of them align. */
         figure: {
             fontFamily: MONO,
-            fontSize: '1.5rem',
+            fontSize: '2rem',
             fontWeight: 400,
             lineHeight: 1,
             fontVariantNumeric: 'tabular-nums',
+        },
+        /** Section headings. Narrow, so they read as kin to the masthead. */
+        section: {
+            fontFamily: SANS,
+            fontSize: '1rem',
+            fontWeight: 700,
+            letterSpacing: '0.02em',
+            lineHeight: 1.2,
+            ...width(72),
         },
         /** A consignee name — the thing an operator actually scans for. */
         entry: {
@@ -190,7 +242,7 @@ const theme = createTheme({
         /** The one place all-caps appears. */
         stamped: {
             fontFamily: SANS,
-            fontSize: '0.6875rem',
+            fontSize: '0.8125rem',
             fontWeight: 700,
             letterSpacing: '0.16em',
             textTransform: 'uppercase',
@@ -204,7 +256,7 @@ const theme = createTheme({
         MuiCssBaseline: {
             styleOverrides: {
                 body: {
-                    backgroundColor: colors.paper,
+                    backgroundColor: colors.desk,
                     color: colors.ink,
                     // Figures line up in a column whether or not they're in a table.
                     fontVariantNumeric: 'tabular-nums',

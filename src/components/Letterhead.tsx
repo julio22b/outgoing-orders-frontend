@@ -2,7 +2,6 @@ import { Box, Button, Typography } from '@mui/material';
 import { useEffect, useRef, useState } from 'react';
 import OutgoingOrdersForm from './OutgoingOrdersForm/OutgoingOrdersForm';
 import Rule from './common/Rule';
-import Sheet from './common/Sheet';
 import { useAppSelector } from '../app/hooks';
 import { colors } from '../app/theme';
 
@@ -42,9 +41,8 @@ const Letterhead = () => {
     }, [lastEventAt]);
 
     return (
-        <Box component='header'>
-            <Sheet sx={{ pt: 2 }}>
-                <Rule weight='heavy' />
+        <Box component='header' sx={{ pt: 3 }}>
+            <Rule weight='heavy' />
                 <Box
                     sx={{
                         display: 'flex',
@@ -55,7 +53,7 @@ const Letterhead = () => {
                         py: 2,
                     }}
                 >
-                    <Typography variant='display' component='h1'>
+                    <Typography variant='masthead' component='h1'>
                         Outgoing Orders
                     </Typography>
 
@@ -75,8 +73,7 @@ const Letterhead = () => {
                             New order
                         </Button>
                     </Box>
-                </Box>
-            </Sheet>
+            </Box>
 
             <OutgoingOrdersForm
                 key={isCreateOutgoingOrderFormOpen ? 'open' : 'closed'}

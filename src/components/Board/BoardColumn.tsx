@@ -1,7 +1,8 @@
-import { Box, Button, Typography, capitalize } from '@mui/material';
+import { Box, Button, Typography } from '@mui/material';
 import { useState } from 'react';
 import BoardEntry from './BoardEntry';
 import Rule from '../common/Rule';
+import Stamp from '../common/Stamp';
 import type { OutgoingOrderInterface } from '../../app/types';
 
 const PAGE_SIZE = 5;
@@ -33,9 +34,9 @@ const BoardColumn = ({ status, filteredRows }: BoardColumnProps) => {
                     pb: 1,
                 }}
             >
-                <Typography variant='entry' component='h2'>
-                    {capitalize(status)}
-                </Typography>
+                {/* The stamp belongs on the screen people actually live in. A
+                    column's identity is exactly what a stamp is for. */}
+                <Stamp label={status} component='h2' />
                 <Typography variant='figure' sx={{ color: 'text.secondary' }}>
                     {filteredRows.length}
                 </Typography>

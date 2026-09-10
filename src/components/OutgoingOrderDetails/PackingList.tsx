@@ -13,7 +13,7 @@ interface PackingListProps {
  */
 const PackingList = ({ products }: PackingListProps) => (
     <Box sx={{ mt: 5 }}>
-        <Typography variant='entry' component='h2' sx={{ mb: 1 }}>
+        <Typography variant='section' component='h2' sx={{ mb: 1 }}>
             Items
         </Typography>
         <Rule weight='mid' />

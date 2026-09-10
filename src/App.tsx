@@ -1,4 +1,4 @@
-import { Box, Snackbar } from '@mui/material';
+import { Snackbar } from '@mui/material';
 import Letterhead from './components/Letterhead';
 import TallyLine from './components/TallyLine';
 import Filters from './components/Filters/Filters';
@@ -51,7 +51,7 @@ function App() {
     }
 
     return (
-        <Box>
+        <Sheet>
             <Letterhead />
             <Snackbar
                 autoHideDuration={6000}
@@ -65,16 +65,16 @@ function App() {
                 <Route
                     path='/'
                     element={
-                        <Sheet>
+                        <>
                             <TallyLine />
                             <Filters />
                             <Board />
-                        </Sheet>
+                        </>
                     }
                 />
                 <Route path='/orders/:id' element={<OutgoingOrderDetails />} />
             </Routes>
-        </Box>
+        </Sheet>
     );
 }
 
