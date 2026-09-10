@@ -1,9 +1,10 @@
-import { Box, TextField, InputAdornment } from '@mui/material';
+import { Box, TextField } from '@mui/material';
 import dayjs from 'dayjs';
-import SearchIcon from '@mui/icons-material/Search';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import SelectFilter from './SelectFilter/SelectFilter';
+import Field from '../common/Field';
+import { controlSx } from '../common/fieldStyles';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import {
     statusFilterChanged,
@@ -11,51 +12,72 @@ import {
     dateFilterChanged,
     searchFilterChanged,
 } from '../../features/slices/filtersSlice';
-import { ORDER_FIELDS, ORDER_PRIORITIES, ORDER_STATUSES } from '../../app/constants';
+import { ORDER_PRIORITIES, ORDER_STATUSES } from '../../app/constants';
+import { colors, rule } from '../../app/theme';
+
+/** This band breaks to one column at md, so it rules its own edges rather than sharing. */
+const cellSx = {
+    borderRight: { md: rule.hair },
+    borderBottom: { xs: rule.hair, md: 'none' },
+    '&:last-of-type': { borderRight: 'none', borderBottom: 'none' },
+};
 
 const Filters = () => {
     const { date, priority, search, status } = useAppSelector((state) => state.filters);
     const dispatch = useAppDispatch();
 
     return (
-        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, padding: '2em', gap: '1em', alignItems: { md: 'center' } }}>
-            <TextField
-                value={search}
-                onChange={(e) => dispatch(searchFilterChanged(e.target.value))}
-                placeholder='Search orders...'
-                type='search'
-                sx={{ flex: { md: 2 } }}
-                slotProps={{
-                    input: {
-                        startAdornment: (
-                            <InputAdornment position='start'>
-                                <SearchIcon sx={{ color: 'text.secondary' }} />
-                            </InputAdornment>
-                        ),
-                    },
-                }}
-            />
-            <Box sx={{ display: 'flex', gap: '1em', flexWrap: 'wrap', flex: { md: 3 }, '& > *': { flex: 1, minWidth: '140px' } }}>
+        <Box
+            sx={{
+                display: 'grid',
+                gridTemplateColumns: { xs: '1fr', md: '2fr 1fr 1fr 1fr' },
+                border: rule.mid,
+                borderTop: 'none',
+                backgroundColor: colors.field,
+            }}
+        >
+            <Field label='Search' htmlFor='filter-search' sx={cellSx}>
+                <TextField
+                    id='filter-search'
+                    value={search}
+                    onChange={(e) => dispatch(searchFilterChanged(e.target.value))}
+                    placeholder='Order number or customer'
+                    type='search'
+                    fullWidth
+                    sx={controlSx}
+                />
+            </Field>
+
+            <Field label='Status' htmlFor='filter-status' sx={cellSx}>
                 <SelectFilter
-                    name={ORDER_FIELDS.STATUS}
+                    id='filter-status'
                     value={status}
                     options={['all', ...Object.values(ORDER_STATUSES)]}
                     handleChange={(value) => dispatch(statusFilterChanged(value))}
                 />
+            </Field>
+
+            <Field label='Priority' htmlFor='filter-priority' sx={cellSx}>
                 <SelectFilter
-                    name={ORDER_FIELDS.PRIORITY}
+                    id='filter-priority'
                     value={priority}
                     options={['all', ...Object.values(ORDER_PRIORITIES)]}
                     handleChange={(value) => dispatch(priorityFilterChanged(value))}
                 />
+            </Field>
+
+            <Field label='Date' htmlFor='filter-date' sx={cellSx}>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
-                        label='Date'
                         value={date ? dayjs(date) : null}
                         onChange={(newValue) => dispatch(dateFilterChanged(newValue ? newValue.toISOString() : null))}
+                        slotProps={{
+                            textField: { id: 'filter-date', fullWidth: true, sx: controlSx },
+                            openPickerButton: { size: 'small' },
+                        }}
                     />
                 </LocalizationProvider>
-            </Box>
+            </Field>
         </Box>
     );
 };

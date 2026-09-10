@@ -1,20 +1,9 @@
-import type { DataGridHeadersInterface } from './types';
-
 export const ORDER_STATUSES = {
     PICKING: 'picking',
     PACKED: 'packed',
     DELAYED: 'delayed',
     DISPATCHED: 'dispatched',
 } as const;
-
-export const OUTGOING_ORDERS_DATAGRID_COLUMNS: DataGridHeadersInterface[] = [
-    { title: 'Order ID', id: 'order-id' },
-    { title: 'Customer', id: 'customer' },
-    { title: 'Status', id: 'status' },
-    { title: 'Priority', id: 'priority' },
-    { title: 'Created', id: 'created' },
-    { title: '', id: 'actions' },
-];
 
 export const ORDER_FIELDS = {
     ID: 'id',
@@ -32,15 +21,10 @@ export const ORDER_PRIORITIES = {
     LOW: 'low',
 } as const;
 
-export const STATUS_COLORS: Record<string, { background: string; color: string; accent: string; tint: string }> = {
-    [ORDER_STATUSES.PICKING]: { background: '#fde3c4', color: '#804813', accent: '#d79e59', tint: '#f8efe2' },
-    [ORDER_STATUSES.PACKED]: { background: '#cbefdb', color: '#1d533c', accent: '#6aa085', tint: '#eef6f0' },
-    [ORDER_STATUSES.DISPATCHED]: { background: '#cde9fd', color: '#22587a', accent: '#5787a5', tint: '#edf3f8' },
-    [ORDER_STATUSES.DELAYED]: { background: '#ffe2db', color: '#a04130', accent: '#c15f4d', tint: '' },
-    [ORDER_PRIORITIES.HIGH]: { background: '#ffded5', color: '#a04130', accent: '#c15f4d', tint: '' },
-    [ORDER_PRIORITIES.NORMAL]: { background: '#ebe7e2', color: '#625d56', accent: '#a89f97', tint: '' },
-    [ORDER_PRIORITIES.LOW]: { background: '#d2edfc', color: '#286484', accent: '#5787a5', tint: '' },
-};
+// Status is no longer color-coded. It reads as position on the board, as a
+// stamp on the detail sheet, and as a row in the ledger — so the old
+// STATUS_COLORS map (which duplicated the theme palette and was the one that
+// actually rendered) has no remaining consumer.
 
 export const TIMELINE_STATUSES = [ORDER_STATUSES.PICKING, ORDER_STATUSES.PACKED, ORDER_STATUSES.DISPATCHED];
 
