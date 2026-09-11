@@ -5,12 +5,6 @@ interface PackingListProps {
     products: string[];
 }
 
-/**
- * The packing list.
- *
- * Line numbers are here because a picker reads them aloud off a real one, not
- * for decoration — they're zero-padded so the mono column stays a fixed width.
- */
 const PackingList = ({ products }: PackingListProps) => (
     <Box sx={{ mt: 5 }}>
         <Typography variant='section' component='h2' sx={{ mb: 1 }}>

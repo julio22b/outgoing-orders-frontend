@@ -9,10 +9,6 @@ interface SelectFilterProps {
     handleChange: (value: string) => void;
 }
 
-/**
- * The label lives on the enclosing Field, so this renders the control alone —
- * no FormControl, no floating label animation.
- */
 const SelectFilter = ({ id, value, options, handleChange }: SelectFilterProps) => (
     <Select
         id={id}

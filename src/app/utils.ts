@@ -1,4 +1,3 @@
-/** 24-hour throughout: a dispatch record is a log, and AM/PM doesn't align in a column. */
 const timeFormat = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
 const dayFormat = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' });
 
@@ -13,10 +12,6 @@ const relativeDay = (date: Date) => {
     return dayFormat.format(date);
 };
 
-/**
- * Day and time kept apart so they can be set in their own columns and line up
- * down a list, instead of ragging against each other in one string.
- */
 export const formatOrderStamp = (isoString: string) => {
     const date = new Date(isoString);
     return { day: relativeDay(date), time: timeFormat.format(date) };

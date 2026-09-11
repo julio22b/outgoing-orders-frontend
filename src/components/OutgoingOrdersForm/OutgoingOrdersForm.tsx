@@ -124,7 +124,6 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm, orderToE
                             ORD-{order.id}
                         </Typography>
                     </Box>
-                    <Rule weight='heavy' sx={{ mt: 1.5 }} />
 
                     {/* One ruled block. The field that has to be filled in comes first
                         and full width; the two that arrive with defaults share the row
@@ -134,8 +133,8 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm, orderToE
                             display: 'grid',
                             gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' },
                             border: rule.mid,
-                            borderTop: 'none',
                             backgroundColor: colors.field,
+                            mt: 2,
                         }}
                     >
                         <Field

@@ -31,7 +31,7 @@ const OutgoingOrderDetails = () => {
     // and the page survives a refresh.
     const { id } = useParams<{ id: string }>();
     const { detailsLoading, detailsOrder: order, recentChanges } = useAppSelector((state) => state.outgoingOrders);
-    const nextStatus = STATUS_TRANSITIONS[order?.status || ''];
+    const nextStatus = order && STATUS_TRANSITIONS[order.status];
 
     useEffect(() => {
         if (id) dispatch(fetchOrder(id));
@@ -75,8 +75,6 @@ const OutgoingOrderDetails = () => {
         <Box sx={{ position: 'relative' }}>
             {detailsLoading && <LoadingOverlay absolute />}
             <Box sx={{ pb: 8 }}>
-                <Rule weight='heavy' />
-
                 <Box
                     sx={{
                         display: 'flex',
@@ -130,15 +128,12 @@ const OutgoingOrderDetails = () => {
                     </Box>
                 </Box>
 
-                <Rule weight='heavy' />
-
                 {/* Status is deliberately absent — the stamp above already says it. */}
                 <Box
                     sx={{
                         display: 'grid',
                         gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' },
                         border: rule.mid,
-                        borderTop: 'none',
                         backgroundColor: colors.field,
                     }}
                 >
@@ -258,8 +253,6 @@ const OutgoingOrderDetails = () => {
                 </Box>
 
                 <PackingList products={order.items} />
-
-                <Rule weight='heavy' sx={{ mt: 4 }} />
 
                 <DeleteConfirmationDialog
                     closeDialog={() => setIsDeleteOrderDialogOpen(false)}

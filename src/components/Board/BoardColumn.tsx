@@ -3,10 +3,9 @@ import { useState } from 'react';
 import BoardEntry from './BoardEntry';
 import Rule from '../common/Rule';
 import Stamp from '../common/Stamp';
+import { PAGE_SIZE } from '../../app/constants';
 import { statusColor } from '../../app/theme';
 import type { OutgoingOrderInterface } from '../../app/types';
-
-const PAGE_SIZE = 5;
 
 interface BoardColumnProps {
     status: 'picking' | 'packed' | 'dispatched';
@@ -17,8 +16,6 @@ const BoardColumn = ({ status, filteredRows }: BoardColumnProps) => {
     const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
     const { ink, tint } = statusColor(status);
 
-    // slice() clamps on its own, so a narrowing filter needs no reset — and an
-    // operator who expanded the column keeps that choice when they clear it.
     const visibleOrders = filteredRows.slice(0, visibleCount);
     const remaining = filteredRows.length - visibleOrders.length;
 
@@ -35,8 +32,6 @@ const BoardColumn = ({ status, filteredRows }: BoardColumnProps) => {
                 pb: 1,
             }}
         >
-            {/* On mobile the tab bar already names the visible column and gives
-                its count, so repeating both here just doubles the header. */}
             <Box
                 sx={{
                     display: { xs: 'none', md: 'flex' },
@@ -46,8 +41,6 @@ const BoardColumn = ({ status, filteredRows }: BoardColumnProps) => {
                     pb: 1,
                 }}
             >
-                {/* The stamp belongs on the screen people actually live in. A
-                    column's identity is exactly what a stamp is for. */}
                 <Stamp label={status} color={ink} component='h2' />
                 <Typography variant='figure' sx={{ color: 'text.secondary' }}>
                     {filteredRows.length}

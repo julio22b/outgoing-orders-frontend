@@ -7,12 +7,6 @@ interface LoadingOverlayProps {
     absolute?: boolean;
 }
 
-/**
- * A sheet still being filled in.
- *
- * No spinner: a blinking caret says "waiting on the machine" in the same
- * vocabulary as the rest of the app, and costs nothing to render.
- */
 const LoadingOverlay = ({ message = 'Loading orders', subMessage, absolute }: LoadingOverlayProps) => (
     <Box
         role='status'

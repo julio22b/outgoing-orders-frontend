@@ -3,7 +3,6 @@ import type { OutgoingOrderInterface } from '../../app/types';
 import api from '../../api/axiosInstance';
 
 import { openSnackbar } from './snackbarSlice';
-/** How long a socket-driven change stays marked on the board. */
 const MARK_TTL_MS = 6000;
 
 interface RecentChange {
@@ -18,9 +17,7 @@ interface OutgoingOrdersInitialState {
     detailsLoading: boolean;
     detailsOrder?: OutgoingOrderInterface;
     initialized: boolean;
-    /** Timestamp of the last socket message, shown in the letterhead. */
     lastEventAt: number | null;
-    /** Orders touched by another client, so their rows can mark themselves. */
     recentChanges: Record<number, RecentChange>;
 }
 
@@ -35,8 +32,7 @@ const initialState: OutgoingOrdersInitialState = {
     recentChanges: {},
 };
 
-/** Keeps `recentChanges` from growing for the lifetime of the session. */
-const pruneChanges = (changes: Record<number, RecentChange>, now: number) => {
+const clearChanges = (changes: Record<number, RecentChange>, now: number) => {
     for (const key of Object.keys(changes)) {
         const id = Number(key);
         if (now - changes[id].at > MARK_TTL_MS) delete changes[id];
@@ -115,26 +111,26 @@ export const outgoingOrdersSlice = createSlice({
             const now = Date.now();
             state.orders.unshift(action.payload);
             state.lastEventAt = now;
-            pruneChanges(state.recentChanges, now);
+            clearChanges(state.recentChanges, now);
             state.recentChanges[action.payload.id] = { at: now, statusChanged: false };
         },
         updateOrderInStore: (state, action: PayloadAction<OutgoingOrderInterface>) => {
             const now = Date.now();
             const previous = state.orders.find((order) => order.id === action.payload.id);
-            // A status change is the one worth stamping; an edited customer name is not.
+            // so it only stamps for status changes
             const statusChanged = !!previous && previous.status !== action.payload.status;
 
             state.orders = state.orders.map((order) => (order.id === action.payload.id ? action.payload : order));
             state.detailsOrder = action.payload;
             state.lastEventAt = now;
-            pruneChanges(state.recentChanges, now);
+            clearChanges(state.recentChanges, now);
             state.recentChanges[action.payload.id] = { at: now, statusChanged };
         },
         removeOrder: (state, action: PayloadAction<number>) => {
             const now = Date.now();
             state.orders = state.orders.filter((order) => order.id !== action.payload);
             state.lastEventAt = now;
-            pruneChanges(state.recentChanges, now);
+            clearChanges(state.recentChanges, now);
             delete state.recentChanges[action.payload];
         },
     },
@@ -145,8 +141,6 @@ export const outgoingOrdersSlice = createSlice({
                 state.loading = false;
                 state.orders = action.payload;
                 state.initialized = true;
-                // Seeded here so the letterhead always shows a real time rather
-                // than waiting for the first socket message to arrive.
                 state.lastEventAt = Date.now();
             })
             // fetch order

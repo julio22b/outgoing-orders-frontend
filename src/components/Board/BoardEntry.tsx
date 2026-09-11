@@ -11,17 +11,6 @@ interface BoardEntryProps {
     order: OutgoingOrderInterface;
 }
 
-/**
- * A line on the manifest.
- *
- * No border, no fill, no radius — an entry is separated from its neighbours by a
- * rule, the way rows on a form are. Status isn't shown: the column already says
- * it, and repeating it on every line is what made the old cards so noisy.
- *
- * High priority is stamped rather than barred. An accent rule down the left edge
- * is the same decorative device this redesign set out to remove, and expedited
- * freight really does get stamped, so the mark earns its place.
- */
 const BoardEntry = ({ order }: BoardEntryProps) => {
     const navigate = useNavigate();
     const recentChange = useAppSelector((state) => state.outgoingOrders.recentChanges[order.id]);
@@ -41,7 +30,6 @@ const BoardEntry = ({ order }: BoardEntryProps) => {
                 font: 'inherit',
                 color: 'inherit',
                 border: 'none',
-                // A raw <button> keeps the UA's radius; CssBaseline doesn't reset it.
                 borderRadius: 0,
                 backgroundColor: 'transparent',
                 cursor: 'pointer',
@@ -52,7 +40,6 @@ const BoardEntry = ({ order }: BoardEntryProps) => {
                 ...(recentChange && { animation: 'markFade 2500ms ease-out both' }),
             }}
         >
-            {/* minHeight keeps stamped and unstamped rows on the same rhythm. */}
             <Box
                 sx={{
                     display: 'flex',

@@ -1,3 +1,5 @@
+import type { OrderStatus } from './types';
+
 export const ORDER_STATUSES = {
     PICKING: 'picking',
     PACKED: 'packed',
@@ -21,11 +23,6 @@ export const ORDER_PRIORITIES = {
     LOW: 'low',
 } as const;
 
-// Status is no longer color-coded. It reads as position on the board, as a
-// stamp on the detail sheet, and as a row in the ledger — so the old
-// STATUS_COLORS map (which duplicated the theme palette and was the one that
-// actually rendered) has no remaining consumer.
-
 export const TIMELINE_STATUSES = [ORDER_STATUSES.PICKING, ORDER_STATUSES.PACKED, ORDER_STATUSES.DISPATCHED];
 
 export const STATUSES_ENUM: Record<string, number> = {
@@ -35,7 +32,9 @@ export const STATUSES_ENUM: Record<string, number> = {
     delayed: 4,
 };
 
-export const STATUS_TRANSITIONS: Record<string, string> = {
+export const STATUS_TRANSITIONS: Partial<Record<OrderStatus, OrderStatus>> = {
     picking: 'packed',
     packed: 'dispatched',
 };
+
+export const PAGE_SIZE = 5;

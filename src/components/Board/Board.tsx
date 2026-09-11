@@ -46,7 +46,6 @@ const Board = () => {
 
     return (
         <Box sx={{ pt: 3, pb: 6 }}>
-            {/* On narrow screens the three columns become three tabs on one rule. */}
             <Box sx={{ display: { xs: 'block', md: 'none' }, mb: 2 }}>
                 <Box sx={{ display: 'flex' }}>
                     {statusOptions.map((option) => {
@@ -74,18 +73,14 @@ const Board = () => {
 
             {isEmpty ? (
                 <Typography variant='body1' sx={{ color: 'text.secondary', py: 4 }}>
-                    No orders match these filters. Clear one to see more.
+                    No orders match these filters.
                 </Typography>
             ) : (
                 <Box sx={{ display: 'flex', alignItems: 'stretch', minHeight: { md: 460 } }}>
                     {statusOptions.map((option, index) => (
                         <Fragment key={option}>
                             {index > 0 && (
-                                <Rule
-                                    vertical
-                                    weight='hair'
-                                    sx={{ display: { xs: 'none', md: 'block' }, mx: 3 }}
-                                />
+                                <Rule vertical weight='hair' sx={{ display: { xs: 'none', md: 'block' }, mx: 3 }} />
                             )}
                             <Box
                                 sx={{

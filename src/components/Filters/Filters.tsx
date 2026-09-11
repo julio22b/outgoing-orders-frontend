@@ -15,7 +15,6 @@ import {
 import { ORDER_PRIORITIES, ORDER_STATUSES } from '../../app/constants';
 import { colors, rule } from '../../app/theme';
 
-/** This band breaks to one column at md, so it rules its own edges rather than sharing. */
 const cellSx = {
     borderRight: { md: rule.hair },
     borderBottom: { xs: rule.hair, md: 'none' },
@@ -32,7 +31,6 @@ const Filters = () => {
                 display: 'grid',
                 gridTemplateColumns: { xs: '1fr', md: '2fr 1fr 1fr 1fr' },
                 border: rule.mid,
-                borderTop: 'none',
                 backgroundColor: colors.field,
             }}
         >
