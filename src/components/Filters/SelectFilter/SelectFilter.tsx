@@ -1,5 +1,6 @@
 import { MenuItem, Select } from '@mui/material';
 import { capitalize } from '@mui/material';
+import { controlSx } from '../../common/fieldStyles';
 
 interface SelectFilterProps {
     id: string;
@@ -19,11 +20,7 @@ const SelectFilter = ({ id, value, options, handleChange }: SelectFilterProps) =
         onChange={(e) => handleChange(e.target.value)}
         variant='outlined'
         fullWidth
-        sx={{
-            backgroundColor: 'transparent',
-            '& .MuiSelect-select': { padding: 0, fontSize: '0.875rem' },
-            '& .MuiSelect-icon': { right: 0 },
-        }}
+        sx={controlSx}
     >
         {options.map((option) => (
             <MenuItem key={option} value={option}>

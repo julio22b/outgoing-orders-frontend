@@ -418,15 +418,14 @@ const theme = createTheme({
                     '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
                     '&:hover .MuiOutlinedInput-notchedOutline': { border: 'none' },
                     '&.Mui-focused .MuiOutlinedInput-notchedOutline': { border: 'none' },
-                    // The notch is gone, so focus needs its own mark or the field
-                    // gives a keyboard user nothing to follow.
-                    '&.Mui-focused': {
-                        outline: `2px solid ${colors.ink}`,
-                        outlineOffset: '2px',
-                    },
+                    // No focus ring here: inputs have no padding, so a ring on the
+                    // input hugs the text. The enclosing Field draws it instead.
                 },
+                // Inputs always sit inside a Field, which supplies the spacing.
+                // Padding here pushed values off their labels and had to be
+                // cancelled call by call, which only sometimes won.
                 input: {
-                    padding: '8px 10px',
+                    padding: 0,
                     '&::placeholder': { color: colors.inkFaint, opacity: 1 },
                 },
             },
@@ -434,8 +433,9 @@ const theme = createTheme({
         MuiSelect: {
             defaultProps: { MenuProps: { disableScrollLock: true } },
             styleOverrides: {
-                select: { padding: '8px 10px' },
-                icon: { color: colors.inkMuted },
+                // Right padding keeps a long value from running under the chevron.
+                select: { padding: 0, paddingRight: '28px' },
+                icon: { color: colors.inkMuted, right: 0 },
             },
         },
         MuiMenu: {
@@ -459,18 +459,27 @@ const theme = createTheme({
                     borderRadius: 0,
                     backgroundColor: colors.field,
                     fontSize: '0.875rem',
+                    // MUI X pads the picker 14px inside, which indented the date
+                    // off its label.
+                    paddingLeft: 0,
+                    paddingRight: 0,
+                    // The 34px calendar button set the row height, and the date was
+                    // centred inside it — 3px below its neighbours. Pulling the
+                    // button's block margins in keeps its full hit area but lets the
+                    // row collapse to the text line like every other input.
+                    '& .MuiInputAdornment-root': { height: 'auto', maxHeight: 'none' },
+                    '& .MuiInputAdornment-root .MuiIconButton-root': { marginBlock: '-7px' },
                     '& .MuiPickersOutlinedInput-notchedOutline': { border: 'none' },
                     '&:hover .MuiPickersOutlinedInput-notchedOutline': { border: 'none' },
                     '&.Mui-focused .MuiPickersOutlinedInput-notchedOutline': { border: 'none' },
-                    '&.Mui-focused': {
-                        outline: `2px solid ${colors.ink}`,
-                        outlineOffset: '2px',
-                    },
                 },
+                // MUI X pads the sections 16.5px top and bottom to match a 56px
+                // outlined field, which dropped the date a line below its neighbours.
+                sectionsContainer: { padding: 0 },
             },
         },
         MuiPickersSectionList: {
-            styleOverrides: { root: { padding: '8px 10px' } },
+            styleOverrides: { root: { padding: 0 } },
         },
 
         MuiSnackbarContent: {

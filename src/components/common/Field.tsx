@@ -8,6 +8,8 @@ interface FieldProps {
     children: ReactNode;
     /** Draws the field's own box. Cells inside a ruled table get their edges from the grid instead. */
     bordered?: boolean;
+    /** Marks the label; the input itself carries `required` for assistive tech. */
+    required?: boolean;
     htmlFor?: string;
     sx?: SxProps<Theme>;
 }
@@ -20,12 +22,16 @@ interface FieldProps {
  * prints its field names, so a label is always attached to the value it names
  * rather than floating above a section as an eyebrow.
  */
-const Field = ({ label, children, bordered = false, htmlFor, sx }: FieldProps) => (
+const Field = ({ label, children, bordered = false, required = false, htmlFor, sx }: FieldProps) => (
     <Box
         sx={{
             px: 1.25,
             py: 1,
             minWidth: 0,
+            // Focus marks the whole box, inset so it sits inside shared edges. A
+            // ring on the input itself would hug the text, since inputs carry no
+            // padding of their own.
+            '&:focus-within': { outline: `2px solid ${colors.ink}`, outlineOffset: '-2px' },
             ...(bordered && { border: rule.hair, backgroundColor: colors.field }),
             ...sx,
         }}
@@ -37,6 +43,11 @@ const Field = ({ label, children, bordered = false, htmlFor, sx }: FieldProps) =
             sx={{ display: 'block', color: 'text.secondary', mb: 0.75 }}
         >
             {label}
+            {required && (
+                <Box component='span' aria-hidden sx={{ ml: 0.25 }}>
+                    *
+                </Box>
+            )}
         </Typography>
         {children}
     </Box>

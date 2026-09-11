@@ -10,7 +10,8 @@ import { createOrder, updateOrder } from '../../features/slices/outgoingOrdersSl
 import LoadingOverlay from '../common/LoadingOverlay';
 import Field from '../common/Field';
 import Rule from '../common/Rule';
-import { controlSx, sharedEdgeSx } from '../common/fieldStyles';
+import { controlSx } from '../common/fieldStyles';
+import { pluralize } from '../../app/utils';
 import { colors, rule } from '../../app/theme';
 
 interface OutgoingOrdersFormInterface {
@@ -102,72 +103,46 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm, orderToE
         setProductName('');
     };
 
+    // Rows in the packing list and the row that adds to it share one left gutter,
+    // so line numbers stack in a single column. 13px = the add row's 1px border
+    // plus its 12px padding.
+    const lineGutter = '13px';
+
     return (
         <Dialog open={isCreateOutgoingOrderFormOpen} onClose={handleClose} fullWidth maxWidth='sm'>
             <Box sx={{ position: 'relative' }}>
                 {loading && <LoadingOverlay absolute message='Saving order' />}
 
-                <Box sx={{ p: 3 }}>
-                    <Typography variant='masthead' component='h2' sx={{ fontSize: '1.75rem' }}>
-                        {isEditForm ? 'Edit order' : 'New order'}
-                    </Typography>
+                <Box component='form' onSubmit={(e) => e.preventDefault()} sx={{ p: 3 }}>
+                    {/* The order number is assigned, not entered, so it sits with the
+                        title as a reference instead of in a box that looks editable. */}
+                    <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 2 }}>
+                        <Typography variant='masthead' component='h2' sx={{ fontSize: '1.75rem' }}>
+                            {isEditForm ? 'Edit order' : 'New order'}
+                        </Typography>
+                        <Typography variant='data' sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>
+                            ORD-{order.id}
+                        </Typography>
+                    </Box>
                     <Rule weight='heavy' sx={{ mt: 1.5 }} />
 
-                    <Box component='form' onSubmit={(e) => e.preventDefault()}>
-                        <Box
-                            sx={{
-                                display: 'grid',
-                                gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' },
-                                border: rule.mid,
-                                borderTop: 'none',
-                                backgroundColor: colors.field,
-                            }}
-                        >
-                            <Field label='Order number' sx={sharedEdgeSx}>
-                                <Typography variant='data'>ORD-{order.id}</Typography>
-                            </Field>
-                            <Field label='Priority' htmlFor='order-priority' sx={sharedEdgeSx}>
-                                <Select
-                                    id='order-priority'
-                                    disabled={isEditForm}
-                                    value={order.priority}
-                                    onChange={(e) => setOrder({ ...order, priority: e.target.value })}
-                                    fullWidth
-                                    sx={controlSx}
-                                >
-                                    {Object.values(ORDER_PRIORITIES).map((option) => (
-                                        <MenuItem key={option} value={option}>
-                                            {`${option[0].toUpperCase()}${option.slice(1)}`}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </Field>
-                            <Field label='Date' htmlFor='order-date' sx={sharedEdgeSx}>
-                                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                    <DatePicker
-                                        disabled={isEditForm}
-                                        value={order.createdAt ? dayjs(order.createdAt) : null}
-                                        minDate={isEditForm ? undefined : dayjs()}
-                                        onChange={(newValue) =>
-                                            setOrder({
-                                                ...order,
-                                                createdAt: newValue ? newValue.toISOString() : dayjs().toISOString(),
-                                            })
-                                        }
-                                        slotProps={{
-                                            textField: { id: 'order-date', fullWidth: true, sx: controlSx },
-                                            openPickerButton: { size: 'small' },
-                                        }}
-                                    />
-                                </LocalizationProvider>
-                            </Field>
-                        </Box>
-
+                    {/* One ruled block. The field that has to be filled in comes first
+                        and full width; the two that arrive with defaults share the row
+                        beneath it. */}
+                    <Box
+                        sx={{
+                            display: 'grid',
+                            gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' },
+                            border: rule.mid,
+                            borderTop: 'none',
+                            backgroundColor: colors.field,
+                        }}
+                    >
                         <Field
                             label='Customer'
                             htmlFor='order-customer'
-                            bordered
-                            sx={{ borderTop: 'none', mt: 2, border: rule.mid }}
+                            required
+                            sx={{ gridColumn: '1 / -1', borderBottom: rule.hair }}
                         >
                             <TextField
                                 id='order-customer'
@@ -182,75 +157,173 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm, orderToE
                                 sx={controlSx}
                             />
                         </Field>
-
                         <Field
-                            label='Add an item'
-                            htmlFor='order-item'
-                            sx={{ mt: 2, border: rule.mid, backgroundColor: colors.field }}
+                            label='Priority'
+                            htmlFor='order-priority'
+                            sx={{ borderRight: { sm: rule.hair }, borderBottom: { xs: rule.hair, sm: 'none' } }}
                         >
-                            <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
-                                <TextField
-                                    id='order-item'
-                                    fullWidth
-                                    value={productName}
-                                    onChange={(e) => {
-                                        setProductName(e.target.value);
-                                        setErrors({ ...errors, item: '' });
+                            <Select
+                                id='order-priority'
+                                disabled={isEditForm}
+                                value={order.priority}
+                                onChange={(e) => setOrder({ ...order, priority: e.target.value })}
+                                fullWidth
+                                sx={controlSx}
+                            >
+                                {Object.values(ORDER_PRIORITIES).map((option) => (
+                                    <MenuItem key={option} value={option}>
+                                        {`${option[0].toUpperCase()}${option.slice(1)}`}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </Field>
+                        <Field label='Date' htmlFor='order-date'>
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <DatePicker
+                                    disabled={isEditForm}
+                                    value={order.createdAt ? dayjs(order.createdAt) : null}
+                                    minDate={isEditForm ? undefined : dayjs()}
+                                    onChange={(newValue) =>
+                                        setOrder({
+                                            ...order,
+                                            createdAt: newValue ? newValue.toISOString() : dayjs().toISOString(),
+                                        })
+                                    }
+                                    slotProps={{
+                                        textField: { id: 'order-date', fullWidth: true, sx: controlSx },
+                                        openPickerButton: { size: 'small' },
                                     }}
-                                    onKeyDown={addProduct}
-                                    placeholder='Item name'
-                                    error={Boolean(errors.item)}
-                                    helperText={errors.item || 'Press Enter to add'}
-                                    sx={controlSx}
                                 />
-                                <Button variant='outlined' onClick={commitProduct} sx={{ minHeight: 28, py: 0 }}>
-                                    Add
+                            </LocalizationProvider>
+                        </Field>
+                    </Box>
+
+                    {/* Items reads like the packing list on the detail sheet, and the
+                        add row is simply the next numbered line. */}
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            alignItems: 'baseline',
+                            justifyContent: 'space-between',
+                            gap: 2,
+                            mt: 4,
+                            mb: 1,
+                        }}
+                    >
+                        <Typography variant='section' component='h3'>
+                            Items
+                        </Typography>
+                        <Typography variant='data' sx={{ color: 'text.secondary' }}>
+                            {pluralize(order.items.length, 'item')}
+                        </Typography>
+                    </Box>
+                    <Rule weight='mid' />
+
+                    {order.items.map((item, index) => (
+                        <Box key={item}>
+                            {index > 0 && <Rule weight='hair' />}
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 2.5,
+                                    py: 1,
+                                    pl: lineGutter,
+                                    pr: 0.5,
+                                }}
+                            >
+                                <Typography variant='data' sx={{ color: 'text.disabled', flexShrink: 0 }}>
+                                    {String(index + 1).padStart(2, '0')}
+                                </Typography>
+                                <Typography variant='body1' sx={{ flex: 1, overflowWrap: 'anywhere' }}>
+                                    {item}
+                                </Typography>
+                                <Button
+                                    variant='text'
+                                    onClick={() =>
+                                        setOrder({
+                                            ...order,
+                                            items: order.items.filter((p) => p !== item),
+                                        })
+                                    }
+                                    sx={{ typography: 'label', minHeight: 24, px: 1 }}
+                                >
+                                    Remove
                                 </Button>
                             </Box>
-                        </Field>
-
-                        {order.items.length > 0 && (
-                            <Box sx={{ mt: 2.5 }}>
-                                <Rule weight='mid' />
-                                {order.items.map((item, index) => (
-                                    <Box key={item}>
-                                        {index > 0 && <Rule weight='hair' />}
-                                        <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 2, py: 1, px: 1.5 }}>
-                                            <Typography
-                                                variant='data'
-                                                sx={{ color: 'text.disabled', flexShrink: 0 }}
-                                            >
-                                                {String(index + 1).padStart(2, '0')}
-                                            </Typography>
-                                            <Typography variant='body1' sx={{ flex: 1, overflowWrap: 'anywhere' }}>
-                                                {item}
-                                            </Typography>
-                                            <Button
-                                                variant='text'
-                                                onClick={() =>
-                                                    setOrder({
-                                                        ...order,
-                                                        items: order.items.filter((p) => p !== item),
-                                                    })
-                                                }
-                                                sx={{ typography: 'label', minHeight: 24, px: 0.5 }}
-                                            >
-                                                Remove
-                                            </Button>
-                                        </Box>
-                                    </Box>
-                                ))}
-                            </Box>
-                        )}
-
-                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 3 }}>
-                            <Button variant='text' onClick={handleClose} disabled={loading}>
-                                Cancel
-                            </Button>
-                            <Button variant='contained' onClick={onSubmit} disabled={loading}>
-                                {isEditForm ? 'Save changes' : 'Create order'}
-                            </Button>
                         </Box>
+                    ))}
+
+                    {/* The input and its button are two cells of one row, so they share
+                        a height by construction rather than by nudging. The hint lives
+                        outside the row for the same reason. */}
+                    <Box
+                        sx={{
+                            display: 'grid',
+                            gridTemplateColumns: '1fr auto',
+                            border: rule.mid,
+                            backgroundColor: colors.field,
+                            mt: order.items.length > 0 ? 1 : 1.5,
+                        }}
+                    >
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 2.5,
+                                px: 1.5,
+                                py: 1.25,
+                                '&:focus-within': { outline: `2px solid ${colors.ink}`, outlineOffset: '-2px' },
+                            }}
+                        >
+                            <Typography variant='data' aria-hidden sx={{ color: 'text.disabled', flexShrink: 0 }}>
+                                {String(order.items.length + 1).padStart(2, '0')}
+                            </Typography>
+                            <TextField
+                                id='order-item'
+                                fullWidth
+                                value={productName}
+                                onChange={(e) => {
+                                    setProductName(e.target.value);
+                                    setErrors({ ...errors, item: '' });
+                                }}
+                                onKeyDown={addProduct}
+                                placeholder='Item name'
+                                error={Boolean(errors.item)}
+                                slotProps={{
+                                    htmlInput: { 'aria-label': 'Item name', 'aria-describedby': 'order-item-hint' },
+                                }}
+                                sx={controlSx}
+                            />
+                        </Box>
+                        <Button
+                            onClick={commitProduct}
+                            sx={{
+                                borderLeft: rule.hair,
+                                px: 2.5,
+                                minHeight: 0,
+                                color: 'text.primary',
+                                '&:hover': { backgroundColor: colors.ink, color: colors.paper },
+                            }}
+                        >
+                            Add
+                        </Button>
+                    </Box>
+                    <Typography
+                        id='order-item-hint'
+                        variant='body2'
+                        sx={{ color: errors.item ? colors.stamp : 'text.secondary', mt: 0.75, pl: lineGutter }}
+                    >
+                        {errors.item || 'Press Enter to add'}
+                    </Typography>
+
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 4 }}>
+                        <Button variant='text' onClick={handleClose} disabled={loading}>
+                            Cancel
+                        </Button>
+                        <Button variant='contained' onClick={onSubmit} disabled={loading}>
+                            {isEditForm ? 'Save changes' : 'Create order'}
+                        </Button>
                     </Box>
                 </Box>
             </Box>
