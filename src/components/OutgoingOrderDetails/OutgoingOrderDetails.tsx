@@ -12,7 +12,7 @@ import { formatOrderStamp } from '../../app/utils';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { deleteOrder, fetchOrder, updateOrderStatus } from '../../features/slices/outgoingOrdersSlice';
 import { ORDER_PRIORITIES, STATUS_TRANSITIONS, TIMELINE_STATUSES } from '../../app/constants';
-import { colors, rule } from '../../app/theme';
+import { colors, rule, statusColor } from '../../app/theme';
 
 const specCellSx = {
     borderRight: { sm: rule.hair },
@@ -87,10 +87,10 @@ const OutgoingOrderDetails = () => {
 
                     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 4 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: { sm: 1 } }}>
-                            {isHighPriority && <Stamp label='Rush' tone='stamp' />}
+                            {isHighPriority && <Stamp label='Rush' color={colors.stamp} filled />}
                             <Stamp
                                 label={order.status}
-                                tone='stamp'
+                                color={statusColor(order.status).ink}
                                 size='lg'
                                 animate={justChangedStatus}
                             />
@@ -175,6 +175,7 @@ const OutgoingOrderDetails = () => {
                 {TIMELINE_STATUSES.map((status, index) => {
                     const entry = order.statusHistory.find((history) => history.status === status);
                     const stamped = entry ? formatOrderStamp(entry.timestamp) : null;
+                    const stageColor = statusColor(status).ink;
 
                     return (
                         <Box key={status}>
@@ -195,7 +196,7 @@ const OutgoingOrderDetails = () => {
                                         width: 8,
                                         height: 8,
                                         flexShrink: 0,
-                                        backgroundColor: stamped ? colors.ink : 'transparent',
+                                        backgroundColor: stamped ? stageColor : 'transparent',
                                         border: stamped ? 'none' : `1px solid ${colors.inkFaint}`,
                                     }}
                                 />

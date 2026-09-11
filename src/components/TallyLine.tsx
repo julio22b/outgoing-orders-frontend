@@ -2,14 +2,16 @@ import { Box, Typography } from '@mui/material';
 import { useMemo } from 'react';
 import { ORDER_STATUSES } from '../app/constants';
 import { useAppSelector } from '../app/hooks';
+import { statusColor } from '../app/theme';
 import Rule from './common/Rule';
 
 /**
- * The day's tally.
+ * The day's tally, and the first thing on the sheet meant to be read.
  *
- * This replaces a row of four KPI cards — each with a decorative colored bar and
- * a hover lift it couldn't act on — with one line of the sheet. The numbers are
- * the same; they just stop pretending to be objects.
+ * The counts were previously set inline after a tiny label, which read as a
+ * ragged strip rather than a figure to land on. Each count now sits above its
+ * own label at the top of the type scale, in the colour of the status it
+ * counts, so the eye has somewhere obvious to start.
  */
 const TallyLine = () => {
     const orders = useAppSelector((state) => state.outgoingOrders.orders);
@@ -21,22 +23,32 @@ const TallyLine = () => {
         }, {});
 
         return [
-            { label: 'Total', count: orders.length },
-            { label: 'Picking', count: byStatus[ORDER_STATUSES.PICKING] ?? 0 },
-            { label: 'Packed', count: byStatus[ORDER_STATUSES.PACKED] ?? 0 },
-            { label: 'Dispatched', count: byStatus[ORDER_STATUSES.DISPATCHED] ?? 0 },
+            { label: 'Total', count: orders.length, status: null },
+            { label: 'Picking', count: byStatus[ORDER_STATUSES.PICKING] ?? 0, status: ORDER_STATUSES.PICKING },
+            { label: 'Packed', count: byStatus[ORDER_STATUSES.PACKED] ?? 0, status: ORDER_STATUSES.PACKED },
+            {
+                label: 'Dispatched',
+                count: byStatus[ORDER_STATUSES.DISPATCHED] ?? 0,
+                status: ORDER_STATUSES.DISPATCHED,
+            },
         ];
     }, [orders]);
 
     return (
         <Box>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: { xs: 2.5, sm: 5 }, pt: 2.5, pb: 2 }}>
-                {tallies.map(({ label, count }) => (
-                    <Box key={label} sx={{ display: 'flex', alignItems: 'baseline', gap: 1 }}>
-                        <Typography variant='label' sx={{ color: 'text.secondary' }}>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: { xs: 4, sm: 7 }, pt: 3, pb: 2.5 }}>
+                {tallies.map(({ label, count, status }) => (
+                    <Box key={label}>
+                        <Typography
+                            variant='tally'
+                            component='p'
+                            sx={{ color: status ? statusColor(status).ink : 'text.primary' }}
+                        >
+                            {count}
+                        </Typography>
+                        <Typography variant='label' sx={{ display: 'block', color: 'text.secondary', mt: 1 }}>
                             {label}
                         </Typography>
-                        <Typography variant='figure'>{count}</Typography>
                     </Box>
                 ))}
             </Box>

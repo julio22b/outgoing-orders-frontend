@@ -45,7 +45,7 @@ const BoardEntry = ({ order }: BoardEntryProps) => {
                 borderRadius: 0,
                 backgroundColor: 'transparent',
                 cursor: 'pointer',
-                px: 1.5,
+                px: 0,
                 py: 1.5,
                 transition: 'background-color 90ms linear',
                 '&:hover': { backgroundColor: colors.hoverWash },
@@ -66,7 +66,7 @@ const BoardEntry = ({ order }: BoardEntryProps) => {
                     {order.customer}
                 </Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexShrink: 0 }}>
-                    {isHigh && <Stamp label='Rush' tone='stamp' />}
+                    {isHigh && <Stamp label='Rush' color={colors.stamp} filled />}
                     <Typography variant='data' sx={{ color: 'text.secondary' }}>
                         ORD-{order.id}
                     </Typography>

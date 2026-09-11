@@ -49,9 +49,9 @@ export const colors = {
     onInkMuted: '#A9AEB3',
 
     /**
-     * The one spot color. 5.6:1 on paper.
-     * Reserved for: high priority, destructive actions, and live event flashes.
-     * If you are reaching for this and it is not an exception state, use ink.
+     * Exceptions: high priority, destructive actions, live event flashes. 5.6:1.
+     * It stays distinct from the status colours below by shape, not just hue —
+     * a rush stamp is filled solid, a status stamp is outlined.
      */
     stamp: '#B23122',
     /** The same signal inside the ink band, where the dark red would vanish. 5.2:1 on ink. */
@@ -61,6 +61,24 @@ export const colors = {
     /** Hover only. Kept translucent so it can sit over paper or a mark alike. */
     hoverWash: 'rgba(26, 27, 29, 0.05)',
 } as const;
+
+/**
+ * Each status carries its own colour again, the way it did before the redesign,
+ * but expressed as ink and as the tint of a carbon-copy sheet rather than as a
+ * pastel pill. `ink` clears 4.5:1 on paper; `tint` is faint enough that body
+ * text and rules stay legible over it.
+ */
+export const statusColors = {
+    picking: { ink: '#8A600C', tint: '#F2ECDD' },
+    packed: { ink: '#2E6A4C', tint: '#DCEAE0' },
+    dispatched: { ink: '#2A5E8C', tint: '#DAE5EF' },
+    delayed: { ink: '#B23122', tint: '#F7E2DE' },
+} as const;
+
+export type StatusKey = keyof typeof statusColors;
+
+export const statusColor = (status: string) =>
+    statusColors[status as StatusKey] ?? { ink: '#1A1B1D', tint: 'transparent' };
 
 /**
  * Paper tooth. Grey noise multiplied over the sheet at low opacity — the
@@ -101,6 +119,7 @@ const width = (wdth: number) => ({ fontVariationSettings: `'wdth' ${wdth}` });
 declare module '@mui/material/styles' {
     interface TypographyVariants {
         masthead: React.CSSProperties;
+        tally: React.CSSProperties;
         section: React.CSSProperties;
         docket: React.CSSProperties;
         display: React.CSSProperties;
@@ -112,6 +131,7 @@ declare module '@mui/material/styles' {
     }
     interface TypographyVariantsOptions {
         masthead?: React.CSSProperties;
+        tally?: React.CSSProperties;
         section?: React.CSSProperties;
         docket?: React.CSSProperties;
         display?: React.CSSProperties;
@@ -126,6 +146,7 @@ declare module '@mui/material/styles' {
 declare module '@mui/material/Typography' {
     interface TypographyPropsVariantOverrides {
         masthead: true;
+        tally: true;
         section: true;
         docket: true;
         display: true;
@@ -176,7 +197,7 @@ const theme = createTheme({
          */
         masthead: {
             fontFamily: SANS,
-            fontSize: '3.25rem',
+            fontSize: '2.5rem',
             fontWeight: 700,
             letterSpacing: '0.01em',
             lineHeight: 0.92,
@@ -201,10 +222,19 @@ const theme = createTheme({
             lineHeight: 1.1,
             ...width(88),
         },
-        /** Counts and quantities. Tabular so columns of them align. */
+        /** The day's tally — the first thing on the sheet worth reading. */
+        tally: {
+            fontFamily: MONO,
+            fontSize: '2.75rem',
+            fontWeight: 400,
+            letterSpacing: '-0.02em',
+            lineHeight: 1,
+            fontVariantNumeric: 'tabular-nums',
+        },
+        /** Secondary counts, e.g. per column. Deliberately smaller than `tally`. */
         figure: {
             fontFamily: MONO,
-            fontSize: '2rem',
+            fontSize: '1.25rem',
             fontWeight: 400,
             lineHeight: 1,
             fontVariantNumeric: 'tabular-nums',
