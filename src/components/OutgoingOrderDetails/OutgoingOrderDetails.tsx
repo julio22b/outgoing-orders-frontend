@@ -86,13 +86,15 @@ const OutgoingOrderDetails = () => {
                     </Box>
 
                     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 4 }}>
-                        <Stamp
-                            label={order.status}
-                            tone='stamp'
-                            size='lg'
-                            animate={justChangedStatus}
-                            sx={{ mt: { sm: 1 } }}
-                        />
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: { sm: 1 } }}>
+                            {isHighPriority && <Stamp label='Rush' tone='stamp' />}
+                            <Stamp
+                                label={order.status}
+                                tone='stamp'
+                                size='lg'
+                                animate={justChangedStatus}
+                            />
+                        </Box>
                         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                             <Button variant='outlined' onClick={() => setIsEditFormOpen(true)}>
                                 Edit

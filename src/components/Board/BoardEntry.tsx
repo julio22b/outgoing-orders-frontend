@@ -4,6 +4,7 @@ import { formatOrderStamp, pluralize } from '../../app/utils';
 import { ORDER_PRIORITIES } from '../../app/constants';
 import { useAppSelector } from '../../app/hooks';
 import { colors } from '../../app/theme';
+import Stamp from '../common/Stamp';
 import type { OutgoingOrderInterface } from '../../app/types';
 
 interface BoardEntryProps {
@@ -16,6 +17,10 @@ interface BoardEntryProps {
  * No border, no fill, no radius — an entry is separated from its neighbours by a
  * rule, the way rows on a form are. Status isn't shown: the column already says
  * it, and repeating it on every line is what made the old cards so noisy.
+ *
+ * High priority is stamped rather than barred. An accent rule down the left edge
+ * is the same decorative device this redesign set out to remove, and expedited
+ * freight really does get stamped, so the mark earns its place.
  */
 const BoardEntry = ({ order }: BoardEntryProps) => {
     const navigate = useNavigate();
@@ -36,9 +41,6 @@ const BoardEntry = ({ order }: BoardEntryProps) => {
                 font: 'inherit',
                 color: 'inherit',
                 border: 'none',
-                // A high-priority line is flagged in the margin, the way someone
-                // would mark up a printed sheet. It is the only color on the board.
-                borderLeft: `3px solid ${isHigh ? colors.stamp : 'transparent'}`,
                 // A raw <button> keeps the UA's radius; CssBaseline doesn't reset it.
                 borderRadius: 0,
                 backgroundColor: 'transparent',
@@ -50,13 +52,25 @@ const BoardEntry = ({ order }: BoardEntryProps) => {
                 ...(recentChange && { animation: 'markFade 2500ms ease-out both' }),
             }}
         >
-            <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 1.5 }}>
+            {/* minHeight keeps stamped and unstamped rows on the same rhythm. */}
+            <Box
+                sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 1.5,
+                    minHeight: 25,
+                }}
+            >
                 <Typography variant='entry' sx={{ minWidth: 0, overflowWrap: 'anywhere' }}>
                     {order.customer}
                 </Typography>
-                <Typography variant='data' sx={{ color: 'text.secondary', flexShrink: 0 }}>
-                    ORD-{order.id}
-                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexShrink: 0 }}>
+                    {isHigh && <Stamp label='Rush' tone='stamp' />}
+                    <Typography variant='data' sx={{ color: 'text.secondary' }}>
+                        ORD-{order.id}
+                    </Typography>
+                </Box>
             </Box>
 
             <Box
@@ -69,11 +83,6 @@ const BoardEntry = ({ order }: BoardEntryProps) => {
                 }}
             >
                 <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1.5, minWidth: 0 }}>
-                    {isHigh && (
-                        <Typography variant='label' sx={{ color: colors.stamp, flexShrink: 0 }}>
-                            High
-                        </Typography>
-                    )}
                     {isLow && (
                         <Typography variant='label' sx={{ color: colors.inkFaint, flexShrink: 0 }}>
                             Low
