@@ -1,6 +1,8 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { Box, Button, Typography, capitalize } from '@mui/material';
 import { useEffect, useState } from 'react';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CircleIcon from '@mui/icons-material/Circle';
 import Stamp from '../common/Stamp';
 import Rule from '../common/Rule';
 import Field from '../common/Field';
@@ -56,6 +58,15 @@ const OutgoingOrderDetails = () => {
     }
 
     const received = formatOrderStamp(order.createdAt);
+    const stages = TIMELINE_STATUSES.map((status) => {
+        const entry = order.statusHistory.find((history) => history.status === status);
+        return {
+            status,
+            done: Boolean(entry),
+            color: statusColor(status).ink,
+            stamped: entry ? formatOrderStamp(entry.timestamp) : null,
+        };
+    });
     const isHighPriority = order.priority === ORDER_PRIORITIES.HIGH;
     // Only stamp down when the change arrived from another client while watching.
     const justChangedStatus = recentChanges[order.id]?.statusChanged ?? false;
@@ -172,47 +183,79 @@ const OutgoingOrderDetails = () => {
                 </Box>
                 <Rule weight='mid' />
 
-                {TIMELINE_STATUSES.map((status, index) => {
-                    const entry = order.statusHistory.find((history) => history.status === status);
-                    const stamped = entry ? formatOrderStamp(entry.timestamp) : null;
-                    const stageColor = statusColor(status).ink;
+                {/*
+                    The original stepper, restored. The pattern was always right for
+                    a fixed three-stage pipeline; only the stock styling read as
+                    generic. Each completed stage takes its status colour, matching
+                    the tally, and a stage's outgoing line fills once it's done.
+                */}
+                <Box
+                    component='ol'
+                    sx={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+                        listStyle: 'none',
+                        m: 0,
+                        p: 0,
+                        pt: 4,
+                        pb: 1,
+                    }}
+                >
+                    {stages.map(({ status, done, color, stamped }, index) => {
+                        const incoming = index > 0 ? stages[index - 1] : null;
+                        const leftLine = incoming ? (incoming.done ? incoming.color : colors.ruleHair) : 'transparent';
+                        const rightLine = index < stages.length - 1 ? (done ? color : colors.ruleHair) : 'transparent';
+                        const nodeColor = done ? color : colors.ruleHair;
+                        const iconSx = {
+                            border: `3px solid ${done ? color : colors.ruleMid}`,
+                            borderRadius: '50%',
+                            color: nodeColor,
+                            flexShrink: 0,
+                        };
 
-                    return (
-                        <Box key={status}>
-                            {index > 0 && <Rule weight='hair' />}
+                        return (
                             <Box
-                                sx={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 2,
-                                    py: 1.5,
-                                    px: 1.5,
-                                    color: stamped ? 'text.primary' : 'text.disabled',
-                                }}
+                                component='li'
+                                key={status}
+                                sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5 }}
                             >
-                                <Box
-                                    aria-hidden
+                                <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }} aria-hidden>
+                                    <Box sx={{ flex: 1, height: 4, backgroundColor: leftLine }} />
+                                    {done ? (
+                                        <CheckCircleIcon fontSize='large' sx={iconSx} />
+                                    ) : (
+                                        <CircleIcon fontSize='large' sx={iconSx} />
+                                    )}
+                                    {/* Overlap the next column by 1px: two halves meeting at a
+                                        fractional pixel boundary left a visible seam, and both
+                                        halves of a connector share a colour so the overlap is
+                                        invisible. */}
+                                    <Box
+                                        sx={{
+                                            flex: 1,
+                                            height: 4,
+                                            backgroundColor: rightLine,
+                                            mr: index < stages.length - 1 ? '-1px' : 0,
+                                        }}
+                                    />
+                                </Box>
+                                <Typography
+                                    variant='body1'
                                     sx={{
-                                        width: 8,
-                                        height: 8,
-                                        flexShrink: 0,
-                                        backgroundColor: stamped ? stageColor : 'transparent',
-                                        border: stamped ? 'none' : `1px solid ${colors.inkFaint}`,
+                                        color: done ? 'text.primary' : 'text.secondary',
+                                        fontWeight: done ? 600 : 400,
+                                        textAlign: 'center',
                                     }}
-                                />
-                                <Typography variant='body1' sx={{ flex: 1, fontWeight: stamped ? 500 : 400 }}>
+                                >
                                     {capitalize(status)}
                                 </Typography>
-                                <Typography variant='data' sx={{ width: '5.5rem', textAlign: 'right' }}>
-                                    {stamped ? stamped.day : '—'}
-                                </Typography>
-                                <Typography variant='data' sx={{ width: '3.5rem', textAlign: 'right' }}>
-                                    {stamped ? stamped.time : '—'}
+                                <Typography variant='data' sx={{ color: 'text.secondary', textAlign: 'center' }}>
+                                    {stamped ? `${stamped.day} ${stamped.time}` : '—'}
                                 </Typography>
                             </Box>
-                        </Box>
-                    );
-                })}
+                        );
+                    })}
+                </Box>
 
                 <PackingList products={order.items} />
 
