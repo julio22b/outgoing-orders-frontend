@@ -15,39 +15,51 @@ import type {} from '@mui/x-date-pickers/themeAugmentation';
  */
 
 export const colors = {
-    /** What the sheet lies on. Nothing is ever set on the desk except the sheet. */
-    desk: '#CBCABF',
-    /** The sheet itself. Everything the app says is printed here. */
-    paper: '#EEEDE6',
-    /** Fields recessed into the form — now a real step down from paper, not 3%. */
-    field: '#E3E2D9',
+    /**
+     * Every surface used to sit at hue 37-55 degrees — khaki — with paper at 19%
+     * saturation, which is why the app read as a sun-faded manila envelope. The
+     * palette is now cool and near-neutral (8% saturation at most) so paper
+     * reads as paper and the one red stops going autumnal against it.
+     */
+    /** What the sheet lies on. */
+    desk: '#C6C7C9',
+    /** The sheet itself. */
+    paper: '#F1F2F3',
+    /** Fields recessed into the form. */
+    field: '#E4E6E8',
 
-    /** Ink is never pure black; it's a dense warm brown-black. 13.4:1 on paper. */
-    ink: '#221F1A',
-    /** Secondary text. 6.4:1 on paper. */
-    inkMuted: '#57524A',
-    /** Pending and placeholder states. 3.5:1 — large text and non-text only. */
-    inkFaint: '#807A6E',
+    /** 15.4:1 on paper. */
+    ink: '#1A1B1D',
+    /** Secondary text. 6.6:1 on paper. */
+    inkMuted: '#52565A',
+    /** Pending and placeholder states. 3.7:1 — large text and non-text only. */
+    inkFaint: '#797E83',
 
     /** Low-emphasis separator between entries. Decorative, so no contrast floor. */
-    ruleHair: '#CFCDC2',
+    ruleHair: '#D2D5D8',
     /**
-     * Section bounds and the boxes around form fields. Because it's the only
-     * thing marking where an input is, it has to clear WCAG 1.4.11's 3:1 against
-     * both surfaces it touches — 3.3:1 on paper, 3.1:1 on field.
+     * Section bounds and the boxes around form fields. Clears WCAG 1.4.11's 3:1
+     * against both surfaces it touches — 3.5:1 on paper, 3.1:1 on field.
      */
-    ruleMid: '#847F72',
+    ruleMid: '#7C8186',
+
+    /** Reversed out of the ink band in the letterhead. 15.4:1 on ink. */
+    onInk: '#F1F2F3',
+    /** Secondary text inside the band. 7.7:1 on ink. */
+    onInkMuted: '#A9AEB3',
 
     /**
-     * The one spot color. Oxide red, 5.6:1 on paper.
+     * The one spot color. 5.6:1 on paper.
      * Reserved for: high priority, destructive actions, and live event flashes.
      * If you are reaching for this and it is not an exception state, use ink.
      */
-    stamp: '#A6301F',
+    stamp: '#B23122',
+    /** The same signal inside the ink band, where the dark red would vanish. 5.2:1 on ink. */
+    stampOnInk: '#E0695B',
     /** Fades out behind a row that just changed. Never a permanent fill. */
-    stampWash: '#EFDFDB',
+    stampWash: '#F7E2DE',
     /** Hover only. Kept translucent so it can sit over paper or a mark alike. */
-    hoverWash: 'rgba(34, 31, 26, 0.045)',
+    hoverWash: 'rgba(26, 27, 29, 0.05)',
 } as const;
 
 /**
@@ -312,7 +324,7 @@ const theme = createTheme({
         },
         MuiBackdrop: {
             styleOverrides: {
-                root: { backgroundColor: 'rgba(34, 31, 26, 0.45)' },
+                root: { backgroundColor: 'rgba(26, 27, 29, 0.5)' },
             },
         },
 

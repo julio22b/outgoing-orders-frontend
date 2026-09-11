@@ -30,7 +30,7 @@ const TallyLine = () => {
 
     return (
         <Box>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: { xs: 2.5, sm: 5 }, pb: 1.75 }}>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: { xs: 2.5, sm: 5 }, pt: 2.5, pb: 2 }}>
                 {tallies.map(({ label, count }) => (
                     <Box key={label} sx={{ display: 'flex', alignItems: 'baseline', gap: 1 }}>
                         <Typography variant='label' sx={{ color: 'text.secondary' }}>
