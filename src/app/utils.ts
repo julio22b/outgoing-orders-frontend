@@ -1,15 +1,26 @@
-export const formatOrderDate = (isoString: string) => {
-    const date = new Date(isoString);
-    const now = new Date();
+const timeFormat = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
+const dayFormat = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' });
 
-    const isToday = date.toDateString() === now.toDateString();
+const relativeDay = (date: Date) => {
+    const now = new Date();
+    if (date.toDateString() === now.toDateString()) return 'Today';
+
     const yesterday = new Date(now);
     yesterday.setDate(now.getDate() - 1);
-    const isYesterday = date.toDateString() === yesterday.toDateString();
+    if (date.toDateString() === yesterday.toDateString()) return 'Yesterday';
 
-    const time = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-
-    if (isToday) return `Today, ${time}`;
-    if (isYesterday) return `Yesterday, ${time}`;
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + `, ${time}`;
+    return dayFormat.format(date);
 };
+
+export const formatOrderStamp = (isoString: string) => {
+    const date = new Date(isoString);
+    return { day: relativeDay(date), time: timeFormat.format(date) };
+};
+
+export const formatOrderDate = (isoString: string) => {
+    const { day, time } = formatOrderStamp(isoString);
+    return `${day} ${time}`;
+};
+
+export const pluralize = (count: number, singular: string, plural = `${singular}s`) =>
+    `${count} ${count === 1 ? singular : plural}`;

@@ -1,20 +1,4 @@
-import {
-    Box,
-    Button,
-    Chip,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    FormControl,
-    IconButton,
-    InputLabel,
-    MenuItem,
-    Select,
-    Stack,
-    TextField,
-} from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
+import { Box, Button, Dialog, MenuItem, Select, TextField, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import type { OutgoingOrderInterface } from '../../app/types';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
@@ -24,6 +8,11 @@ import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { ORDER_STATUSES, ORDER_FIELDS, ORDER_PRIORITIES } from '../../app/constants';
 import { createOrder, updateOrder } from '../../features/slices/outgoingOrdersSlice';
 import LoadingOverlay from '../common/LoadingOverlay';
+import Field from '../common/Field';
+import Rule from '../common/Rule';
+import { controlSx } from '../common/fieldStyles';
+import { pluralize } from '../../app/utils';
+import { colors, rule } from '../../app/theme';
 
 interface OutgoingOrdersFormInterface {
     isCreateOutgoingOrderFormOpen: boolean;
@@ -67,7 +56,7 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm, orderToE
         if (e) e.preventDefault();
 
         if (!order.customer) {
-            setErrors({ ...errors, customer: 'Customer is required' });
+            setErrors({ ...errors, customer: 'Enter a customer name' });
             return;
         }
 
@@ -88,14 +77,14 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm, orderToE
         setOrder({ ...order, [name]: value });
 
         if (name === ORDER_FIELDS.CUSTOMER) {
-            setErrors({ ...errors, [name]: value ? '' : 'Customer is required' });
+            setErrors({ ...errors, [name]: value ? '' : 'Enter a customer name' });
         }
     };
 
     const commitProduct = () => {
         if (!productName) return;
         if (order.items.includes(productName)) {
-            setErrors({ ...errors, item: 'This product has already been added.' });
+            setErrors({ ...errors, item: 'That item is already on the list' });
             return;
         }
         setOrder({ ...order, items: [...order.items, productName] });
@@ -103,7 +92,10 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm, orderToE
     };
 
     const addProduct = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter') commitProduct();
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            commitProduct();
+        }
     };
 
     const handleClose = () => {
@@ -111,42 +103,71 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm, orderToE
         setProductName('');
     };
 
+    // Rows in the packing list and the row that adds to it share one left gutter,
+    // so line numbers stack in a single column. 13px = the add row's 1px border
+    // plus its 12px padding.
+    const lineGutter = '13px';
+
     return (
-        <Dialog open={isCreateOutgoingOrderFormOpen} onClose={handleClose} fullWidth>
+        <Dialog open={isCreateOutgoingOrderFormOpen} onClose={handleClose} fullWidth maxWidth='sm'>
             <Box sx={{ position: 'relative' }}>
-                {loading && <LoadingOverlay absolute />}
-            <DialogTitle component='h2'>Create new order</DialogTitle>
-            <DialogContent sx={{ pt: '16px !important', position: 'relative' }}>
-                <Box component='form' sx={{ display: 'flex', flexDirection: 'column', gap: '2em' }}>
-                    <TextField
-                        value={`ORD-${order.id}`}
-                        label='Order ID'
-                        fullWidth
-                        slotProps={{ input: { readOnly: true } }}
-                    />
-                    <TextField
-                        value={order.customer}
-                        label='Customer'
-                        required
-                        onChange={(e) => handleChange(e)}
-                        placeholder='Enter customer name'
-                        fullWidth
-                        name={ORDER_FIELDS.CUSTOMER}
-                        error={!!errors.customer}
-                        helperText={errors.customer}
-                    />
+                {loading && <LoadingOverlay absolute message='Saving order' />}
+
+                <Box component='form' onSubmit={(e) => e.preventDefault()} sx={{ p: 3 }}>
+                    {/* The order number is assigned, not entered, so it sits with the
+                        title as a reference instead of in a box that looks editable. */}
+                    <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 2 }}>
+                        <Typography variant='masthead' component='h2' sx={{ fontSize: '1.75rem' }}>
+                            {isEditForm ? 'Edit order' : 'New order'}
+                        </Typography>
+                        <Typography variant='data' sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>
+                            ORD-{order.id}
+                        </Typography>
+                    </Box>
+
+                    {/* One ruled block. The field that has to be filled in comes first
+                        and full width; the two that arrive with defaults share the row
+                        beneath it. */}
                     <Box
-                        sx={{ display: 'flex', gap: '1em', flexWrap: 'wrap', '& > *': { flex: 1, minWidth: '140px' } }}
+                        sx={{
+                            display: 'grid',
+                            gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' },
+                            border: rule.mid,
+                            backgroundColor: colors.field,
+                            mt: 2,
+                        }}
                     >
-                        <FormControl fullWidth>
-                            <InputLabel id={'priority-select'}>Priority</InputLabel>
+                        <Field
+                            label='Customer'
+                            htmlFor='order-customer'
+                            required
+                            sx={{ gridColumn: '1 / -1', borderBottom: rule.hair }}
+                        >
+                            <TextField
+                                id='order-customer'
+                                value={order.customer}
+                                required
+                                onChange={handleChange}
+                                placeholder='Who the order ships to'
+                                fullWidth
+                                name={ORDER_FIELDS.CUSTOMER}
+                                error={!!errors.customer}
+                                helperText={errors.customer}
+                                sx={controlSx}
+                            />
+                        </Field>
+                        <Field
+                            label='Priority'
+                            htmlFor='order-priority'
+                            sx={{ borderRight: { sm: rule.hair }, borderBottom: { xs: rule.hair, sm: 'none' } }}
+                        >
                             <Select
-                                labelId={'priority-select'}
-                                id={'priority-select'}
+                                id='order-priority'
                                 disabled={isEditForm}
                                 value={order.priority}
-                                label={ORDER_FIELDS.PRIORITY}
                                 onChange={(e) => setOrder({ ...order, priority: e.target.value })}
+                                fullWidth
+                                sx={controlSx}
                             >
                                 {Object.values(ORDER_PRIORITIES).map((option) => (
                                     <MenuItem key={option} value={option}>
@@ -154,11 +175,10 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm, orderToE
                                     </MenuItem>
                                 ))}
                             </Select>
-                        </FormControl>
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <Stack spacing={3}>
+                        </Field>
+                        <Field label='Date' htmlFor='order-date'>
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
                                 <DatePicker
-                                    label='Date'
                                     disabled={isEditForm}
                                     value={order.createdAt ? dayjs(order.createdAt) : null}
                                     minDate={isEditForm ? undefined : dayjs()}
@@ -168,62 +188,143 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm, orderToE
                                             createdAt: newValue ? newValue.toISOString() : dayjs().toISOString(),
                                         })
                                     }
+                                    slotProps={{
+                                        textField: { id: 'order-date', fullWidth: true, sx: controlSx },
+                                        openPickerButton: { size: 'small' },
+                                    }}
                                 />
-                            </Stack>
-                        </LocalizationProvider>
+                            </LocalizationProvider>
+                        </Field>
                     </Box>
-                    <Box sx={{ display: 'flex', gap: '8px' }}>
-                        {order.items.map((item) => (
-                            <Chip
-                                key={item}
-                                label={item}
-                                sx={{ fontSize: '14px' }}
-                                onDelete={() => {
-                                    setOrder({ ...order, items: order.items.filter((p) => p !== item) });
+
+                    {/* Items reads like the packing list on the detail sheet, and the
+                        add row is simply the next numbered line. */}
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            alignItems: 'baseline',
+                            justifyContent: 'space-between',
+                            gap: 2,
+                            mt: 4,
+                            mb: 1,
+                        }}
+                    >
+                        <Typography variant='section' component='h3'>
+                            Items
+                        </Typography>
+                        <Typography variant='data' sx={{ color: 'text.secondary' }}>
+                            {pluralize(order.items.length, 'item')}
+                        </Typography>
+                    </Box>
+                    <Rule weight='mid' />
+
+                    {order.items.map((item, index) => (
+                        <Box key={item}>
+                            {index > 0 && <Rule weight='hair' />}
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 2.5,
+                                    py: 1,
+                                    pl: lineGutter,
+                                    pr: 0.5,
                                 }}
-                            />
-                        ))}
-                    </Box>
-                    <Box sx={{ display: 'flex', gap: '0.5em', alignItems: 'flex-start' }}>
-                        <TextField
-                            label='Product'
-                            required
-                            fullWidth
-                            value={productName}
-                            onChange={(e) => {
-                                setProductName(e.target.value);
-                                setErrors({ ...errors, item: '' });
-                            }}
-                            onKeyDown={addProduct}
-                            error={Boolean(errors.item)}
-                            helperText={errors.item || 'Hit Enter to add'}
-                        />
-                        <IconButton
-                            onClick={commitProduct}
-                            color='primary'
+                            >
+                                <Typography variant='data' sx={{ color: 'text.disabled', flexShrink: 0 }}>
+                                    {String(index + 1).padStart(2, '0')}
+                                </Typography>
+                                <Typography variant='body1' sx={{ flex: 1, overflowWrap: 'anywhere' }}>
+                                    {item}
+                                </Typography>
+                                <Button
+                                    variant='text'
+                                    onClick={() =>
+                                        setOrder({
+                                            ...order,
+                                            items: order.items.filter((p) => p !== item),
+                                        })
+                                    }
+                                    sx={{ typography: 'label', minHeight: 24, px: 1 }}
+                                >
+                                    Remove
+                                </Button>
+                            </Box>
+                        </Box>
+                    ))}
+
+                    {/* The input and its button are two cells of one row, so they share
+                        a height by construction rather than by nudging. The hint lives
+                        outside the row for the same reason. */}
+                    <Box
+                        sx={{
+                            display: 'grid',
+                            gridTemplateColumns: '1fr auto',
+                            border: rule.mid,
+                            backgroundColor: colors.field,
+                            mt: order.items.length > 0 ? 1 : 1.5,
+                        }}
+                    >
+                        <Box
                             sx={{
-                                width: '56px',
-                                height: '56px',
-                                flexShrink: 0,
-                                bgcolor: 'background.paper',
-                                border: '1px solid',
-                                borderColor: 'divider',
-                                borderRadius: '10px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 2.5,
+                                px: 1.5,
+                                py: 1.25,
+                                '&:focus-within': { outline: `2px solid ${colors.ink}`, outlineOffset: '-2px' },
                             }}
                         >
-                            <AddIcon />
-                        </IconButton>
+                            <Typography variant='data' aria-hidden sx={{ color: 'text.disabled', flexShrink: 0 }}>
+                                {String(order.items.length + 1).padStart(2, '0')}
+                            </Typography>
+                            <TextField
+                                id='order-item'
+                                fullWidth
+                                value={productName}
+                                onChange={(e) => {
+                                    setProductName(e.target.value);
+                                    setErrors({ ...errors, item: '' });
+                                }}
+                                onKeyDown={addProduct}
+                                placeholder='Item name'
+                                error={Boolean(errors.item)}
+                                slotProps={{
+                                    htmlInput: { 'aria-label': 'Item name', 'aria-describedby': 'order-item-hint' },
+                                }}
+                                sx={controlSx}
+                            />
+                        </Box>
+                        <Button
+                            onClick={commitProduct}
+                            sx={{
+                                borderLeft: rule.hair,
+                                px: 2.5,
+                                minHeight: 0,
+                                color: 'text.primary',
+                                '&:hover': { backgroundColor: colors.ink, color: colors.paper },
+                            }}
+                        >
+                            Add
+                        </Button>
+                    </Box>
+                    <Typography
+                        id='order-item-hint'
+                        variant='body2'
+                        sx={{ color: errors.item ? colors.stamp : 'text.secondary', mt: 0.75, pl: lineGutter }}
+                    >
+                        {errors.item || 'Press Enter to add'}
+                    </Typography>
+
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 4 }}>
+                        <Button variant='text' onClick={handleClose} disabled={loading}>
+                            Cancel
+                        </Button>
+                        <Button variant='contained' onClick={onSubmit} disabled={loading}>
+                            {isEditForm ? 'Save changes' : 'Create order'}
+                        </Button>
                     </Box>
                 </Box>
-            </DialogContent>
-            <DialogActions>
-                <Button onClick={handleClose} variant='outlined' disabled={loading}>
-                    Cancel
-                </Button>
-                <Button variant='contained' onClick={onSubmit} color='primary' disabled={loading}>
-                    {isEditForm ? 'Save order' : 'Create order'}
-                </Button>
-            </DialogActions>
             </Box>
         </Dialog>
     );

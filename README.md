@@ -1,5 +1,5 @@
-<img width="1253" height="776" alt="Screenshot 2026-06-04 233505" src="/docs/screenshots/wms-01.png" />
-<img width="1253" height="776" alt="Screenshot 2026-06-04 233505" src="/docs/screenshots/wms-02.png" />
+<img width="1512" height="860" alt="Live dispatch board showing orders across picking, packed and dispatched columns" src="/docs/screenshots/wms-01.png" />
+<img width="1512" height="860" alt="Order detail sheet with rush and status stamps, progress ledger and packing list" src="/docs/screenshots/wms-02.png" />
 
 # Outgoing Orders — Frontend
 
@@ -26,11 +26,11 @@ Inspired by 3.5 years of working on a production WMS at Pulpo WMS, where the out
 ## Features
 
 - **Live dispatch board** — real-time order updates across all connected clients via Socket.io
-- **Summary metrics** — at-a-glance count of total, picking, packed, and dispatched orders
+- **Running tally** — count of total, picking, packed, and dispatched orders across the top of the sheet
 - **Filtering** — filter orders by status, priority, and date
 - **Full CRUD** — create, edit, and delete orders
 - **Order detail page** — status timeline showing progression from picking → packed → dispatched with timestamps
-- **Consistent status styling** — color-coded badges and timeline nodes per status
+- **Status as a stamp** — the current status is stamped on the order sheet, and re-stamps in place when another client advances it
 
 ## Local Development
 

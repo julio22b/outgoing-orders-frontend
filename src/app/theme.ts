@@ -1,177 +1,405 @@
 import { createTheme } from '@mui/material/styles';
 import type {} from '@mui/x-date-pickers/themeAugmentation';
+import type { OrderStatus } from './types';
 
 export const colors = {
-    pageBg: '#f8f5ef', // app background
-    surface: '#fdfcf8', // cards / panels
-    surfaceCard: '#fffefb', // order cards (slightly lighter)
-    inset: '#f9f6f2', // item rows / inset fields
-    borderCard: '#e8e4dd',
-    borderInput: '#e2ddd5',
+    desk: '#C6C7C9',
+    paper: '#F1F2F3',
+    field: '#E4E6E8',
 
-    // Text
-    textPrimary: '#342c27',
-    heading: '#362b25',
-    textSecondary: '#746d68',
-    textMuted: '#908b86',
+    ink: '#1A1B1D',
+    inkMuted: '#52565A',
+    inkFaint: '#797E83',
 
-    // Accents (clay is primary; others are the tweak-panel options)
-    accentClay: '#a1674c',
-    accentSage: '#577b69',
-    accentSlate: '#556b82',
-    accentPlum: '#7c5378',
+    ruleHair: '#D2D5D8',
+    ruleMid: '#7C8186',
 
-    // Status — { dot, bg, text }
-    picking: { dot: '#d79e59', bg: '#fde3c4', text: '#804813' },
-    packed: { dot: '#6aa085', bg: '#cbefdb', text: '#1d533c' },
-    dispatched: { dot: '#5787a5', bg: '#cde9fd', text: '#22587a' },
-    delayed: { dot: '#c15f4d', bg: '#ffe2db', text: '#a04130', solid: '#bd432f' },
+    onInk: '#F1F2F3',
+    onInkMuted: '#A9AEB3',
 
-    // Priority — { bg, text }
-    priorityHigh: { bg: '#ffded5', text: '#a04130' },
-    priorityNormal: { bg: '#ebe7e2', text: '#625d56' },
-    priorityLow: { bg: '#d2edfc', text: '#286484' },
-
-    // Misc
-    successGreen: '#48a260', // "Live" indicator / success toast
-    progressLine: '#78ae82', // timeline fill
-    toastBg: '#251e18', // dark toast pill
-    amber: '#c9963a', // product list bullet
+    stamp: '#B23122',
+    stampOnInk: '#E0695B',
+    stampWash: '#F7E2DE',
+    hoverWash: 'rgba(26, 27, 29, 0.05)',
 } as const;
+
+export const statusColors = {
+    picking: { ink: '#714E07', tint: '#F2ECDD' },
+    packed: { ink: '#24563D', tint: '#DCEAE0' },
+    dispatched: { ink: '#204B72', tint: '#DAE5EF' },
+    delayed: { ink: '#B23122', tint: '#F7E2DE' },
+} as const satisfies Record<OrderStatus, { ink: string; tint: string }>;
+
+export const statusColor = (status: OrderStatus) => statusColors[status];
+
+export const paperGrain =
+    `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'>` +
+    `<filter id='g'><feTurbulence type='fractalNoise' baseFrequency='1.4' numOctaves='1' stitchTiles='stitch'/>` +
+    `<feColorMatrix type='saturate' values='0'/></filter>` +
+    `<rect width='160' height='160' filter='url(%23g)'/></svg>")`;
+
+export const stampInk =
+    `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'>` +
+    `<filter id='s'><feTurbulence type='fractalNoise' baseFrequency='1.6' numOctaves='1' stitchTiles='stitch'/>` +
+    `<feColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0.3 0 0 0 0.8'/></filter>` +
+    `<rect width='40' height='40' filter='url(%23s)'/></svg>")`;
+
+export const STAMP_ROTATION = 'rotate(-3deg)';
+
+export const rule = {
+    hair: `1px solid ${colors.ruleHair}`,
+    mid: `1px solid ${colors.ruleMid}`,
+    heavy: `2px solid ${colors.ink}`,
+} as const;
+
+const SANS = "'Archivo', system-ui, -apple-system, sans-serif";
+const MONO = "'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace";
+
+const width = (wdth: number) => ({ fontVariationSettings: `'wdth' ${wdth}` });
+
+declare module '@mui/material/styles' {
+    interface TypographyVariants {
+        masthead: React.CSSProperties;
+        tally: React.CSSProperties;
+        section: React.CSSProperties;
+        docket: React.CSSProperties;
+        display: React.CSSProperties;
+        figure: React.CSSProperties;
+        entry: React.CSSProperties;
+        data: React.CSSProperties;
+        label: React.CSSProperties;
+        stamped: React.CSSProperties;
+    }
+    interface TypographyVariantsOptions {
+        masthead?: React.CSSProperties;
+        tally?: React.CSSProperties;
+        section?: React.CSSProperties;
+        docket?: React.CSSProperties;
+        display?: React.CSSProperties;
+        figure?: React.CSSProperties;
+        entry?: React.CSSProperties;
+        data?: React.CSSProperties;
+        label?: React.CSSProperties;
+        stamped?: React.CSSProperties;
+    }
+}
+
+declare module '@mui/material/Typography' {
+    interface TypographyPropsVariantOverrides {
+        masthead: true;
+        tally: true;
+        section: true;
+        docket: true;
+        display: true;
+        figure: true;
+        entry: true;
+        data: true;
+        label: true;
+        stamped: true;
+        h1: false;
+        h2: false;
+        h3: false;
+        h4: false;
+        h5: false;
+        h6: false;
+        subtitle1: false;
+        subtitle2: false;
+        overline: false;
+    }
+}
 
 const theme = createTheme({
     palette: {
         mode: 'light',
-        primary: { main: colors.accentClay, contrastText: '#fdfcf8' },
-        error: { main: colors.delayed.solid, contrastText: '#fdfcf8' },
-        success: { main: colors.successGreen },
-        background: { default: colors.pageBg, paper: colors.surface },
-        text: { primary: colors.textPrimary, secondary: colors.textSecondary },
-        divider: colors.borderCard,
+        primary: { main: colors.ink, contrastText: colors.paper },
+        secondary: { main: colors.inkMuted, contrastText: colors.paper },
+        warning: { main: colors.stamp, contrastText: colors.paper },
+        error: { main: colors.stamp, contrastText: colors.paper },
+        success: { main: colors.ink, contrastText: colors.paper },
+        background: { default: colors.paper, paper: colors.paper },
+        text: { primary: colors.ink, secondary: colors.inkMuted, disabled: colors.inkFaint },
+        divider: colors.ruleHair,
     },
+
+    shape: { borderRadius: 0 },
 
     typography: {
-        fontFamily: '"Hanken Grotesk", system-ui, sans-serif',
-        // Serif display face for titles & big numbers
-        h1: { fontFamily: '"Spectral", serif', fontWeight: 600, letterSpacing: '-0.01em' },
-        h2: { fontFamily: '"Spectral", serif', fontWeight: 600 },
-        h3: { fontFamily: '"Spectral", serif', fontWeight: 600 },
-        h4: { fontFamily: '"Spectral", serif', fontWeight: 500 },
-        button: { textTransform: 'none', fontWeight: 600 },
-        overline: { fontWeight: 700, letterSpacing: '0.07em' },
-    },
+        fontFamily: SANS,
+        htmlFontSize: 16,
+        fontSize: 14,
 
-    shape: { borderRadius: 12 },
+        masthead: {
+            fontFamily: SANS,
+            fontSize: '2.5rem',
+            fontWeight: 700,
+            letterSpacing: '0.01em',
+            lineHeight: 0.92,
+            textTransform: 'uppercase',
+            ...width(62),
+        },
+        docket: {
+            fontFamily: MONO,
+            fontSize: '3rem',
+            fontWeight: 500,
+            letterSpacing: 0,
+            lineHeight: 1,
+            fontVariantNumeric: 'tabular-nums',
+        },
+        display: {
+            fontFamily: SANS,
+            fontSize: '2.125rem',
+            fontWeight: 600,
+            letterSpacing: '-0.02em',
+            lineHeight: 1.1,
+            ...width(88),
+        },
+        tally: {
+            fontFamily: MONO,
+            fontSize: '2.75rem',
+            fontWeight: 400,
+            letterSpacing: '-0.02em',
+            lineHeight: 1,
+            fontVariantNumeric: 'tabular-nums',
+        },
+        figure: {
+            fontFamily: MONO,
+            fontSize: '1.25rem',
+            fontWeight: 400,
+            lineHeight: 1,
+            fontVariantNumeric: 'tabular-nums',
+        },
+        section: {
+            fontFamily: SANS,
+            fontSize: '1rem',
+            fontWeight: 700,
+            letterSpacing: '0.02em',
+            lineHeight: 1.2,
+            ...width(72),
+        },
+        entry: {
+            fontFamily: SANS,
+            fontSize: '1.0625rem',
+            fontWeight: 500,
+            letterSpacing: '-0.01em',
+            lineHeight: 1.25,
+            ...width(92),
+        },
+        body1: { fontFamily: SANS, fontSize: '0.875rem', lineHeight: 1.55 },
+        body2: { fontFamily: SANS, fontSize: '0.8125rem', lineHeight: 1.5 },
+        data: {
+            fontFamily: MONO,
+            fontSize: '0.78125rem',
+            fontWeight: 400,
+            letterSpacing: '0.01em',
+            lineHeight: 1.4,
+            fontVariantNumeric: 'tabular-nums',
+        },
+        label: {
+            fontFamily: SANS,
+            fontSize: '0.65625rem',
+            fontWeight: 600,
+            letterSpacing: '0.06em',
+            lineHeight: 1.2,
+            ...width(80),
+        },
+        stamped: {
+            fontFamily: SANS,
+            fontSize: '0.8125rem',
+            fontWeight: 700,
+            letterSpacing: '0.16em',
+            textTransform: 'uppercase',
+            lineHeight: 1,
+            ...width(85),
+        },
+        button: { fontFamily: SANS, fontWeight: 600, textTransform: 'none', letterSpacing: '0.01em' },
+    },
 
     components: {
         MuiCssBaseline: {
             styleOverrides: {
-                body: { backgroundColor: colors.pageBg, color: colors.textPrimary },
-            },
-        },
-        MuiPaper: {
-            styleOverrides: {
-                root: {
-                    backgroundColor: colors.surface,
-                    border: `1px solid ${colors.borderCard}`,
-                    backgroundImage: 'none',
+                body: {
+                    backgroundColor: colors.desk,
+                    color: colors.ink,
+                    fontVariantNumeric: 'tabular-nums',
+                },
+                '@keyframes stampIn': {
+                    from: { transform: `scale(1.25) ${STAMP_ROTATION}`, opacity: 0 },
+                    to: { transform: `scale(1) ${STAMP_ROTATION}`, opacity: 1 },
+                },
+                '@keyframes entryIn': {
+                    from: { transform: 'translateY(6px)', opacity: 0 },
+                    to: { transform: 'translateY(0)', opacity: 1 },
+                },
+                '@keyframes markFade': {
+                    from: { backgroundColor: colors.stampWash },
+                    to: { backgroundColor: 'transparent' },
+                },
+                '@keyframes caret': {
+                    '0%, 45%': { opacity: 1 },
+                    '50%, 95%': { opacity: 0 },
+                },
+                '@media (prefers-reduced-motion: reduce)': {
+                    '*, *::before, *::after': {
+                        animationDuration: '0.01ms !important',
+                        animationIterationCount: '1 !important',
+                        transitionDuration: '0.01ms !important',
+                    },
+                },
+                ':focus-visible': {
+                    outline: `2px solid ${colors.ink}`,
+                    outlineOffset: '2px',
                 },
             },
         },
+
+        MuiPaper: {
+            defaultProps: { elevation: 0 },
+            styleOverrides: {
+                root: { backgroundColor: colors.paper, backgroundImage: 'none', boxShadow: 'none' },
+            },
+        },
+
         MuiDialog: {
             styleOverrides: {
-                paper: {
-                    backgroundColor: colors.inset,
-                },
+                paper: { border: rule.heavy, backgroundColor: colors.paper, boxShadow: 'none' },
             },
         },
-        MuiButton: {
-            defaultProps: { disableElevation: true },
+        MuiBackdrop: {
             styleOverrides: {
-                root: { borderRadius: 11, paddingInline: 18 },
-                outlined: {
-                    backgroundColor: colors.surface,
-                    color: colors.textPrimary,
-                    borderColor: colors.borderCard,
-                    '&:hover': {
-                        backgroundColor: colors.surface,
-                        borderColor: colors.textMuted,
+                root: { backgroundColor: 'rgba(26, 27, 29, 0.5)' },
+            },
+        },
+
+        MuiButtonBase: {
+            styleOverrides: {
+                root: {
+                    '&.Mui-focusVisible': {
+                        outline: `2px solid ${colors.ink}`,
+                        outlineOffset: '2px',
                     },
                 },
             },
         },
+
+        MuiButton: {
+            defaultProps: { disableElevation: true, disableRipple: true },
+            styleOverrides: {
+                root: {
+                    borderRadius: 0,
+                    paddingInline: 14,
+                    minHeight: 34,
+                    transition: 'background-color 90ms linear, color 90ms linear',
+                },
+                contained: {
+                    backgroundColor: colors.ink,
+                    color: colors.paper,
+                    '&:hover': { backgroundColor: colors.stamp },
+                },
+                outlined: {
+                    borderColor: colors.ink,
+                    borderWidth: 2,
+                    color: colors.ink,
+                    '&:hover': {
+                        borderWidth: 2,
+                        borderColor: colors.ink,
+                        backgroundColor: colors.ink,
+                        color: colors.paper,
+                    },
+                },
+                text: {
+                    color: colors.inkMuted,
+                    '&:hover': { backgroundColor: 'transparent', color: colors.ink },
+                },
+            },
+        },
+
+        MuiIconButton: {
+            defaultProps: { disableRipple: true },
+            styleOverrides: { root: { borderRadius: 0 } },
+        },
+
         MuiOutlinedInput: {
             styleOverrides: {
                 root: {
-                    backgroundColor: colors.surface,
-                    borderRadius: 10,
-                    '& .MuiOutlinedInput-notchedOutline': {
-                        borderColor: colors.borderInput,
-                    },
-                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                        borderColor: colors.textMuted,
-                    },
-                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                        borderColor: colors.accentClay,
-                        borderWidth: 1.5,
-                    },
+                    borderRadius: 0,
+                    backgroundColor: colors.field,
+                    fontSize: '0.875rem',
+                    '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
+                    '&:hover .MuiOutlinedInput-notchedOutline': { border: 'none' },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': { border: 'none' },
                 },
                 input: {
-                    color: colors.textPrimary,
+                    padding: 0,
+                    '&::placeholder': { color: colors.inkFaint, opacity: 1 },
                 },
             },
         },
-        MuiInputLabel: {
+        MuiSelect: {
+            defaultProps: { MenuProps: { disableScrollLock: true } },
+            styleOverrides: {
+                select: { padding: 0, paddingRight: '28px' },
+                icon: { color: colors.inkMuted, right: 0 },
+            },
+        },
+        MuiMenu: {
+            styleOverrides: {
+                paper: { border: rule.mid, borderRadius: 0, marginTop: 2 },
+                list: { paddingBlock: 0 },
+            },
+        },
+        MuiMenuItem: {
             styleOverrides: {
                 root: {
-                    color: colors.textSecondary,
-                    '&.Mui-focused': {
-                        color: colors.accentClay,
-                    },
+                    fontSize: '0.875rem',
+                    '&.Mui-selected': { backgroundColor: colors.field },
+                    '&:hover': { backgroundColor: colors.field },
                 },
             },
         },
         MuiPickersOutlinedInput: {
             styleOverrides: {
                 root: {
-                    backgroundColor: colors.surface,
-                    borderRadius: 10,
-                    '& .MuiPickersOutlinedInput-notchedOutline': {
-                        borderColor: colors.borderInput,
-                    },
-                    '&:hover .MuiPickersOutlinedInput-notchedOutline': {
-                        borderColor: colors.textMuted,
-                    },
-                    '&.Mui-focused .MuiPickersOutlinedInput-notchedOutline': {
-                        borderColor: colors.accentClay,
-                        borderWidth: 1.5,
-                    },
+                    borderRadius: 0,
+                    backgroundColor: colors.field,
+                    fontSize: '0.875rem',
+                    paddingLeft: 0,
+                    paddingRight: 0,
+                    '& .MuiInputAdornment-root': { height: 'auto', maxHeight: 'none' },
+                    '& .MuiInputAdornment-root .MuiIconButton-root': { marginBlock: '-7px' },
+                    '& .MuiPickersOutlinedInput-notchedOutline': { border: 'none' },
+                    '&:hover .MuiPickersOutlinedInput-notchedOutline': { border: 'none' },
+                    '&.Mui-focused .MuiPickersOutlinedInput-notchedOutline': { border: 'none' },
                 },
+                sectionsContainer: { padding: 0 },
             },
         },
-        MuiPickersTextField: {
-            styleOverrides: {
-                root: {
-                    '& .MuiInputLabel-root': {
-                        color: colors.textSecondary,
-                    },
-                    '& .MuiInputLabel-root.Mui-focused': {
-                        color: colors.accentClay,
-                    },
-                },
-            },
+        MuiPickersSectionList: {
+            styleOverrides: { root: { padding: 0 } },
         },
+
         MuiSnackbarContent: {
             styleOverrides: {
                 root: {
-                    backgroundColor: colors.toastBg,
-                    color: colors.surface,
-                    borderRadius: 12,
-                    border: 'none',
-                    boxShadow: '0 4px 24px rgba(0,0,0,0.18)',
-                    fontFamily: '"Hanken Grotesk", system-ui, sans-serif',
-                    fontSize: '0.875rem',
+                    backgroundColor: colors.ink,
+                    color: colors.paper,
+                    borderRadius: 0,
+                    boxShadow: 'none',
+                    fontFamily: SANS,
+                    fontSize: '0.8125rem',
                     fontWeight: 500,
+                },
+            },
+        },
+
+        MuiTooltip: {
+            styleOverrides: {
+                tooltip: {
+                    backgroundColor: colors.ink,
+                    color: colors.paper,
+                    borderRadius: 0,
+                    fontFamily: MONO,
+                    fontSize: '0.75rem',
+                    fontWeight: 400,
                 },
             },
         },

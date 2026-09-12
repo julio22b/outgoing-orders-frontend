@@ -1,8 +1,6 @@
-import './App.css';
-import { Box, Snackbar } from '@mui/material';
-import AppBar from './components/AppBar';
-import OrdersSummary from './components/OrdersSummary/OrdersSummary';
-// import DataGrid from './components/DataGrid/DataGrid';
+import { Snackbar } from '@mui/material';
+import Letterhead from './components/Letterhead';
+import TallyLine from './components/TallyLine';
 import Filters from './components/Filters/Filters';
 import { Route, Routes } from 'react-router-dom';
 import OutgoingOrderDetails from './components/OutgoingOrderDetails/OutgoingOrderDetails';
@@ -13,7 +11,8 @@ import socket from './socket';
 import type { OutgoingOrderInterface } from './app/types';
 import { closeSnackbar } from './features/slices/snackbarSlice';
 import LoadingOverlay from './components/common/LoadingOverlay';
-import KanbanBoard from './components/DataGrid/KanbanBoard';
+import Board from './components/Board/Board';
+import Sheet from './components/common/Sheet';
 
 function App() {
     const { vertical, horizontal, open, message } = useAppSelector((state) => state.snackbar);
@@ -32,7 +31,6 @@ function App() {
         });
 
         socket.on('order:deleted', (id: number) => {
-            console.log('socket emit delete', id);
             dispatch(removeOrder(id));
         });
 
@@ -46,16 +44,15 @@ function App() {
     if (!initialized) {
         return (
             <LoadingOverlay
-                message='Server is waking up...'
-                subMessage='The server spins down after inactivity. This takes a few seconds — hang tight!'
+                message='Waking the server'
+                subMessage='It spins down after inactivity, so the first request takes 30–60 seconds. Later ones are fast.'
             />
         );
     }
 
     return (
-        <Box>
-            <AppBar />
-            <OrdersSummary />
+        <Sheet>
+            <Letterhead />
             <Snackbar
                 autoHideDuration={6000}
                 anchorOrigin={{ vertical, horizontal }}
@@ -69,15 +66,15 @@ function App() {
                     path='/'
                     element={
                         <>
+                            <TallyLine />
                             <Filters />
-                            <KanbanBoard />
-                            {/* <DataGrid /> */}
+                            <Board />
                         </>
                     }
                 />
                 <Route path='/orders/:id' element={<OutgoingOrderDetails />} />
             </Routes>
-        </Box>
+        </Sheet>
     );
 }
 

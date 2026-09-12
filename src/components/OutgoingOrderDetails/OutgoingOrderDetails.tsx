@@ -1,304 +1,275 @@
-import { useLocation, useNavigate } from 'react-router-dom';
-import { Box, Button, capitalize, Card, CardContent, CircularProgress, Divider, Typography } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import CustomChip from '../DataGrid/CustomChip';
-import { formatOrderDate } from '../../app/utils';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Box, Button, Typography, capitalize } from '@mui/material';
+import { useEffect, useState } from 'react';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import theme, { colors } from '../../app/theme';
+import CircleIcon from '@mui/icons-material/Circle';
+import Stamp from '../common/Stamp';
+import Rule from '../common/Rule';
+import Field from '../common/Field';
+import PackingList from './PackingList';
+import LoadingOverlay from '../common/LoadingOverlay';
+import DeleteConfirmationDialog from '../DeleteConfirmationDialog';
+import OutgoingOrdersForm from '../OutgoingOrdersForm/OutgoingOrdersForm';
+import { formatOrderStamp } from '../../app/utils';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { deleteOrder, fetchOrder, updateOrderStatus } from '../../features/slices/outgoingOrdersSlice';
-import DeleteConfirmationDialog from '../DeleteConfirmationDialog.tsx/DeleteConfirmationDialog';
-import { useEffect, useState } from 'react';
-import ProductsList from './ProductsList';
-import CircleIcon from '@mui/icons-material/Circle';
-import OutgoingOrdersForm from '../OutgoingOrdersForm/OutgoingOrdersForm';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { STATUS_TRANSITIONS, STATUSES_ENUM, TIMELINE_STATUSES } from '../../app/constants';
-import LoadingOverlay from '../common/LoadingOverlay';
+import { ORDER_PRIORITIES, STATUS_TRANSITIONS, TIMELINE_STATUSES } from '../../app/constants';
+import { colors, rule, statusColor } from '../../app/theme';
+
+const specCellSx = {
+    borderRight: { sm: rule.hair },
+    borderBottom: { xs: rule.hair, sm: 'none' },
+    '&:last-of-type': { borderRight: 'none', borderBottom: 'none' },
+};
 
 const OutgoingOrderDetails = () => {
     const [isDeleteOrderDialogOpen, setIsDeleteOrderDialogOpen] = useState(false);
-    const [isCreateOutgoingOrderFormOpen, setIsCreateOutgoingOrderFormOpen] = useState(false);
+    const [isEditFormOpen, setIsEditFormOpen] = useState(false);
     const dispatch = useAppDispatch();
-    const location = useLocation();
     const navigate = useNavigate();
-    const IdOfOrderToFetch = location.state.orderId;
-    const { detailsLoading, detailsOrder: order } = useAppSelector((state) => state.outgoingOrders);
-    const nextStatus = STATUS_TRANSITIONS[order?.status || ''];
+    // Read from the route, not from navigation state, so the URL can be shared
+    // and the page survives a refresh.
+    const { id } = useParams<{ id: string }>();
+    const { detailsLoading, detailsOrder: order, recentChanges } = useAppSelector((state) => state.outgoingOrders);
+    const nextStatus = order && STATUS_TRANSITIONS[order.status];
 
     useEffect(() => {
-        if (IdOfOrderToFetch) {
-            dispatch(fetchOrder(IdOfOrderToFetch));
-        }
-    }, [dispatch, IdOfOrderToFetch]);
+        if (id) dispatch(fetchOrder(id));
+    }, [dispatch, id]);
 
     if (detailsLoading && !order) {
-        return (
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
-                <CircularProgress />
-            </Box>
-        );
+        return <LoadingOverlay message='Loading order' />;
     }
 
     if (!order) {
         return (
-            <Box
-                sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    width: '300px',
-                    margin: '0 auto',
-                }}
-            >
-                <Typography sx={{ textAlign: 'center', paddingTop: '4em' }} gutterBottom variant='h4'>
-                    No order found
+            <Box sx={{ py: 6 }}>
+                <Typography variant='display' component='h1' gutterBottom>
+                    No order here
                 </Typography>
-                <Button onClick={() => navigate(-1)} variant='outlined' color='secondary' startIcon={<ArrowBackIcon />}>
-                    Back
+                <Typography variant='body1' sx={{ color: 'text.secondary', mb: 3, maxWidth: '52ch' }}>
+                    This order number isn't on the manifest. It may have been dispatched and cleared, or deleted.
+                </Typography>
+                <Button variant='outlined' onClick={() => navigate('/')}>
+                    Back to the board
                 </Button>
             </Box>
         );
     }
 
+    const received = formatOrderStamp(order.createdAt);
+    const stages = TIMELINE_STATUSES.map((status) => {
+        const entry = order.statusHistory.find((history) => history.status === status);
+        return {
+            status,
+            done: Boolean(entry),
+            color: statusColor(status).ink,
+            stamped: entry ? formatOrderStamp(entry.timestamp) : null,
+        };
+    });
+    const isHighPriority = order.priority === ORDER_PRIORITIES.HIGH;
+    // Only stamp down when the change arrived from another client while watching.
+    const justChangedStatus = recentChanges[order.id]?.statusChanged ?? false;
+
     return (
         <Box sx={{ position: 'relative' }}>
             {detailsLoading && <LoadingOverlay absolute />}
-        <Box
-            sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '2em',
-                maxWidth: '1200px',
-                margin: '0 auto',
-                padding: '2em',
-            }}
-        >
-            <Box
-                sx={{
-                    paddingTop: '2em',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    borderTop: `1px solid ${theme.palette.divider}`,
-                    flexWrap: 'wrap',
-                    '& > *': { flex: 1, minWidth: '300px' },
-                }}
-            >
-                <Box sx={{ margin: { xs: '0 0 1em 0', md: '0' } }}>
-                    <Typography variant='h5'>{order.id}</Typography>
-                    <Typography variant='subtitle1'>{order.customer}</Typography>
-                </Box>
+            <Box sx={{ pb: 8 }}>
                 <Box
                     sx={{
                         display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'flex-end',
-                        gap: '1em',
-                        flexWrap: 'wrap',
-                        '& > *': { minWidth: 'fit-content' },
+                        flexDirection: { xs: 'column', sm: 'row' },
+                        alignItems: { sm: 'flex-start' },
+                        justifyContent: 'space-between',
+                        gap: 3,
+                        py: 3,
                     }}
                 >
-                    <Button
-                        onClick={() => setIsCreateOutgoingOrderFormOpen(true)}
-                        variant='contained'
-                        startIcon={<EditIcon />}
-                        sx={{ backgroundColor: 'background.paper', color: 'primary.main' }}
-                    >
-                        Edit
-                    </Button>
-                    <Button
-                        onClick={() => setIsDeleteOrderDialogOpen(true)}
-                        variant='outlined'
-                        sx={{ color: 'warning.main' }}
-                        startIcon={<DeleteIcon color='warning' />}
-                    >
-                        Delete
-                    </Button>
-                    <Button
-                        onClick={() => navigate(-1)}
-                        variant='outlined'
-                        color='secondary'
-                        startIcon={<ArrowBackIcon />}
-                    >
-                        Back
-                    </Button>
-                </Box>
-            </Box>
-            <Box sx={{ display: 'flex', gap: '1em', flexWrap: 'wrap', '& > *': { flex: 1, minWidth: '150px' } }}>
-                <Card variant='outlined'>
-                    <CardContent>
-                        <Typography
-                            gutterBottom
-                            variant='h6'
-                            sx={{
-                                color: 'text.secondary',
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.15em',
-                                fontSize: '14px',
-                            }}
-                        >
-                            Status
+                    <Box sx={{ minWidth: 0 }}>
+                        <Typography variant='docket' component='p'>
+                            ORD-{order.id}
                         </Typography>
-                        <CustomChip title={order.status} />
-                    </CardContent>
-                </Card>
-                <Card variant='outlined'>
-                    <CardContent>
-                        <Typography
-                            gutterBottom
-                            variant='h6'
-                            sx={{
-                                color: 'text.secondary',
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.15em',
-                                fontSize: '14px',
-                            }}
-                        >
-                            Priority
+                        <Typography variant='display' component='h1' sx={{ mt: 1, overflowWrap: 'anywhere' }}>
+                            {order.customer}
                         </Typography>
-                        <CustomChip title={order.priority} />
-                    </CardContent>
-                </Card>
-                <Card variant='outlined'>
-                    <CardContent>
-                        <Typography
-                            gutterBottom
-                            variant='h6'
-                            sx={{
-                                color: 'text.secondary',
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.15em',
-                                fontSize: '14px',
-                            }}
-                        >
-                            Date
-                        </Typography>
-                        {formatOrderDate(order.createdAt)}
-                    </CardContent>
-                </Card>
-                <Card variant='outlined'>
-                    <CardContent>
-                        <Typography
-                            gutterBottom
-                            variant='h6'
-                            sx={{
-                                color: 'text.secondary',
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.15em',
-                                fontSize: '14px',
-                            }}
-                        >
-                            Items
-                        </Typography>
-                        <Typography variant='h5'>{order.items.length}</Typography>
-                    </CardContent>
-                </Card>
-            </Box>
-            <Card variant='outlined'>
-                <CardContent>
-                    <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
-                        <Typography gutterBottom variant='h6'>
-                            Status timeline
-                        </Typography>
-                        {nextStatus && (
-                            <Button
-                                color='primary'
-                                variant='contained'
-                                onClick={() => dispatch(updateOrderStatus(order.id))}
-                                sx={{ boxShadow: '2px 2px 10px rgba(0, 0, 0, 0.2)' }}
-                            >
-                                Mark as {capitalize(nextStatus)}
-                            </Button>
-                        )}
                     </Box>
-                    <Box
-                        sx={{
-                            display: 'flex',
-                            gap: '1em',
-                            '& > *': { flex: 1, minWidth: '150px' },
-                            overflow: { xs: 'scroll', md: 'hidden' },
-                        }}
-                    >
-                        {TIMELINE_STATUSES.map((status, index) => {
-                            const currentStatusHistory = order.statusHistory.find(
-                                (orderStatus) => orderStatus.status === status,
-                            )!;
 
-                            const isDone = STATUSES_ENUM[status] <= STATUSES_ENUM[currentStatusHistory?.status] || 0;
-                            const color = isDone ? theme.palette.success.main : colors.borderCard;
-                            const iconStyles = {
-                                border: `3px solid ${color}`,
-                                borderRadius: '50%',
-                                color,
-                            };
-                            return (
-                                <Box key={status} sx={{ position: 'relative' }}>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 4 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: { sm: 1 } }}>
+                            {isHighPriority && <Stamp label='Rush' color={colors.stamp} filled />}
+                            <Stamp
+                                label={order.status}
+                                color={statusColor(order.status).ink}
+                                size='lg'
+                                animate={justChangedStatus}
+                            />
+                        </Box>
+                        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                            <Button variant='outlined' onClick={() => setIsEditFormOpen(true)}>
+                                Edit
+                            </Button>
+                            <Button
+                                variant='outlined'
+                                onClick={() => setIsDeleteOrderDialogOpen(true)}
+                                sx={{
+                                    '&:hover': {
+                                        borderColor: colors.stamp,
+                                        backgroundColor: colors.stamp,
+                                        color: colors.paper,
+                                    },
+                                }}
+                            >
+                                Delete
+                            </Button>
+                            <Button variant='text' onClick={() => navigate('/')}>
+                                Back
+                            </Button>
+                        </Box>
+                    </Box>
+                </Box>
+
+                {/* Status is deliberately absent — the stamp above already says it. */}
+                <Box
+                    sx={{
+                        display: 'grid',
+                        gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' },
+                        border: rule.mid,
+                        backgroundColor: colors.field,
+                    }}
+                >
+                    <Field label='Priority' sx={specCellSx}>
+                        <Typography
+                            variant='body1'
+                            sx={{ color: isHighPriority ? colors.stamp : 'text.primary', fontWeight: 500 }}
+                        >
+                            {capitalize(order.priority)}
+                        </Typography>
+                    </Field>
+                    <Field label='Received' sx={specCellSx}>
+                        <Box sx={{ display: 'flex', gap: 1.5 }}>
+                            <Typography variant='data'>{received.day}</Typography>
+                            <Typography variant='data'>{received.time}</Typography>
+                        </Box>
+                    </Field>
+                    <Field label='Items' sx={specCellSx}>
+                        <Typography variant='data'>{order.items.length}</Typography>
+                    </Field>
+                </Box>
+
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'baseline',
+                        justifyContent: 'space-between',
+                        gap: 2,
+                        flexWrap: 'wrap',
+                        mt: 5,
+                        mb: 1,
+                    }}
+                >
+                    <Typography variant='section' component='h2'>
+                        Progress
+                    </Typography>
+                    {nextStatus && (
+                        <Button variant='contained' onClick={() => dispatch(updateOrderStatus(order.id))}>
+                            Mark as {nextStatus}
+                        </Button>
+                    )}
+                </Box>
+                <Rule weight='mid' />
+
+                {/*
+                    The original stepper, restored. The pattern was always right for
+                    a fixed three-stage pipeline; only the stock styling read as
+                    generic. Each completed stage takes its status colour, matching
+                    the tally, and a stage's outgoing line fills once it's done.
+                */}
+                <Box
+                    component='ol'
+                    sx={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+                        listStyle: 'none',
+                        m: 0,
+                        p: 0,
+                        pt: 4,
+                        pb: 1,
+                    }}
+                >
+                    {stages.map(({ status, done, color, stamped }, index) => {
+                        const incoming = index > 0 ? stages[index - 1] : null;
+                        const leftLine = incoming ? (incoming.done ? incoming.color : colors.ruleHair) : 'transparent';
+                        const rightLine = index < stages.length - 1 ? (done ? color : colors.ruleHair) : 'transparent';
+                        const nodeColor = done ? color : colors.ruleHair;
+                        const iconSx = {
+                            border: `3px solid ${done ? color : colors.ruleMid}`,
+                            borderRadius: '50%',
+                            color: nodeColor,
+                            flexShrink: 0,
+                        };
+
+                        return (
+                            <Box
+                                component='li'
+                                key={status}
+                                sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5 }}
+                            >
+                                <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }} aria-hidden>
+                                    <Box sx={{ flex: 1, height: 4, backgroundColor: leftLine }} />
+                                    {done ? (
+                                        <CheckCircleIcon fontSize='large' sx={iconSx} />
+                                    ) : (
+                                        <CircleIcon fontSize='large' sx={iconSx} />
+                                    )}
+                                    {/* Overlap the next column by 1px: two halves meeting at a
+                                        fractional pixel boundary left a visible seam, and both
+                                        halves of a connector share a colour so the overlap is
+                                        invisible. */}
                                     <Box
                                         sx={{
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            alignItems: 'center',
-                                            marginTop: '2em',
-                                            gap: '1em',
+                                            flex: 1,
+                                            height: 4,
+                                            backgroundColor: rightLine,
+                                            mr: index < stages.length - 1 ? '-1px' : 0,
                                         }}
-                                    >
-                                        {isDone ? (
-                                            <CheckCircleIcon fontSize='large' sx={iconStyles} />
-                                        ) : (
-                                            <CircleIcon fontSize='large' sx={iconStyles} />
-                                        )}
-                                        <Typography
-                                            sx={{
-                                                color: 'text.secondary',
-                                                ...(isDone && { fontWeight: '600', color: 'text.primary' }),
-                                            }}
-                                        >
-                                            {capitalize(status)}
-                                        </Typography>
-                                        <Typography variant='subtitle2'>
-                                            {currentStatusHistory
-                                                ? formatOrderDate(currentStatusHistory.timestamp)
-                                                : '—'}
-                                        </Typography>
-                                    </Box>
-                                    {index !== 2 && (
-                                        <Divider
-                                            flexItem
-                                            absolute
-                                            sx={{
-                                                top: '35%',
-                                                left: '65%',
-                                                right: '0',
-                                                height: '4px',
-                                                width: '80%',
-                                                background: color,
-                                                border: 'none',
-                                            }}
-                                        />
-                                    )}
+                                    />
                                 </Box>
-                            );
-                        })}
-                    </Box>
-                </CardContent>
-            </Card>
-            <ProductsList products={order.items} />
-            <DeleteConfirmationDialog
-                closeDialog={() => setIsDeleteOrderDialogOpen(false)}
-                isOpen={isDeleteOrderDialogOpen}
-                onDelete={() => {
-                    dispatch(deleteOrder(order.id));
-                    navigate('/');
-                }}
-                selectedOrder={order}
-            />
-            <OutgoingOrdersForm
-                isCreateOutgoingOrderFormOpen={isCreateOutgoingOrderFormOpen}
-                closeForm={() => setIsCreateOutgoingOrderFormOpen(false)}
-                orderToEdit={order}
-            />
-        </Box>
+                                <Typography
+                                    variant='body1'
+                                    sx={{
+                                        color: done ? 'text.primary' : 'text.secondary',
+                                        fontWeight: done ? 600 : 400,
+                                        textAlign: 'center',
+                                    }}
+                                >
+                                    {capitalize(status)}
+                                </Typography>
+                                <Typography variant='data' sx={{ color: 'text.secondary', textAlign: 'center' }}>
+                                    {stamped ? `${stamped.day} ${stamped.time}` : '—'}
+                                </Typography>
+                            </Box>
+                        );
+                    })}
+                </Box>
+
+                <PackingList products={order.items} />
+
+                <DeleteConfirmationDialog
+                    closeDialog={() => setIsDeleteOrderDialogOpen(false)}
+                    isOpen={isDeleteOrderDialogOpen}
+                    onDelete={() => {
+                        dispatch(deleteOrder(order.id));
+                        navigate('/');
+                    }}
+                    selectedOrder={order}
+                />
+                <OutgoingOrdersForm
+                    key={isEditFormOpen ? 'open' : 'closed'}
+                    isCreateOutgoingOrderFormOpen={isEditFormOpen}
+                    closeForm={() => setIsEditFormOpen(false)}
+                    orderToEdit={order}
+                />
+            </Box>
         </Box>
     );
 };

@@ -3,6 +3,13 @@ import type { OutgoingOrderInterface } from '../../app/types';
 import api from '../../api/axiosInstance';
 
 import { openSnackbar } from './snackbarSlice';
+const MARK_TTL_MS = 6000;
+
+interface RecentChange {
+    at: number;
+    statusChanged: boolean;
+}
+
 interface OutgoingOrdersInitialState {
     orders: OutgoingOrderInterface[];
     loading: boolean;
@@ -10,6 +17,8 @@ interface OutgoingOrdersInitialState {
     detailsLoading: boolean;
     detailsOrder?: OutgoingOrderInterface;
     initialized: boolean;
+    lastEventAt: number | null;
+    recentChanges: Record<number, RecentChange>;
 }
 
 const initialState: OutgoingOrdersInitialState = {
@@ -19,6 +28,15 @@ const initialState: OutgoingOrdersInitialState = {
     detailsLoading: false,
     detailsOrder: undefined,
     initialized: false,
+    lastEventAt: null,
+    recentChanges: {},
+};
+
+const clearChanges = (changes: Record<number, RecentChange>, now: number) => {
+    for (const key of Object.keys(changes)) {
+        const id = Number(key);
+        if (now - changes[id].at > MARK_TTL_MS) delete changes[id];
+    }
 };
 
 const ordersPath = '/orders';
@@ -90,14 +108,30 @@ export const outgoingOrdersSlice = createSlice({
     initialState,
     reducers: {
         addOrder: (state, action: PayloadAction<OutgoingOrderInterface>) => {
+            const now = Date.now();
             state.orders.unshift(action.payload);
+            state.lastEventAt = now;
+            clearChanges(state.recentChanges, now);
+            state.recentChanges[action.payload.id] = { at: now, statusChanged: false };
         },
         updateOrderInStore: (state, action: PayloadAction<OutgoingOrderInterface>) => {
+            const now = Date.now();
+            const previous = state.orders.find((order) => order.id === action.payload.id);
+            // so it only stamps for status changes
+            const statusChanged = !!previous && previous.status !== action.payload.status;
+
             state.orders = state.orders.map((order) => (order.id === action.payload.id ? action.payload : order));
             state.detailsOrder = action.payload;
+            state.lastEventAt = now;
+            clearChanges(state.recentChanges, now);
+            state.recentChanges[action.payload.id] = { at: now, statusChanged };
         },
         removeOrder: (state, action: PayloadAction<number>) => {
+            const now = Date.now();
             state.orders = state.orders.filter((order) => order.id !== action.payload);
+            state.lastEventAt = now;
+            clearChanges(state.recentChanges, now);
+            delete state.recentChanges[action.payload];
         },
     },
     extraReducers: (builder) => {
@@ -107,6 +141,7 @@ export const outgoingOrdersSlice = createSlice({
                 state.loading = false;
                 state.orders = action.payload;
                 state.initialized = true;
+                state.lastEventAt = Date.now();
             })
             // fetch order
             .addCase(fetchOrder.fulfilled, (state, action: PayloadAction<OutgoingOrderInterface>) => {
