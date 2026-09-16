@@ -23,6 +23,13 @@ const scheduleSummaryRefresh = (dispatch: AppDispatch) => {
     }, SUMMARY_REFRESH_DELAY_MS);
 };
 
+export const cancelSummaryRefresh = () => {
+    if (pendingSummaryRefresh !== undefined) {
+        window.clearTimeout(pendingSummaryRefresh);
+        pendingSummaryRefresh = undefined;
+    }
+};
+
 const findCachedStatus = (state: RootState, orderId: number) => {
     for (const listArgs of ordersApi.util.selectCachedArgsForQuery(state, 'listOrders')) {
         const cachedPages = ordersApi.endpoints.listOrders.select(listArgs)(state).data?.pages ?? [];

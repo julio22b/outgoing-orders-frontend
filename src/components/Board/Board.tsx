@@ -2,7 +2,7 @@ import { Box, Button, Typography, capitalize } from '@mui/material';
 import { Fragment, useState } from 'react';
 import BoardColumn from './BoardColumn';
 import Rule from '../common/Rule';
-import { ALL_STATUSES, ORDER_STATUSES } from '../../app/constants';
+import { ALL_FILTER, ORDER_STATUSES } from '../../app/constants';
 import { colors } from '../../app/theme';
 import { useGetOrdersSummaryQuery } from '../../api/ordersApi';
 import { useOrderFilterArgs } from '../../features/orders/useOrderFilterArgs';
@@ -16,9 +16,9 @@ const Board = () => {
     const { data: summary } = useGetOrdersSummaryQuery(filterArgs);
     const [statusForMobile, setStatusForMobile] = useState<BoardStatus>(statusOptions[0]);
 
-    const isColumnShown = (status: BoardStatus) => statusFilter === ALL_STATUSES || statusFilter === status;
-    const orderCountFor = (status: BoardStatus) => (isColumnShown(status) ? (summary?.byStatus[status] ?? 0) : 0);
-    const isEmpty = summary !== undefined && statusOptions.every((status) => orderCountFor(status) === 0);
+    const isColumnShown = (status: BoardStatus) => statusFilter === ALL_FILTER || statusFilter === status;
+    const tallyFor = (status: BoardStatus) => (isColumnShown(status) ? summary?.byStatus[status] : 0);
+    const isEmpty = summary !== undefined && statusOptions.every((status) => (tallyFor(status) ?? 0) === 0);
 
     return (
         <Box sx={{ pt: 3, pb: 6 }}>
@@ -39,7 +39,7 @@ const Board = () => {
                                     py: 1,
                                 }}
                             >
-                                {capitalize(option)} {orderCountFor(option).toLocaleString()}
+                                {capitalize(option)} {tallyFor(option)?.toLocaleString() ?? '—'}
                             </Button>
                         );
                     })}
@@ -72,7 +72,7 @@ const Board = () => {
                                     status={option}
                                     listArgs={{ ...filterArgs, status: option }}
                                     isShown={isColumnShown(option)}
-                                    orderCount={orderCountFor(option)}
+                                    orderCount={summary?.byStatus[option]}
                                 />
                             </Box>
                         </Fragment>

@@ -39,7 +39,7 @@ export const STATUS_TRANSITIONS: Partial<Record<OrderStatus, OrderStatus>> = {
 
 export const PAGE_SIZE = 5;
 
-export const ALL_STATUSES = 'all';
+export const ALL_FILTER = 'all';
 
 export const HIDDEN_ORDER_STATUSES: readonly OrderStatus[] = [ORDER_STATUSES.DELAYED];
 

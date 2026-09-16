@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import type { ListOrdersArgs, OrderFilterArgs, OrderPriority, OutgoingOrderInterface } from '../../app/types';
+import { ALL_FILTER } from '../../app/constants';
 
-const ALL_OPTIONS = 'all';
 const ORDER_REFERENCE_PATTERN = /^(?:ord-?)?(\d+)$/i;
 const MIN_CUSTOMER_SEARCH_LENGTH = 3;
 const MAX_SEARCH_LENGTH = 100;
@@ -30,7 +30,7 @@ const isSearchSendable = (trimmedSearch: string) =>
 export const buildFilterArgs = (selectedFilters: SelectedFilters, search: string): OrderFilterArgs => {
     const filterArgs: OrderFilterArgs = {};
 
-    if (selectedFilters.priority !== ALL_OPTIONS) {
+    if (selectedFilters.priority !== ALL_FILTER) {
         filterArgs.priority = selectedFilters.priority as OrderPriority;
     }
 

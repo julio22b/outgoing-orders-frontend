@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { ALL_FILTER } from '../../app/constants';
 
 interface FiltersInitialState {
     status: string;
@@ -7,8 +8,8 @@ interface FiltersInitialState {
     date: string | null;
 }
 const initialState: FiltersInitialState = {
-    status: 'all',
-    priority: 'all',
+    status: ALL_FILTER,
+    priority: ALL_FILTER,
     search: '',
     date: null,
 };

@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice, isAnyOf, type PayloadAction } from '@reduxjs/toolkit';
 import type { OrderStatus, OutgoingOrderInterface } from '../../app/types';
 import api from '../../api/axiosInstance';
+import { ordersApi } from '../../api/ordersApi';
 
 import { openSnackbar } from './snackbarSlice';
 const MARK_TTL_MS = 6000;
@@ -161,7 +162,11 @@ export const outgoingOrdersSlice = createSlice({
                     state.saving = false;
                     state.error = action.payload;
                 },
-            );
+            )
+
+            .addMatcher(ordersApi.endpoints.getOrdersSummary.matchFulfilled, (state) => {
+                state.lastEventAt ??= Date.now();
+            });
     },
 });
 

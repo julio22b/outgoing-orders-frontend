@@ -30,6 +30,8 @@ interface OrdersPage {
 }
 
 interface OrdersSummary {
+    // part of the /orders/summary response but unused: counts every status, delayed
+    // included, whereas the tally line sums VISIBLE_ORDER_STATUSES
     total: number;
     byStatus: Record<OrderStatus, number>;
 }

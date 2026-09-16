@@ -9,7 +9,7 @@ import { useAppDispatch, useAppSelector } from './app/hooks';
 import socket from './socket';
 import type { OutgoingOrderInterface } from './app/types';
 import { closeSnackbar } from './features/slices/snackbarSlice';
-import { applyOrderEvent } from './features/orders/orderEvents';
+import { applyOrderEvent, cancelSummaryRefresh } from './features/orders/orderEvents';
 import { useGetOrdersSummaryQuery } from './api/ordersApi';
 import LoadingOverlay from './components/common/LoadingOverlay';
 import Board from './components/Board/Board';
@@ -37,6 +37,7 @@ function App() {
             socket.off('order:created');
             socket.off('order:updated');
             socket.off('order:deleted');
+            cancelSummaryRefresh();
         };
     }, [dispatch]);
 

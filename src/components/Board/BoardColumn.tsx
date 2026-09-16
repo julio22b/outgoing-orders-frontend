@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import BoardEntry from './BoardEntry';
 import Rule from '../common/Rule';
 import Stamp from '../common/Stamp';
+import ErrorNotice from '../common/ErrorNotice';
 import { PAGE_SIZE } from '../../app/constants';
 import { statusColor } from '../../app/theme';
 import { useListOrdersInfiniteQuery } from '../../api/ordersApi';
@@ -12,7 +13,7 @@ interface BoardColumnProps {
     status: 'picking' | 'packed' | 'dispatched';
     listArgs: ListOrdersArgs;
     isShown: boolean;
-    orderCount: number;
+    orderCount: number | undefined;
 }
 
 const BoardColumn = ({ status, listArgs, isShown, orderCount }: BoardColumnProps) => {
@@ -25,8 +26,12 @@ const BoardColumn = ({ status, listArgs, isShown, orderCount }: BoardColumnProps
         [data, isShown],
     );
     const isRefreshing = isFetching && !isFetchingNextPage && !isLoading;
-    const unloadedCount = orderCount - loadedOrders.length;
+    const displayCount = isShown ? orderCount : 0;
+    const unloadedCount = displayCount === undefined ? 0 : displayCount - loadedOrders.length;
     const showMoreLabel = unloadedCount > 0 ? `Show ${Math.min(unloadedCount, PAGE_SIZE)} more` : 'Show more';
+    const hasLoadedOrders = loadedOrders.length > 0;
+
+    const errorNotice = <ErrorNotice message={`Couldn't load ${status}.`} onRetry={() => refetch()} sx={{ py: 2 }} />;
 
     return (
         <Box
@@ -52,7 +57,7 @@ const BoardColumn = ({ status, listArgs, isShown, orderCount }: BoardColumnProps
             >
                 <Stamp label={status} color={ink} component='h2' />
                 <Typography variant='figure' sx={{ color: 'text.secondary' }}>
-                    {orderCount.toLocaleString()}
+                    {displayCount?.toLocaleString() ?? '—'}
                 </Typography>
             </Box>
             <Rule weight='mid' sx={{ display: { xs: 'none', md: 'block' } }} />
@@ -61,20 +66,7 @@ const BoardColumn = ({ status, listArgs, isShown, orderCount }: BoardColumnProps
                 <Typography variant='data' sx={{ color: 'text.disabled', py: 2.5 }}>
                     Loading {status}…
                 </Typography>
-            ) : isError ? (
-                <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1, py: 2 }}>
-                    <Typography variant='data' sx={{ color: 'text.secondary' }}>
-                        Couldn't load {status}.
-                    </Typography>
-                    <Button variant='text' onClick={() => refetch()} sx={{ typography: 'data', minHeight: 30, px: 1 }}>
-                        Retry
-                    </Button>
-                </Box>
-            ) : loadedOrders.length === 0 ? (
-                <Typography variant='data' sx={{ color: 'text.disabled', py: 2.5 }}>
-                    Nothing {status}
-                </Typography>
-            ) : (
+            ) : hasLoadedOrders ? (
                 <Box sx={{ opacity: isRefreshing ? 0.5 : 1, transition: 'opacity 120ms linear' }}>
                     {loadedOrders.map((order, index) => (
                         <Box key={order.id}>
@@ -83,6 +75,19 @@ const BoardColumn = ({ status, listArgs, isShown, orderCount }: BoardColumnProps
                         </Box>
                     ))}
                 </Box>
+            ) : isError ? (
+                errorNotice
+            ) : (
+                <Typography variant='data' sx={{ color: 'text.disabled', py: 2.5 }}>
+                    Nothing {status}
+                </Typography>
+            )}
+
+            {isError && hasLoadedOrders && (
+                <>
+                    <Rule weight='hair' />
+                    {errorNotice}
+                </>
             )}
 
             {hasNextPage && !isError && (
