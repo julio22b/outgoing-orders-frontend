@@ -6,32 +6,31 @@ import { Route, Routes } from 'react-router-dom';
 import OutgoingOrderDetails from './components/OutgoingOrderDetails/OutgoingOrderDetails';
 import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from './app/hooks';
-import { addOrder, fetchOrders, removeOrder, updateOrderInStore } from './features/slices/outgoingOrdersSlice';
 import socket from './socket';
 import type { OutgoingOrderInterface } from './app/types';
 import { closeSnackbar } from './features/slices/snackbarSlice';
+import { applyOrderEvent } from './features/orders/orderEvents';
+import { useGetOrdersSummaryQuery } from './api/ordersApi';
 import LoadingOverlay from './components/common/LoadingOverlay';
 import Board from './components/Board/Board';
 import Sheet from './components/common/Sheet';
 
 function App() {
     const { vertical, horizontal, open, message } = useAppSelector((state) => state.snackbar);
-    const initialized = useAppSelector((state) => state.outgoingOrders.initialized);
+    const { isLoading: isWakingServer } = useGetOrdersSummaryQuery({});
     const dispatch = useAppDispatch();
 
     useEffect(() => {
-        dispatch(fetchOrders());
-
         socket.on('order:created', (order: OutgoingOrderInterface) => {
-            dispatch(addOrder(order));
+            dispatch(applyOrderEvent({ type: 'created', order }));
         });
 
         socket.on('order:updated', (order: OutgoingOrderInterface) => {
-            dispatch(updateOrderInStore(order));
+            dispatch(applyOrderEvent({ type: 'updated', order }));
         });
 
-        socket.on('order:deleted', (id: number) => {
-            dispatch(removeOrder(id));
+        socket.on('order:deleted', (orderId: number) => {
+            dispatch(applyOrderEvent({ type: 'deleted', orderId }));
         });
 
         return () => {
@@ -41,7 +40,7 @@ function App() {
         };
     }, [dispatch]);
 
-    if (!initialized) {
+    if (isWakingServer) {
         return (
             <LoadingOverlay
                 message='Waking the server'

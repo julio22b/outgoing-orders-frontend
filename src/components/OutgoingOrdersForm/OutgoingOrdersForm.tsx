@@ -25,21 +25,12 @@ interface FormErrorsInterface {
     item: string;
 }
 
-const generateOrderId = (orders: OutgoingOrderInterface[]) => {
-    const highest = orders.reduce((max, order) => {
-        const num = order.id;
-        return num > max ? num : max;
-    }, 0);
-    return highest + 1;
-};
-
 const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm, orderToEdit }: OutgoingOrdersFormInterface) => {
-    const { orders, loading } = useAppSelector((state) => state.outgoingOrders);
+    const saving = useAppSelector((state) => state.outgoingOrders.saving);
     const dispatch = useAppDispatch();
-    const nextId = generateOrderId(orders);
 
     const [order, setOrder] = useState<OutgoingOrderInterface>({
-        id: nextId,
+        id: 0,
         [ORDER_FIELDS.CUSTOMER]: '',
         [ORDER_FIELDS.STATUS]: ORDER_STATUSES.PICKING,
         [ORDER_FIELDS.PRIORITY]: ORDER_PRIORITIES.NORMAL,
@@ -103,31 +94,25 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm, orderToE
         setProductName('');
     };
 
-    // Rows in the packing list and the row that adds to it share one left gutter,
-    // so line numbers stack in a single column. 13px = the add row's 1px border
-    // plus its 12px padding.
     const lineGutter = '13px';
 
     return (
         <Dialog open={isCreateOutgoingOrderFormOpen} onClose={handleClose} fullWidth maxWidth='sm'>
             <Box sx={{ position: 'relative' }}>
-                {loading && <LoadingOverlay absolute message='Saving order' />}
+                {saving && <LoadingOverlay absolute message='Saving order' />}
 
                 <Box component='form' onSubmit={(e) => e.preventDefault()} sx={{ p: 3 }}>
-                    {/* The order number is assigned, not entered, so it sits with the
-                        title as a reference instead of in a box that looks editable. */}
                     <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 2 }}>
                         <Typography variant='masthead' component='h2' sx={{ fontSize: '1.75rem' }}>
                             {isEditForm ? 'Edit order' : 'New order'}
                         </Typography>
-                        <Typography variant='data' sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>
-                            ORD-{order.id}
-                        </Typography>
+                        {isEditForm && (
+                            <Typography variant='data' sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>
+                                ORD-{order.id}
+                            </Typography>
+                        )}
                     </Box>
 
-                    {/* One ruled block. The field that has to be filled in comes first
-                        and full width; the two that arrive with defaults share the row
-                        beneath it. */}
                     <Box
                         sx={{
                             display: 'grid',
@@ -197,8 +182,6 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm, orderToE
                         </Field>
                     </Box>
 
-                    {/* Items reads like the packing list on the detail sheet, and the
-                        add row is simply the next numbered line. */}
                     <Box
                         sx={{
                             display: 'flex',
@@ -253,9 +236,6 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm, orderToE
                         </Box>
                     ))}
 
-                    {/* The input and its button are two cells of one row, so they share
-                        a height by construction rather than by nudging. The hint lives
-                        outside the row for the same reason. */}
                     <Box
                         sx={{
                             display: 'grid',
@@ -317,10 +297,10 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm, orderToE
                     </Typography>
 
                     <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 4 }}>
-                        <Button variant='text' onClick={handleClose} disabled={loading}>
+                        <Button variant='text' onClick={handleClose} disabled={saving}>
                             Cancel
                         </Button>
-                        <Button variant='contained' onClick={onSubmit} disabled={loading}>
+                        <Button variant='contained' onClick={onSubmit} disabled={saving}>
                             {isEditForm ? 'Save changes' : 'Create order'}
                         </Button>
                     </Box>

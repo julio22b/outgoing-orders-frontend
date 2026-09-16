@@ -1,29 +1,21 @@
-import { Box, Typography } from '@mui/material';
-import { useMemo } from 'react';
-import { ORDER_STATUSES } from '../app/constants';
-import { useAppSelector } from '../app/hooks';
+import { Box, Typography, capitalize } from '@mui/material';
+import { VISIBLE_ORDER_STATUSES } from '../app/constants';
 import { statusColor } from '../app/theme';
+import { useGetOrdersSummaryQuery } from '../api/ordersApi';
 
 const TallyLine = () => {
-    const orders = useAppSelector((state) => state.outgoingOrders.orders);
+    const { data: summary } = useGetOrdersSummaryQuery({});
 
-    const tallies = useMemo(() => {
-        const byStatus = orders.reduce((acc: Record<string, number>, order) => {
-            acc[order.status] = (acc[order.status] || 0) + 1;
-            return acc;
-        }, {});
+    const visibleTotal = summary && VISIBLE_ORDER_STATUSES.reduce((sum, status) => sum + summary.byStatus[status], 0);
 
-        return [
-            { label: 'Total', count: orders.length, status: null },
-            { label: 'Picking', count: byStatus[ORDER_STATUSES.PICKING] ?? 0, status: ORDER_STATUSES.PICKING },
-            { label: 'Packed', count: byStatus[ORDER_STATUSES.PACKED] ?? 0, status: ORDER_STATUSES.PACKED },
-            {
-                label: 'Dispatched',
-                count: byStatus[ORDER_STATUSES.DISPATCHED] ?? 0,
-                status: ORDER_STATUSES.DISPATCHED,
-            },
-        ];
-    }, [orders]);
+    const tallies = [
+        { label: 'Total', count: visibleTotal, status: null },
+        ...VISIBLE_ORDER_STATUSES.map((status) => ({
+            label: capitalize(status),
+            count: summary?.byStatus[status],
+            status,
+        })),
+    ];
 
     return (
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: { xs: 4, sm: 7 }, pt: 3, pb: 2.5 }}>
@@ -34,7 +26,7 @@ const TallyLine = () => {
                         component='p'
                         sx={{ color: status ? statusColor(status).ink : 'text.primary' }}
                     >
-                        {count}
+                        {count?.toLocaleString() ?? '—'}
                     </Typography>
                     <Typography variant='label' sx={{ display: 'block', color: 'text.secondary', mt: 1 }}>
                         {label}

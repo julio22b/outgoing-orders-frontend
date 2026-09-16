@@ -12,7 +12,8 @@ import {
     dateFilterChanged,
     searchFilterChanged,
 } from '../../features/slices/filtersSlice';
-import { ORDER_PRIORITIES, ORDER_STATUSES } from '../../app/constants';
+import { ALL_STATUSES, ORDER_PRIORITIES, VISIBLE_ORDER_STATUSES } from '../../app/constants';
+import { isSearchTooShort } from '../../features/orders/orderFilters';
 import { colors, rule } from '../../app/theme';
 
 const cellSx = {
@@ -41,6 +42,7 @@ const Filters = () => {
                     onChange={(e) => dispatch(searchFilterChanged(e.target.value))}
                     placeholder='Order number or customer'
                     type='search'
+                    helperText={isSearchTooShort(search) ? 'Type 3+ characters, or an order number' : undefined}
                     fullWidth
                     sx={controlSx}
                 />
@@ -50,7 +52,7 @@ const Filters = () => {
                 <SelectFilter
                     id='filter-status'
                     value={status}
-                    options={['all', ...Object.values(ORDER_STATUSES)]}
+                    options={[ALL_STATUSES, ...VISIBLE_ORDER_STATUSES]}
                     handleChange={(value) => dispatch(statusFilterChanged(value))}
                 />
             </Field>

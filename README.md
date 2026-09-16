@@ -26,8 +26,9 @@ Inspired by 3.5 years of working on a production WMS at Pulpo WMS, where the out
 ## Features
 
 - **Live dispatch board** — real-time order updates across all connected clients via Socket.io
-- **Running tally** — count of total, picking, packed, and dispatched orders across the top of the sheet
-- **Filtering** — filter orders by status, priority, and date
+- **Running tally** — exact counts of total, picking, packed and dispatched orders across the top of the sheet, from the API's summary endpoint
+- **Server-side paging** — each board column loads a few orders at a time with keyset cursors, so the board stays fast with 100k orders
+- **Filtering** — filter by status, priority, customer or order number, and date, applied on the server
 - **Full CRUD** — create, edit, and delete orders
 - **Order detail page** — status timeline showing progression from picking → packed → dispatched with timestamps
 - **Status as a stamp** — the current status is stamped on the order sheet, and re-stamps in place when another client advances it

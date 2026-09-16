@@ -13,4 +13,33 @@ interface OutgoingOrderInterface {
     statusHistory: { status: OrderStatus; timestamp: string }[];
 }
 
-export type { OrderPriority, OrderStatus, OutgoingOrderInterface };
+interface OrderFilterArgs {
+    priority?: OrderPriority;
+    search?: string;
+    from?: string;
+    to?: string;
+}
+
+interface ListOrdersArgs extends OrderFilterArgs {
+    status: OrderStatus;
+}
+
+interface OrdersPage {
+    data: OutgoingOrderInterface[];
+    nextCursor: string | null;
+}
+
+interface OrdersSummary {
+    total: number;
+    byStatus: Record<OrderStatus, number>;
+}
+
+export type {
+    ListOrdersArgs,
+    OrderFilterArgs,
+    OrderPriority,
+    OrderStatus,
+    OrdersPage,
+    OrdersSummary,
+    OutgoingOrderInterface,
+};

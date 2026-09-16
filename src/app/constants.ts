@@ -38,3 +38,11 @@ export const STATUS_TRANSITIONS: Partial<Record<OrderStatus, OrderStatus>> = {
 };
 
 export const PAGE_SIZE = 5;
+
+export const ALL_STATUSES = 'all';
+
+export const HIDDEN_ORDER_STATUSES: readonly OrderStatus[] = [ORDER_STATUSES.DELAYED];
+
+export const VISIBLE_ORDER_STATUSES = Object.values(ORDER_STATUSES).filter(
+    (status) => !HIDDEN_ORDER_STATUSES.includes(status),
+);
