@@ -5,7 +5,7 @@ import Rule from '../common/Rule';
 import Stamp from '../common/Stamp';
 import ErrorNotice from '../common/ErrorNotice';
 import { PAGE_SIZE } from '../../app/constants';
-import { statusColor } from '../../app/theme';
+import { colors, statusColor } from '../../app/theme';
 import { useListOrdersInfiniteQuery } from '../../api/ordersApi';
 import type { ListOrdersArgs } from '../../app/types';
 
@@ -93,16 +93,20 @@ const BoardColumn = ({ status, listArgs, isShown, orderCount }: BoardColumnProps
             {hasNextPage && !isError && (
                 <>
                     <Rule weight='hair' />
-                    <Box sx={{ px: 0.5, pt: 0.5 }}>
-                        <Button
-                            variant='text'
-                            disabled={isFetchingNextPage}
-                            onClick={() => fetchNextPage()}
-                            sx={{ typography: 'data', minHeight: 30, px: 1 }}
-                        >
-                            {isFetchingNextPage ? 'Loading…' : showMoreLabel}
-                        </Button>
-                    </Box>
+                    <Button
+                        fullWidth
+                        disabled={isFetchingNextPage}
+                        onClick={() => fetchNextPage()}
+                        sx={{
+                            typography: 'data',
+                            color: colors.ink,
+                            minHeight: 36,
+                            '&:hover': { backgroundColor: colors.ink, color: colors.paper },
+                            '&.Mui-disabled': { color: colors.inkFaint },
+                        }}
+                    >
+                        {isFetchingNextPage ? 'Loading…' : showMoreLabel}
+                    </Button>
                 </>
             )}
         </Box>
