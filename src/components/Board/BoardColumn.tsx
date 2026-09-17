@@ -1,5 +1,5 @@
 import { Box, Button, Typography } from '@mui/material';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import BoardEntry from './BoardEntry';
 import Rule from '../common/Rule';
 import Stamp from '../common/Stamp';
@@ -8,6 +8,14 @@ import { PAGE_SIZE } from '../../app/constants';
 import { colors, statusColor } from '../../app/theme';
 import { useListOrdersInfiniteQuery } from '../../api/ordersApi';
 import type { ListOrdersArgs } from '../../app/types';
+
+const scrollToPageBottom = () => {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({
+        top: document.documentElement.scrollHeight,
+        behavior: prefersReducedMotion ? 'auto' : 'smooth',
+    });
+};
 
 interface BoardColumnProps {
     status: 'picking' | 'packed' | 'dispatched';
@@ -30,6 +38,19 @@ const BoardColumn = ({ status, listArgs, isShown, orderCount }: BoardColumnProps
     const unloadedCount = displayCount === undefined ? 0 : displayCount - loadedOrders.length;
     const showMoreLabel = unloadedCount > 0 ? `Show ${Math.min(unloadedCount, PAGE_SIZE)} more` : 'Show more';
     const hasLoadedOrders = loadedOrders.length > 0;
+
+    const scrollAfterNextPage = useRef(false);
+
+    useEffect(() => {
+        if (!scrollAfterNextPage.current || isFetchingNextPage) return;
+        scrollAfterNextPage.current = false;
+        scrollToPageBottom();
+    }, [isFetchingNextPage]);
+
+    const showMore = () => {
+        scrollAfterNextPage.current = true;
+        fetchNextPage();
+    };
 
     const errorNotice = <ErrorNotice message={`Couldn't load ${status}.`} onRetry={() => refetch()} sx={{ py: 2 }} />;
 
@@ -96,7 +117,7 @@ const BoardColumn = ({ status, listArgs, isShown, orderCount }: BoardColumnProps
                     <Button
                         fullWidth
                         disabled={isFetchingNextPage}
-                        onClick={() => fetchNextPage()}
+                        onClick={showMore}
                         sx={{
                             typography: 'data',
                             color: colors.ink,
