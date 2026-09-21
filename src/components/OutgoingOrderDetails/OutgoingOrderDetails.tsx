@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { Box, Button, Typography, capitalize } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CircleIcon from '@mui/icons-material/Circle';
 import Stamp from '../common/Stamp';
@@ -11,9 +11,15 @@ import LoadingOverlay from '../common/LoadingOverlay';
 import DeleteConfirmationDialog from '../DeleteConfirmationDialog';
 import OutgoingOrdersForm from '../OutgoingOrdersForm/OutgoingOrdersForm';
 import { formatOrderStamp } from '../../app/utils';
-import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import { deleteOrder, fetchOrder, updateOrderStatus } from '../../features/slices/outgoingOrdersSlice';
-import { HIDDEN_ORDER_STATUSES, ORDER_PRIORITIES, STATUS_TRANSITIONS, TIMELINE_STATUSES } from '../../app/constants';
+import { useAppSelector } from '../../app/hooks';
+import { useAdvanceOrderStatusMutation, useDeleteOrderMutation, useGetOrderQuery } from '../../api/ordersApi';
+import {
+    HIDDEN_ORDER_STATUSES,
+    ORDER_FIELD_LABELS,
+    ORDER_PRIORITIES,
+    STATUS_TRANSITIONS,
+    TIMELINE_STATUSES,
+} from '../../app/constants';
 import { colors, rule, statusColor } from '../../app/theme';
 
 const specCellSx = {
@@ -25,23 +31,21 @@ const specCellSx = {
 const OutgoingOrderDetails = () => {
     const [isDeleteOrderDialogOpen, setIsDeleteOrderDialogOpen] = useState(false);
     const [isEditFormOpen, setIsEditFormOpen] = useState(false);
-    const dispatch = useAppDispatch();
     const navigate = useNavigate();
-    // Read from the route, not from navigation state, so the URL can be shared
-    // and the page survives a refresh.
     const { id } = useParams<{ id: string }>();
-    const { detailsLoading, detailsOrder: order, recentChanges } = useAppSelector((state) => state.outgoingOrders);
+    const { data: order, isLoading, isFetching, error } = useGetOrderQuery(Number(id), { skip: !id });
+    const recentChanges = useAppSelector((state) => state.outgoingOrders.recentChanges);
+    const isWritePending = useAppSelector((state) => Number(id) in state.outgoingOrders.pendingWrites);
+    const [advanceOrderStatus] = useAdvanceOrderStatusMutation();
+    const [deleteOrder] = useDeleteOrderMutation();
     const nextStatus = order && STATUS_TRANSITIONS[order.status];
+    const orderIsGone = Boolean(error && 'status' in error && error.status === 404);
 
-    useEffect(() => {
-        if (id) dispatch(fetchOrder(id));
-    }, [dispatch, id]);
-
-    if (detailsLoading && !order) {
+    if (isLoading && !order) {
         return <LoadingOverlay message='Loading order' />;
     }
 
-    if (!order || HIDDEN_ORDER_STATUSES.includes(order.status)) {
+    if (!order || orderIsGone || HIDDEN_ORDER_STATUSES.includes(order.status)) {
         return (
             <Box sx={{ py: 6 }}>
                 <Typography variant='display' component='h1' gutterBottom>
@@ -68,12 +72,11 @@ const OutgoingOrderDetails = () => {
         };
     });
     const isHighPriority = order.priority === ORDER_PRIORITIES.HIGH;
-    // Only stamp down when the change arrived from another client while watching.
-    const justChangedStatus = recentChanges[order.id]?.statusChanged ?? false;
+    const justChangedStatus = recentChanges[order.id]?.isStatusChanged ?? false;
 
     return (
         <Box sx={{ position: 'relative' }}>
-            {detailsLoading && <LoadingOverlay absolute />}
+            {isFetching && <LoadingOverlay absolute />}
             <Box sx={{ pb: 8 }}>
                 <Box
                     sx={{
@@ -105,12 +108,17 @@ const OutgoingOrderDetails = () => {
                             />
                         </Box>
                         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                            <Button variant='outlined' onClick={() => setIsEditFormOpen(true)}>
+                            <Button
+                                variant='outlined'
+                                onClick={() => setIsEditFormOpen(true)}
+                                disabled={isWritePending}
+                            >
                                 Edit
                             </Button>
                             <Button
                                 variant='outlined'
                                 onClick={() => setIsDeleteOrderDialogOpen(true)}
+                                disabled={isWritePending}
                                 sx={{
                                     '&:hover': {
                                         borderColor: colors.stamp,
@@ -137,7 +145,7 @@ const OutgoingOrderDetails = () => {
                         backgroundColor: colors.field,
                     }}
                 >
-                    <Field label='Priority' sx={specCellSx}>
+                    <Field label={ORDER_FIELD_LABELS.priority} sx={specCellSx}>
                         <Typography
                             variant='body1'
                             sx={{ color: isHighPriority ? colors.stamp : 'text.primary', fontWeight: 500 }}
@@ -151,7 +159,7 @@ const OutgoingOrderDetails = () => {
                             <Typography variant='data'>{received.time}</Typography>
                         </Box>
                     </Field>
-                    <Field label='Items' sx={specCellSx}>
+                    <Field label={ORDER_FIELD_LABELS.items} sx={specCellSx}>
                         <Typography variant='data'>{order.items.length}</Typography>
                     </Field>
                 </Box>
@@ -171,7 +179,11 @@ const OutgoingOrderDetails = () => {
                         Progress
                     </Typography>
                     {nextStatus && (
-                        <Button variant='contained' onClick={() => dispatch(updateOrderStatus(order.id))}>
+                        <Button
+                            variant='contained'
+                            onClick={() => advanceOrderStatus(order.id)}
+                            disabled={isWritePending}
+                        >
                             Mark as {nextStatus}
                         </Button>
                     )}
@@ -258,7 +270,7 @@ const OutgoingOrderDetails = () => {
                     closeDialog={() => setIsDeleteOrderDialogOpen(false)}
                     isOpen={isDeleteOrderDialogOpen}
                     onDelete={() => {
-                        dispatch(deleteOrder(order.id));
+                        deleteOrder(order.id);
                         navigate('/');
                     }}
                     selectedOrder={order}

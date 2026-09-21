@@ -12,7 +12,7 @@ import {
     dateFilterChanged,
     searchFilterChanged,
 } from '../../features/slices/filtersSlice';
-import { ALL_FILTER, ORDER_PRIORITIES, VISIBLE_ORDER_STATUSES } from '../../app/constants';
+import { ALL_FILTER, ORDER_FIELD_LABELS, ORDER_PRIORITIES, VISIBLE_ORDER_STATUSES } from '../../app/constants';
 import { isSearchTooShort } from '../../features/orders/orderFilters';
 import { colors, rule } from '../../app/theme';
 
@@ -48,7 +48,7 @@ const Filters = () => {
                 />
             </Field>
 
-            <Field label='Status' htmlFor='filter-status' sx={cellSx}>
+            <Field label={ORDER_FIELD_LABELS.status} htmlFor='filter-status' sx={cellSx}>
                 <SelectFilter
                     id='filter-status'
                     value={status}
@@ -57,7 +57,7 @@ const Filters = () => {
                 />
             </Field>
 
-            <Field label='Priority' htmlFor='filter-priority' sx={cellSx}>
+            <Field label={ORDER_FIELD_LABELS.priority} htmlFor='filter-priority' sx={cellSx}>
                 <SelectFilter
                     id='filter-priority'
                     value={priority}

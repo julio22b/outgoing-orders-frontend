@@ -1,12 +1,18 @@
 import { Box, Button, Dialog, MenuItem, Select, TextField, Typography } from '@mui/material';
-import React, { useState } from 'react';
-import type { OutgoingOrderInterface } from '../../app/types';
+import React, { useEffect, useState } from 'react';
+import type { OutgoingOrderInterface, UpdateOrderBody } from '../../app/types';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import { ORDER_STATUSES, ORDER_FIELDS, ORDER_PRIORITIES } from '../../app/constants';
-import { createOrder, updateOrder } from '../../features/slices/outgoingOrdersSlice';
+import { ORDER_STATUSES, ORDER_FIELDS, ORDER_FIELD_LABELS, ORDER_PRIORITIES } from '../../app/constants';
+import {
+    editingStarted,
+    editingStopped,
+    orderChangedWhileEditingDismissed,
+} from '../../features/slices/outgoingOrdersSlice';
+import { openSnackbar } from '../../features/slices/snackbarSlice';
+import { readFailure, useCreateOrderMutation, useUpdateOrderMutation } from '../../api/ordersApi';
 import LoadingOverlay from '../common/LoadingOverlay';
 import Field from '../common/Field';
 import Rule from '../common/Rule';
@@ -26,8 +32,11 @@ interface FormErrorsInterface {
 }
 
 const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm, orderToEdit }: OutgoingOrdersFormInterface) => {
-    const saving = useAppSelector((state) => state.outgoingOrders.saving);
     const dispatch = useAppDispatch();
+    const orderChangedWhileEditing = useAppSelector((state) => state.outgoingOrders.orderChangedWhileEditing);
+    const [createOrder, { isLoading: isCreating }] = useCreateOrderMutation();
+    const [updateOrder, { isLoading: isUpdating }] = useUpdateOrderMutation();
+    const saving = isCreating || isUpdating;
 
     const [order, setOrder] = useState<OutgoingOrderInterface>({
         id: 0,
@@ -35,6 +44,8 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm, orderToE
         [ORDER_FIELDS.STATUS]: ORDER_STATUSES.PICKING,
         [ORDER_FIELDS.PRIORITY]: ORDER_PRIORITIES.NORMAL,
         [ORDER_FIELDS.CREATED_AT]: dayjs().toISOString(),
+        updatedAt: dayjs().toISOString(),
+        version: 1,
         [ORDER_FIELDS.ITEMS]: [],
         [ORDER_FIELDS.STATUS_HISTORY]: [],
         ...(orderToEdit && orderToEdit),
@@ -43,7 +54,17 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm, orderToE
     const [errors, setErrors] = useState<FormErrorsInterface>({ customer: '', item: '' });
     const isEditForm = Boolean(orderToEdit);
 
-    const onSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const editingOrderId = orderToEdit?.id;
+
+    useEffect(() => {
+        if (!isCreateOutgoingOrderFormOpen || editingOrderId === undefined) return;
+        dispatch(editingStarted(editingOrderId));
+        return () => {
+            dispatch(editingStopped());
+        };
+    }, [dispatch, isCreateOutgoingOrderFormOpen, editingOrderId]);
+
+    const onSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
         if (e) e.preventDefault();
 
         if (!order.customer) {
@@ -51,16 +72,37 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm, orderToE
             return;
         }
 
+        const body = {
+            customer: order.customer,
+            status: order.status,
+            priority: order.priority,
+            createdAt: order.createdAt,
+            items: order.items,
+        };
+
         if (isEditForm) {
-            dispatch(updateOrder(order)).then(closeForm);
-        } else {
-            dispatch(
-                createOrder({
-                    ...order,
-                    statusHistory: [{ status: ORDER_STATUSES.PICKING, timestamp: order.createdAt }],
-                }),
-            ).then(closeForm);
+            await saveEdit({ ...body, id: order.id, version: order.version });
+            return;
         }
+
+        const { error } = await createOrder(body);
+        if (!error) {
+            closeForm();
+        }
+    };
+
+    const saveEdit = async (body: UpdateOrderBody) => {
+        const { error } = await updateOrder(body);
+        if (!error) {
+            closeForm();
+            return;
+        }
+
+        const theirs = readFailure(error).conflict;
+        if (!theirs) return;
+
+        setOrder(theirs);
+        dispatch(openSnackbar('Someone else saved this order first. The form now shows their version.'));
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -89,15 +131,24 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm, orderToE
         }
     };
 
+    const reloadFromServerVersion = () => {
+        if (orderChangedWhileEditing) {
+            setOrder(orderChangedWhileEditing);
+        }
+        dispatch(orderChangedWhileEditingDismissed());
+    };
+
     const handleClose = () => {
         closeForm();
         setProductName('');
     };
 
+    const closeUnlessSaving = saving ? undefined : handleClose;
+
     const lineGutter = '13px';
 
     return (
-        <Dialog open={isCreateOutgoingOrderFormOpen} onClose={handleClose} fullWidth maxWidth='sm'>
+        <Dialog open={isCreateOutgoingOrderFormOpen} onClose={closeUnlessSaving} fullWidth maxWidth='sm'>
             <Box sx={{ position: 'relative' }}>
                 {saving && <LoadingOverlay absolute message='Saving order' />}
 
@@ -123,7 +174,7 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm, orderToE
                         }}
                     >
                         <Field
-                            label='Customer'
+                            label={ORDER_FIELD_LABELS.customer}
                             htmlFor='order-customer'
                             required
                             sx={{ gridColumn: '1 / -1', borderBottom: rule.hair }}
@@ -142,7 +193,7 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm, orderToE
                             />
                         </Field>
                         <Field
-                            label='Priority'
+                            label={ORDER_FIELD_LABELS.priority}
                             htmlFor='order-priority'
                             sx={{ borderRight: { sm: rule.hair }, borderBottom: { xs: rule.hair, sm: 'none' } }}
                         >
@@ -306,6 +357,23 @@ const OutgoingOrdersForm = ({ isCreateOutgoingOrderFormOpen, closeForm, orderToE
                     </Box>
                 </Box>
             </Box>
+
+            <Dialog open={Boolean(orderChangedWhileEditing)} onClose={reloadFromServerVersion} maxWidth='xs'>
+                <Box sx={{ p: 3 }}>
+                    <Typography variant='section' component='h2'>
+                        This order changed
+                    </Typography>
+                    <Rule weight='mid' sx={{ my: 1.5 }} />
+                    <Typography variant='body1' sx={{ color: 'text.secondary' }}>
+                        Someone else saved changes to this order, so the form will be reloaded with their version.
+                    </Typography>
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
+                        <Button variant='contained' onClick={reloadFromServerVersion}>
+                            OK
+                        </Button>
+                    </Box>
+                </Box>
+            </Dialog>
         </Dialog>
     );
 };

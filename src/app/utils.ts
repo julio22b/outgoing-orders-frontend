@@ -17,10 +17,5 @@ export const formatOrderStamp = (isoString: string) => {
     return { day: relativeDay(date), time: timeFormat.format(date) };
 };
 
-export const formatOrderDate = (isoString: string) => {
-    const { day, time } = formatOrderStamp(isoString);
-    return `${day} ${time}`;
-};
-
 export const pluralize = (count: number, singular: string, plural = `${singular}s`) =>
     `${count} ${count === 1 ? singular : plural}`;

@@ -9,8 +9,28 @@ interface OutgoingOrderInterface {
     status: OrderStatus;
     priority: OrderPriority;
     createdAt: string;
+    updatedAt: string;
+    version: number;
     items: string[];
     statusHistory: { status: OrderStatus; timestamp: string }[];
+}
+
+interface CreateOrderBody {
+    customer: string;
+    status: OrderStatus;
+    priority: OrderPriority;
+    createdAt: string;
+    items: string[];
+}
+
+interface UpdateOrderBody extends CreateOrderBody {
+    id: number;
+    version: number;
+}
+
+interface OrderConflict {
+    message: string;
+    current: OutgoingOrderInterface;
 }
 
 interface OrderFilterArgs {
@@ -37,11 +57,14 @@ interface OrdersSummary {
 }
 
 export type {
+    CreateOrderBody,
     ListOrdersArgs,
+    OrderConflict,
     OrderFilterArgs,
     OrderPriority,
     OrderStatus,
     OrdersPage,
     OrdersSummary,
     OutgoingOrderInterface,
+    UpdateOrderBody,
 };

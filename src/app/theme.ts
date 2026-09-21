@@ -23,7 +23,7 @@ export const colors = {
     hoverWash: 'rgba(26, 27, 29, 0.05)',
 } as const;
 
-export const statusColors = {
+const statusColors = {
     picking: { ink: '#714E07', tint: '#F2ECDD' },
     packed: { ink: '#24563D', tint: '#DCEAE0' },
     dispatched: { ink: '#204B72', tint: '#DAE5EF' },

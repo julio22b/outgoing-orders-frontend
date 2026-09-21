@@ -1,107 +1,56 @@
-import { createAsyncThunk, createSlice, isAnyOf, type PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { OrderStatus, OutgoingOrderInterface } from '../../app/types';
-import api from '../../api/axiosInstance';
-import { ordersApi } from '../../api/ordersApi';
 
-import { openSnackbar } from './snackbarSlice';
 const MARK_TTL_MS = 6000;
 
 interface RecentChange {
-    at: number;
-    statusChanged: boolean;
+    changedAt: number;
+    isStatusChanged: boolean;
+}
+
+interface PendingWrite {
+    count: number;
+    isSuperseded: boolean;
 }
 
 interface OutgoingOrdersInitialState {
-    saving: boolean;
-    error: unknown;
-    detailsLoading: boolean;
-    detailsOrder?: OutgoingOrderInterface;
     lastEventAt: number | null;
     recentChanges: Record<number, RecentChange>;
+    pendingWrites: Record<number, PendingWrite>;
+    editingOrderId: number | null;
+    orderChangedWhileEditing: OutgoingOrderInterface | null;
 }
 
 const initialState: OutgoingOrdersInitialState = {
-    saving: false,
-    error: null,
-    detailsLoading: false,
-    detailsOrder: undefined,
     lastEventAt: null,
     recentChanges: {},
+    pendingWrites: {},
+    editingOrderId: null,
+    orderChangedWhileEditing: null,
 };
 
 const clearChanges = (changes: Record<number, RecentChange>, now: number) => {
     for (const key of Object.keys(changes)) {
         const id = Number(key);
-        if (now - changes[id].at > MARK_TTL_MS) delete changes[id];
+        if (now - changes[id].changedAt > MARK_TTL_MS) delete changes[id];
     }
 };
 
-const recordChange = (state: OutgoingOrdersInitialState, orderId: number, statusChanged: boolean) => {
+const recordChange = (state: OutgoingOrdersInitialState, orderId: number, isStatusChanged: boolean) => {
     const now = Date.now();
     state.lastEventAt = now;
     clearChanges(state.recentChanges, now);
-    state.recentChanges[orderId] = { at: now, statusChanged };
+    state.recentChanges[orderId] = { changedAt: now, isStatusChanged };
 };
-
-const ordersPath = '/orders';
-
-export const fetchOrder = createAsyncThunk('orders/fetchOrder', async (id: string, thunkAPI) => {
-    try {
-        const data = (await api.get(`${ordersPath}/${id}`)).data;
-        return data;
-    } catch (error) {
-        return thunkAPI.rejectWithValue(error);
-    }
-});
-
-export const createOrder = createAsyncThunk('orders/createOrder', async (order: OutgoingOrderInterface, thunkAPI) => {
-    try {
-        const data = (await api.post(ordersPath, order)).data;
-        thunkAPI.dispatch(openSnackbar('Order successfully created!'));
-        return data;
-    } catch (error) {
-        thunkAPI.dispatch(openSnackbar('Failed to create order.'));
-        return thunkAPI.rejectWithValue(error);
-    }
-});
-
-export const updateOrder = createAsyncThunk('orders/updateOrder', async (order: OutgoingOrderInterface, thunkAPI) => {
-    try {
-        const data = (await api.put(`${ordersPath}/${order.id}`, order)).data;
-        thunkAPI.dispatch(openSnackbar('Order successfully updated!'));
-        return data;
-    } catch (error) {
-        thunkAPI.dispatch(openSnackbar('Failed to update order.'));
-        return thunkAPI.rejectWithValue(error);
-    }
-});
-
-export const deleteOrder = createAsyncThunk('orders/deleteOrder', async (id: number, thunkAPI) => {
-    try {
-        await api.delete(`${ordersPath}/${id}`);
-        thunkAPI.dispatch(openSnackbar('Order successfully deleted!'));
-        return id;
-    } catch (error) {
-        thunkAPI.dispatch(openSnackbar('Failed to delete order.'));
-        return thunkAPI.rejectWithValue(error);
-    }
-});
-
-export const updateOrderStatus = createAsyncThunk('orders/updateOrderStatus', async (id: number, thunkAPI) => {
-    try {
-        await api.patch(`${ordersPath}/${id}/status`);
-        thunkAPI.dispatch(openSnackbar('Order status successfully updated!'));
-        return id;
-    } catch (error) {
-        thunkAPI.dispatch(openSnackbar('Failed to update order status.'));
-        return thunkAPI.rejectWithValue(error);
-    }
-});
 
 export const outgoingOrdersSlice = createSlice({
     name: 'outgoingOrders',
     initialState,
     reducers: {
+        summaryLoaded: (state) => {
+            // starts the clock on first load; after that only changes move it
+            state.lastEventAt ??= Date.now();
+        },
         markOrderCreated: (state, action: PayloadAction<number>) => {
             recordChange(state, action.payload, false);
         },
@@ -110,66 +59,72 @@ export const outgoingOrdersSlice = createSlice({
             action: PayloadAction<{ order: OutgoingOrderInterface; previousStatus?: OrderStatus }>,
         ) => {
             const { order, previousStatus } = action.payload;
-            const isDetailsOrder = state.detailsOrder?.id === order.id;
-            const knownPreviousStatus = previousStatus ?? (isDetailsOrder ? state.detailsOrder?.status : undefined);
 
-            if (isDetailsOrder) {
-                state.detailsOrder = order;
+            if (state.editingOrderId === order.id && !(order.id in state.pendingWrites)) {
+                state.orderChangedWhileEditing = order;
             }
-            recordChange(state, order.id, knownPreviousStatus !== undefined && knownPreviousStatus !== order.status);
+
+            recordChange(state, order.id, previousStatus !== undefined && previousStatus !== order.status);
         },
         markOrderRemoved: (state, action: PayloadAction<number>) => {
             const now = Date.now();
             state.lastEventAt = now;
             clearChanges(state.recentChanges, now);
             delete state.recentChanges[action.payload];
-        },
-    },
-    extraReducers: (builder) => {
-        builder
-            // fetch order
-            .addCase(fetchOrder.fulfilled, (state, action: PayloadAction<OutgoingOrderInterface>) => {
-                state.detailsLoading = false;
-                state.detailsOrder = action.payload;
-            })
-            .addCase(fetchOrder.rejected, (state, action: PayloadAction<unknown>) => {
-                state.detailsLoading = false;
-                state.error = action.payload;
-            })
-            .addCase(updateOrderStatus.fulfilled, (state) => {
-                state.detailsLoading = false;
-                state.error = null;
-            })
-            .addCase(updateOrderStatus.rejected, (state, action: PayloadAction<unknown>) => {
-                state.detailsLoading = false;
-                state.error = action.payload;
-            })
-            // matchers
-            .addMatcher(isAnyOf(fetchOrder.pending, updateOrderStatus.pending), (state) => {
-                state.detailsLoading = true;
-                state.error = null;
-            })
-            .addMatcher(isAnyOf(createOrder.pending, updateOrder.pending, deleteOrder.pending), (state) => {
-                state.saving = true;
-                state.error = null;
-            })
-            .addMatcher(isAnyOf(createOrder.fulfilled, updateOrder.fulfilled, deleteOrder.fulfilled), (state) => {
-                state.saving = false;
-            })
-            .addMatcher(
-                isAnyOf(createOrder.rejected, updateOrder.rejected, deleteOrder.rejected),
-                (state, action: PayloadAction<unknown>) => {
-                    state.saving = false;
-                    state.error = action.payload;
-                },
-            )
 
-            .addMatcher(ordersApi.endpoints.getOrdersSummary.matchFulfilled, (state) => {
-                state.lastEventAt ??= Date.now();
-            });
+            if (state.editingOrderId === action.payload) {
+                state.editingOrderId = null;
+                state.orderChangedWhileEditing = null;
+            }
+        },
+        orderWritePending: (state, action: PayloadAction<number>) => {
+            const pendingWrite = state.pendingWrites[action.payload];
+            if (pendingWrite) {
+                pendingWrite.count += 1;
+            } else {
+                state.pendingWrites[action.payload] = { count: 1, isSuperseded: false };
+            }
+        },
+        orderWriteSuperseded: (state, action: PayloadAction<number>) => {
+            const pendingWrite = state.pendingWrites[action.payload];
+            if (pendingWrite) {
+                pendingWrite.isSuperseded = true;
+            }
+        },
+        orderWriteSettled: (state, action: PayloadAction<number>) => {
+            const pendingWrite = state.pendingWrites[action.payload];
+            if (!pendingWrite) return;
+
+            pendingWrite.count -= 1;
+            if (pendingWrite.count === 0) {
+                delete state.pendingWrites[action.payload];
+            }
+        },
+        editingStarted: (state, action: PayloadAction<number>) => {
+            state.editingOrderId = action.payload;
+            state.orderChangedWhileEditing = null;
+        },
+        editingStopped: (state) => {
+            state.editingOrderId = null;
+            state.orderChangedWhileEditing = null;
+        },
+        orderChangedWhileEditingDismissed: (state) => {
+            state.orderChangedWhileEditing = null;
+        },
     },
 });
 
-export const { markOrderCreated, markOrderUpdated, markOrderRemoved } = outgoingOrdersSlice.actions;
+export const {
+    summaryLoaded,
+    markOrderCreated,
+    markOrderUpdated,
+    markOrderRemoved,
+    orderWritePending,
+    orderWriteSuperseded,
+    orderWriteSettled,
+    editingStarted,
+    editingStopped,
+    orderChangedWhileEditingDismissed,
+} = outgoingOrdersSlice.actions;
 
 export default outgoingOrdersSlice.reducer;

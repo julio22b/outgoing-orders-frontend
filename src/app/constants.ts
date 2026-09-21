@@ -17,6 +17,13 @@ export const ORDER_FIELDS = {
     STATUS_HISTORY: 'statusHistory',
 } as const;
 
+export const ORDER_FIELD_LABELS = {
+    customer: 'Customer',
+    status: 'Status',
+    priority: 'Priority',
+    items: 'Items',
+} as const;
+
 export const ORDER_PRIORITIES = {
     HIGH: 'high',
     NORMAL: 'normal',
@@ -24,13 +31,6 @@ export const ORDER_PRIORITIES = {
 } as const;
 
 export const TIMELINE_STATUSES = [ORDER_STATUSES.PICKING, ORDER_STATUSES.PACKED, ORDER_STATUSES.DISPATCHED];
-
-export const STATUSES_ENUM: Record<string, number> = {
-    picking: 1,
-    packed: 2,
-    dispatched: 3,
-    delayed: 4,
-};
 
 export const STATUS_TRANSITIONS: Partial<Record<OrderStatus, OrderStatus>> = {
     picking: 'packed',

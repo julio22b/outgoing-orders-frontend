@@ -14,6 +14,7 @@ interface BoardEntryProps {
 const BoardEntry = ({ order }: BoardEntryProps) => {
     const navigate = useNavigate();
     const recentChange = useAppSelector((state) => state.outgoingOrders.recentChanges[order.id]);
+    const isPending = useAppSelector((state) => order.id in state.outgoingOrders.pendingWrites);
     const { day, time } = formatOrderStamp(order.createdAt);
 
     const isHigh = order.priority === ORDER_PRIORITIES.HIGH;
@@ -35,7 +36,8 @@ const BoardEntry = ({ order }: BoardEntryProps) => {
                 cursor: 'pointer',
                 px: 0,
                 py: 1.5,
-                transition: 'background-color 90ms linear',
+                opacity: isPending ? 0.5 : 1,
+                transition: 'background-color 90ms linear, opacity 90ms linear',
                 '&:hover': { backgroundColor: colors.hoverWash },
                 ...(recentChange && { animation: 'markFade 2500ms ease-out both' }),
             }}

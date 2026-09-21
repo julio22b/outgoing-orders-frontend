@@ -13,6 +13,7 @@ dist-ssr
 .env
 .env.production
 *.local
+CLAUDE.md
 
 # Editor directories and files
 .vscode/*
