@@ -1,5 +1,6 @@
 import { Box, Button, Typography } from '@mui/material';
 import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import OutgoingOrdersForm from './OutgoingOrdersForm/OutgoingOrdersForm';
 import { useAppSelector } from '../app/hooks';
 import { colors } from '../app/theme';
@@ -11,11 +12,19 @@ const clockFormat = new Intl.DateTimeFormat(undefined, {
     hour12: false,
 });
 
+const onInkButtonSx = {
+    borderColor: colors.onInk,
+    color: colors.onInk,
+    '&:hover': { borderColor: colors.onInk, backgroundColor: colors.onInk, color: colors.ink },
+    '&.Mui-focusVisible': { outline: `2px solid ${colors.onInk}` },
+};
+
 const Letterhead = () => {
     const [isCreateOutgoingOrderFormOpen, setIsCreateOutgoingOrderFormOpen] = useState(false);
     const lastEventAt = useAppSelector((state) => state.outgoingOrders.lastEventAt);
     const [isFlashing, setIsFlashing] = useState(false);
     const seenEventAt = useRef<number | null>(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (lastEventAt === null) return;
@@ -65,19 +74,13 @@ const Letterhead = () => {
                             Updated {clockFormat.format(lastEventAt)}
                         </Typography>
                     )}
+                    <Button variant='outlined' onClick={() => navigate('/scan')} sx={onInkButtonSx}>
+                        Scan
+                    </Button>
                     <Button
                         variant='outlined'
                         onClick={() => setIsCreateOutgoingOrderFormOpen(true)}
-                        sx={{
-                            borderColor: colors.onInk,
-                            color: colors.onInk,
-                            '&:hover': {
-                                borderColor: colors.onInk,
-                                backgroundColor: colors.onInk,
-                                color: colors.ink,
-                            },
-                            '&.Mui-focusVisible': { outline: `2px solid ${colors.onInk}` },
-                        }}
+                        sx={onInkButtonSx}
                     >
                         New order
                     </Button>

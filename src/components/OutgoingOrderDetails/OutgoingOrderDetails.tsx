@@ -13,13 +13,7 @@ import OutgoingOrdersForm from '../OutgoingOrdersForm/OutgoingOrdersForm';
 import { formatOrderStamp } from '../../app/utils';
 import { useAppSelector } from '../../app/hooks';
 import { useAdvanceOrderStatusMutation, useDeleteOrderMutation, useGetOrderQuery } from '../../api/ordersApi';
-import {
-    HIDDEN_ORDER_STATUSES,
-    ORDER_FIELD_LABELS,
-    ORDER_PRIORITIES,
-    STATUS_TRANSITIONS,
-    TIMELINE_STATUSES,
-} from '../../app/constants';
+import { ORDER_FIELD_LABELS, ORDER_PRIORITIES, STATUS_TRANSITIONS, TIMELINE_STATUSES } from '../../app/constants';
 import { colors, rule, statusColor } from '../../app/theme';
 
 const specCellSx = {
@@ -45,7 +39,7 @@ const OutgoingOrderDetails = () => {
         return <LoadingOverlay message='Loading order' />;
     }
 
-    if (!order || orderIsGone || HIDDEN_ORDER_STATUSES.includes(order.status)) {
+    if (!order || orderIsGone) {
         return (
             <Box sx={{ py: 6 }}>
                 <Typography variant='display' component='h1' gutterBottom>

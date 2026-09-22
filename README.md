@@ -32,6 +32,7 @@ Inspired by 3.5 years of working on a production WMS at Pulpo WMS, where the out
 - **Full CRUD** — create, edit, and delete orders
 - **Order detail page** — status timeline showing progression from picking → packed → dispatched with timestamps
 - **Status as a stamp** — the current status is stamped on the order sheet, and re-stamps in place when another client advances it
+- **Barcode scanning** — `/scan` reads a Code 128 label through the device camera and opens that order; a focused text field takes handheld scanners (which type the code and press Enter) and typed references on every browser
 
 ## Local Development
 

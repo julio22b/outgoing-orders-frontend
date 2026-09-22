@@ -14,6 +14,7 @@ import { cancelSummaryRefresh, retryWrite, useGetOrdersSummaryQuery } from './ap
 import LoadingOverlay from './components/common/LoadingOverlay';
 import Board from './components/Board/Board';
 import Sheet from './components/common/Sheet';
+import Scanner from './components/Scanner/Scanner';
 
 function App() {
     const { vertical, horizontal, open, message, retry } = useAppSelector((state) => state.snackbar);
@@ -86,6 +87,7 @@ function App() {
                     }
                 />
                 <Route path='/orders/:id' element={<OutgoingOrderDetails />} />
+                <Route path='/scan' element={<Scanner />} />
             </Routes>
         </Sheet>
     );

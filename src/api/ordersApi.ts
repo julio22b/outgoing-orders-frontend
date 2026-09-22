@@ -412,6 +412,7 @@ export const {
     useListOrdersInfiniteQuery,
     useGetOrdersSummaryQuery,
     useGetOrderQuery,
+    useLazyGetOrderQuery,
     useCreateOrderMutation,
     useUpdateOrderMutation,
     useAdvanceOrderStatusMutation,

@@ -5,13 +5,23 @@ import { ALL_FILTER } from '../../app/constants';
 const ORDER_REFERENCE_PATTERN = /^(?:ord-?)?(\d+)$/i;
 const MIN_CUSTOMER_SEARCH_LENGTH = 3;
 const MAX_SEARCH_LENGTH = 100;
+const POSTGRES_INT_MAX = 2147483647;
+
+export const parseOrderReference = (value: string): number | null => {
+    const match = ORDER_REFERENCE_PATTERN.exec(value.trim());
+    if (!match) {
+        return null;
+    }
+    const orderId = Number(match[1]);
+    return orderId > 0 && orderId <= POSTGRES_INT_MAX ? orderId : null;
+};
 
 interface SelectedFilters {
     priority: string;
     date: string | null;
 }
 
-const isOrderReference = (search: string) => ORDER_REFERENCE_PATTERN.test(search);
+const isOrderReference = (search: string) => parseOrderReference(search) !== null;
 
 export const isSearchTooShort = (search: string) => {
     const trimmedSearch = search.trim();
@@ -49,9 +59,9 @@ export const buildFilterArgs = (selectedFilters: SelectedFilters, search: string
 };
 
 const matchesSearch = (order: OutgoingOrderInterface, search: string) => {
-    const orderReferenceMatch = ORDER_REFERENCE_PATTERN.exec(search);
-    if (orderReferenceMatch) {
-        return order.id === Number(orderReferenceMatch[1]);
+    const orderId = parseOrderReference(search);
+    if (orderId !== null) {
+        return order.id === orderId;
     }
     return order.customer.toLowerCase().includes(search.toLowerCase());
 };
