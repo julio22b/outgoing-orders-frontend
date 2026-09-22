@@ -1,5 +1,6 @@
 <img width="1512" height="860" alt="Live dispatch board showing orders across picking, packed and dispatched columns" src="/docs/screenshots/wms-01.png" />
-<img width="1512" height="860" alt="Order detail sheet with rush and status stamps, progress ledger and packing list" src="/docs/screenshots/wms-02.png" />
+<img width="1512" height="860" alt="Edit form showing a concurrent-edit conflict dialog after another client saved changes to the order first" src="/docs/screenshots/wms-02.png" />
+<img width="1512" height="860" alt="Barcode scanner reading a Code 128 shipping label to open its order" src="/docs/screenshots/wms-03.png" />
 
 # Outgoing Orders — Frontend
 
